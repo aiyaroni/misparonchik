@@ -22,6 +22,7 @@
       -webkit-tap-highlight-color: transparent;
       background: rgba(255,255,255,0.92);
       border-radius: 1rem; border: 2px solid transparent;
+      outline: none;
     }
     .answer-item::before{
       content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
@@ -32,18 +33,19 @@
       position:absolute; right:0; top:0; bottom:0;
       width:8px; border-radius:0 1rem 1rem 0; opacity:.55;
       background: var(--tint);
+      pointer-events: none;
     }
     .answer-item[data-idx="0"] { --tint:#f87171; }
     .answer-item[data-idx="1"] { --tint:#60a5fa; }
     .answer-item[data-idx="2"] { --tint:#4ade80; }
     .answer-item[data-idx="3"] { --tint:#facc15; }
-    .answer-item:active, .answer-item.pressed { transform: scale(0.98); }
+
+    .answer-item:active { transform: scale(0.98); }
     .answer-item.selected{
       border-color:#2563eb;
       box-shadow: 0 12px 30px rgba(0,0,0,0.18);
     }
     .answer-item:focus-visible{
-      outline: none;
       box-shadow: 0 0 0 4px rgba(59,130,246,0.45);
     }
     @media (prefers-reduced-motion: reduce){
@@ -59,20 +61,14 @@
     /* ===== Coach (Shufi) ===== */
     #coach { padding-bottom: calc(env(safe-area-inset-bottom,0px)); }
     #coach .coach-inner { position: relative; }
-    /* כפתור X גדול ונוח */
     #coachClose{
-      position: absolute;
-      top: 6px; right: 8px;
-      width: 36px; height: 36px;
+      position: absolute; top: 6px; right: 8px; width: 36px; height: 36px;
       display: inline-flex; align-items: center; justify-content: center;
-      border-radius: 9999px;
-      font-size: 20px; line-height: 1;
-      background: transparent; border: none; cursor: pointer;
-      color: #4b5563;
+      border-radius: 9999px; font-size: 20px; line-height: 1;
+      background: transparent; border: none; cursor: pointer; color: #4b5563;
     }
     #coachClose:hover{ background: rgba(0,0,0,.06); color:#111827; }
     #coachClose:focus-visible{ outline: 2px solid #60a5fa; outline-offset: 2px; }
-    /* מרווח לצד ה-X כדי שלא יכסה את הטקסט */
     #coach .coach-inner{ padding-inline-end: 44px; }
 
     /* Audio toggle */
@@ -94,8 +90,7 @@
     }
     @media (max-width: 640px) {
       #coach.dock {
-        position: fixed;
-        left: 0; right: 0; bottom: 0; top: auto;
+        position: fixed; left: 0; right: 0; bottom: 0; top: auto;
         max-width: none; margin: 0; z-index: 50;
       }
       #coach.dock .coach-inner {
@@ -203,8 +198,8 @@
       <div class="text-xl text-gray-700 mb-4">יש לבחור את התשובה הנכונה</div>
     </div>
 
-    <!-- Answer Options -->
-    <div class="grid grid-cols-1 gap-3 max-w-2xl mx-auto px-4 mb-6">
+    <!-- Answer Options (delegated events) -->
+    <div id="answersGrid" class="grid grid-cols-1 gap-3 max-w-2xl mx-auto px-4 mb-6">
       <div class="answer-item shadow-lg flex items-center justify-center min-h-[88px] p-4" data-value="6" data-idx="0" tabindex="0" role="button" aria-selected="false">
         <span class="accent" aria-hidden="true"></span>
         <div class="text-4xl font-extrabold text-gray-900 tracking-tight ltr tabular-nums">6</div>
@@ -306,7 +301,6 @@
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="text-center mb-8">
         <div class="text-6xl mb-4">🎓</div>
-        <!-- tabindex="-1" לצורך פוקוס מנוהל -->
         <h2 id="tutorialTitle" tabindex="-1" class="text-3xl font-bold text-blue-600 mb-4 ltr">7 ÷ 5 = ?</h2>
         <p class="text-lg text-gray-600">בואו נלמד יחד איך לפתור את השאלה הזו!</p>
       </div>
@@ -356,21 +350,16 @@
     let currentCurriculum = 'none';
     let questionCount = 6;
 
-    // Scroll memory for Mistakes/Tutorial navigation
-    let scrollMemory = { mistakes: 0 };
-
-    // Audio
+    let scrollMemory = { mistakes: 0 }; // Scroll memory for mistakes list
     let isMuted = false;
     let audioCtx = null;
 
-    // Difficulty rules
     const rulesByDifficulty = {
       easy:   { addSubMax: 20,  mulMax: 5,  divMaxDivisor: 5,  divMaxQuotient: 5 },
       medium: { addSubMax: 100, mulMax: 10, divMaxDivisor: 10, divMaxQuotient: 10 },
       hard:   { addSubMax: 1000,mulMax: 12, divMaxDivisor: 12, divMaxQuotient: 12 }
     };
 
-    // Curricula presets
     const curricula = {
       none:    { name: 'ללא תוכנית' },
       il_g1_s1:{ name: 'כיתה א׳, מחצית ראשונה', operations: ['addition','subtraction'], addSubMax: 10 },
@@ -390,17 +379,11 @@
 
     /* ================== Coach (Shufi) ================== */
     let coachHidden = false;
-
     function setCoachDockMode(on) {
       const c = document.getElementById('coach');
       if (!c) return;
-      if (on) {
-        c.classList.add('dock');
-        document.body.classList.add('with-coach-dock');
-      } else {
-        c.classList.remove('dock');
-        document.body.classList.remove('with-coach-dock');
-      }
+      if (on) { c.classList.add('dock'); document.body.classList.add('with-coach-dock'); }
+      else { c.classList.remove('dock'); document.body.classList.remove('with-coach-dock'); }
     }
     function refreshCoachMode() {
       const c = document.getElementById('coach');
@@ -409,69 +392,40 @@
       setCoachDockMode(onMobile);
     }
     function isDock() {
-      const c = document.getElementById('coach');
-      return !!(c && c.classList.contains('dock'));
+      const c = document.getElementById('coach'); return !!(c && c.classList.contains('dock'));
     }
-
     function showCoach(msg){
       if (coachHidden) return;
-      const c = document.getElementById('coach');
-      const m = document.getElementById('coachMsg');
-      if (!c || !m) return;
-      m.textContent = msg;
-      c.hidden = false;
-      refreshCoachMode();
+      const c = document.getElementById('coach'); const m = document.getElementById('coachMsg');
+      if (!c || !m) return; m.textContent = msg; c.hidden = false; refreshCoachMode();
     }
-    function hideCoach(){
-      const c = document.getElementById('coach');
-      if (c) {
-        c.hidden = true;
-        setCoachDockMode(false);
-      }
-    }
+    function hideCoach(){ const c = document.getElementById('coach'); if (c){ c.hidden = true; setCoachDockMode(false); } }
     function placeCoachForContext(ctx){
-      const c = document.getElementById('coach'); if (!c) return;
-      if (isDock()) return;
-      let bottomPx = 24;
-      if (ctx === 'game' && window.innerWidth < 640) bottomPx = 110;
-      c.style.bottom = bottomPx + 'px';
-      c.style.right  = (window.innerWidth < 640 ? 16 : 24) + 'px';
-      c.style.top    = 'auto';
+      const c = document.getElementById('coach'); if (!c) return; if (isDock()) return;
+      let bottomPx = 24; if (ctx === 'game' && window.innerWidth < 640) bottomPx = 110;
+      c.style.bottom = bottomPx + 'px'; c.style.right = (window.innerWidth < 640 ? 16 : 24) + 'px'; c.style.top = 'auto';
     }
     function avoidCoachOverlap() {
       if (isDock()) return;
       const coach = document.getElementById('coach');
       const confirm = document.getElementById('confirmButton');
       if (!coach || coach.hidden || !confirm || confirm.offsetParent === null) return;
-
       let defaultBottom = (window.innerWidth < 640) ? 110 : 24;
-      coach.style.top = 'auto';
-      coach.style.bottom = defaultBottom + 'px';
-      coach.style.right = (window.innerWidth < 640 ? 16 : 24) + 'px';
-
-      const cr = coach.getBoundingClientRect();
-      const br = confirm.getBoundingClientRect();
+      coach.style.top = 'auto'; coach.style.bottom = defaultBottom + 'px'; coach.style.right = (window.innerWidth < 640 ? 16 : 24) + 'px';
+      const cr = coach.getBoundingClientRect(); const br = confirm.getBoundingClientRect();
       const overlap = !(cr.right < br.left || cr.left > br.right || cr.bottom < br.top || cr.top > br.bottom);
       if (!overlap) return;
-
-      const margin = 16;
-      const desiredBottom = Math.max(window.innerHeight - br.top + margin, defaultBottom);
-      coach.style.bottom = desiredBottom + 'px';
-      const newCr = coach.getBoundingClientRect();
+      const margin = 16; const desiredBottom = Math.max(window.innerHeight - br.top + margin, defaultBottom);
+      coach.style.bottom = desiredBottom + 'px'; const newCr = coach.getBoundingClientRect();
       if (newCr.top < 8) { coach.style.bottom = 'auto'; coach.style.top = (window.innerWidth < 640 ? 16 : 24) + 'px'; }
     }
-
-    function bindCoach(){
-      const x = document.getElementById('coachClose');
-      if (x){ x.onclick = () => { coachHidden = true; hideCoach(); }; }
-    }
+    function bindCoach(){ const x = document.getElementById('coachClose'); if (x){ x.onclick = () => { coachHidden = true; hideCoach(); }; } }
 
     /* ================== Navigation ================== */
     function showNameInput(){
       document.getElementById('welcomeScreen').classList.add('hidden');
       document.getElementById('nameScreen').classList.remove('hidden');
-      hideCoach();
-      setScrollLock(false);
+      hideCoach(); setScrollLock(false);
       setTimeout(()=>{ const inp=document.getElementById('playerName'); if (inp) inp.focus(); }, 100);
     }
     function showOperationSelect(){
@@ -517,24 +471,14 @@
 
     /* ================== Game flow ================== */
     function startGame(difficulty){
-      currentDifficulty = difficulty;
-      currentQuestionIndex = 0;
-      correctCount = 0;
-      totalTime = 0;
-      mistakes = [];
-      selectedAnswer = null;
+      currentDifficulty = difficulty; currentQuestionIndex = 0; correctCount = 0; totalTime = 0; mistakes = []; selectedAnswer = null;
 
-      const curriculumSel = document.getElementById('curriculumSelect');
-      if (curriculumSel) currentCurriculum = curriculumSel.value || 'none';
-      const qSel = document.getElementById('questionCountSelect');
-      questionCount = parseInt(qSel ? qSel.value : '6', 10) || 6;
+      const curriculumSel = document.getElementById('curriculumSelect'); if (curriculumSel) currentCurriculum = curriculumSel.value || 'none';
+      const qSel = document.getElementById('questionCountSelect'); questionCount = parseInt(qSel ? qSel.value : '6', 10) || 6;
 
-      const fb = document.getElementById('feedback');
-      if (fb && !fb.classList.contains('hidden')) fb.classList.add('hidden');
+      const fb = document.getElementById('feedback'); if (fb && !fb.classList.contains('hidden')) fb.classList.add('hidden');
       setScrollLock(false);
-
-      const nextBtn = document.getElementById('nextButton');
-      if (nextBtn) nextBtn.onclick = null;
+      const nextBtn = document.getElementById('nextButton'); if (nextBtn) nextBtn.onclick = null;
 
       questions = generatePracticeSet(currentOperation, difficulty, questionCount);
       if (questions.length === 0){ alert('שגיאה: לא ניתן ליצור תרגילים עבור ההגדרות שנבחרו'); return; }
@@ -566,13 +510,10 @@
       const unique = Object.keys(map).map(k => map[k]);
       return shuffleArray(unique).slice(0, desiredCount);
     }
-
     function getEffectiveRules(difficulty){
       const base = Object.assign({}, rulesByDifficulty[difficulty]);
       const cur = curricula[currentCurriculum] || {};
-      ['addSubMax','mulMax','divMaxDivisor','divMaxQuotient'].forEach(k=>{
-        if (typeof cur[k] !== 'undefined') base[k] = cur[k];
-      });
+      ['addSubMax','mulMax','divMaxDivisor','divMaxQuotient'].forEach(k=>{ if (typeof cur[k] !== 'undefined') base[k] = cur[k]; });
       return base;
     }
     function getOpsList(selectedOp, cur){
@@ -631,21 +572,22 @@
       pb.style.width = p + '%'; pb.setAttribute('aria-valuenow', String(p));
 
       const options = generateAnswerOptions(q.answer);
-      const items = document.querySelectorAll('.answer-item');
+      const items = document.querySelectorAll('#answersGrid .answer-item');
       options.forEach((opt, i)=>{
         const el = items[i]; if (!el) return;
         el.setAttribute('data-value', String(opt));
         el.setAttribute('data-idx', String(i));
-        el.querySelector('.tabular-nums').textContent = String(opt);
+        const num = el.querySelector('.tabular-nums'); if (num) num.textContent = String(opt);
         el.classList.remove('selected');
         el.setAttribute('aria-selected','false');
+        el.tabIndex = 0;
+        el.setAttribute('role','button');
       });
 
       const confirmButton = document.getElementById('confirmButton');
       confirmButton.disabled = true; confirmButton.setAttribute('aria-disabled','true');
 
       startTime = Date.now();
-      setupAnswerSelection();
 
       placeCoachForContext('game');
       showCoach('שאלה ' + (currentQuestionIndex + 1) + ' מתוך ' + totalQuestions + '. בהצלחה!');
@@ -653,30 +595,16 @@
       avoidCoachOverlap();
     }
 
-    function setupAnswerSelection(){
-      const items = document.querySelectorAll('.answer-item');
-      items.forEach(item=>{
-        item.setAttribute('tabindex','0');
-        item.setAttribute('role','button');
-        item.setAttribute('aria-selected','false');
-
-        item.onpointerdown = ()=> item.classList.add('pressed');
-        const clearPress = ()=> item.classList.remove('pressed');
-        item.onpointerup = clearPress; item.onpointercancel = clearPress; item.onpointerleave = clearPress;
-
-        item.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); } };
-        item.onclick = function(){
-          try { const ctx = getAudioCtx(); if (ctx && ctx.state === 'suspended' && ctx.resume) ctx.resume(); } catch(_) {}
-          playSelectTick();
-
-          items.forEach(it=>{ it.classList.remove('selected'); it.setAttribute('aria-selected','false'); });
-          item.classList.add('selected'); item.setAttribute('aria-selected','true');
-          selectedAnswer = parseInt(item.getAttribute('data-value'), 10);
-          const confirm = document.getElementById('confirmButton');
-          confirm.disabled = false; confirm.setAttribute('aria-disabled','false');
-          avoidCoachOverlap();
-        };
-      });
+    function selectAnswerItem(item){
+      try { const ctx = getAudioCtx(); if (ctx && ctx.state === 'suspended' && ctx.resume) ctx.resume(); } catch(_) {}
+      const items = document.querySelectorAll('#answersGrid .answer-item');
+      items.forEach(it=>{ it.classList.remove('selected'); it.setAttribute('aria-selected','false'); });
+      item.classList.add('selected'); item.setAttribute('aria-selected','true');
+      selectedAnswer = parseInt(item.getAttribute('data-value'), 10);
+      const confirm = document.getElementById('confirmButton');
+      confirm.disabled = false; confirm.setAttribute('aria-disabled','false');
+      playSelectTick();
+      avoidCoachOverlap();
     }
 
     function confirmAnswer(){
@@ -708,13 +636,8 @@
         showCoach(isLast ? 'סיימנו את הסט. נעבור לסיכום.' : 'כמעט! עוברים לשאלה הבאה.');
       }
 
-      if (isLast) {
-        nextBtn.textContent = 'לסיכום התרגיל';
-        nextBtn.onclick = showResults;
-      } else {
-        nextBtn.textContent = 'השאלה הבאה';
-        nextBtn.onclick = nextQuestion;
-      }
+      nextBtn.textContent = isLast ? 'לסיכום התרגיל' : 'השאלה הבאה';
+      nextBtn.onclick = isLast ? showResults : nextQuestion;
 
       feedback.classList.remove('hidden');
       setScrollLock(true);
@@ -853,9 +776,8 @@
       const list = document.getElementById('mistakesList');
       list.innerHTML = '';
       if (mistakes.length === 0){
-        list.innerHTML = '<div class="text-center p-8"><div class="text-6xl mb-4">🎉</div><h3 class="text-2xl font-bold text-green-600">מעולה!</h3><p class="text-lg text-gray-600">לא היו לך טעויות במשחק הזה!</p></div>';
+        list.innerHTML = '<div class="text-center p-8"><div class="text-6ל mb-4">🎉</div><h3 class="text-2xl font-bold text-green-600">מעולה!</h3><p class="text-lg text-gray-600">לא היו לך טעויות במשחק הזה!</p></div>';
         setScrollLock(false);
-        // גלול לראש המסך כברירת מחדל
         requestAnimationFrame(()=>{ window.scrollTo({ top: 0, behavior: 'auto' }); });
         return;
       }
@@ -893,14 +815,12 @@
       showCoach('נעבור על השאלות שבהן טעית – לחץ כדי ללמוד.');
       setScrollLock(false);
 
-      // שחזור מיקום גלילה ברשימת הטעויות
       requestAnimationFrame(()=>{
         window.scrollTo({ top: scrollMemory.mistakes || 0, behavior: 'auto' });
       });
     }
 
     function showTutorial(mistake){
-      // שמור מיקום גלילה לפני מעבר
       scrollMemory.mistakes = window.scrollY || 0;
 
       document.getElementById('mistakesScreen').classList.add('hidden');
@@ -917,7 +837,6 @@
       showCoach('הנה הסבר צעד־אחר־צעד. נסה את האזור האינטראקטיבי.');
       setScrollLock(false);
 
-      // פוקוס מנוהל + גלילה לראש
       requestAnimationFrame(()=>{
         titleEl.focus({ preventScroll: true });
         window.scrollTo({ top: 0, behavior: 'auto' });
@@ -973,7 +892,7 @@
       return [];
     }
 
-    // Tutorial interactive demo (אמוג'י רק במסך ההדרכה)
+    // Emojis רק למסך ההדרכה
     const tutorialEmojis = ['🍎','🎈','⭐','🌟','🍊','🎯','🌈','🎪'];
     function createInteractiveDemo(q){
       const area = document.getElementById('interactiveContent');
@@ -1020,7 +939,7 @@
           const group2 = document.createElement('div'); group2.className='inline-block border-2 border-dashed border-purple-300 rounded-lg p-3 m-2 bg-purple-50'; group2.style.opacity='0.5';
           const label2 = document.createElement('div'); label2.className='text-sm font-bold text-purple-600 mb-2 text-center'; label2.textContent='קבוצה ' + (g+1); group2.appendChild(label2);
           for (let i=0;i<num2;i++){ const sp2=document.createElement('span'); sp2.className='text-2xl m-1'; sp2.textContent=emoji; group2.appendChild(sp2); }
-          group2.onclick=function(){ if (this.style.opacity==='0.5'){ this.style.opacity='1'; shown2++; info.text.content = ''; info.textContent = (shown2===answer) ? ('מעולה! חילקת ' + dividend + ' ל-' + answer + ' קבוצות של ' + num2 + '. 🎉') : ('נהדר! לחץ על עוד ' + (answer-shown2) + ' קבוצות'); } };
+          group2.onclick=function(){ if (this.style.opacity==='0.5'){ this.style.opacity='1'; shown2++; info.textContent = (shown2===answer) ? ('מעולה! חילקת ' + dividend + ' ל-' + answer + ' קבוצות של ' + num2 + '. 🎉') : ('נהדר! לחץ על עוד ' + (answer-shown2) + ' קבוצות'); } };
           area.appendChild(group2);
         }
         info.textContent = 'לחץ על הקבוצות כדי לראות חלוקה ל-' + answer + ' קבוצות של ' + num2;
@@ -1030,8 +949,7 @@
     function startOver(){
       currentOperation='addition'; currentDifficulty='easy'; currentQuestionIndex=0;
       correctCount=0; questions=[]; mistakes=[]; startTime=0; totalTime=0; selectedAnswer=null; currentTutorialMistake=null;
-      coachHidden = false;
-      scrollMemory.mistakes = 0;
+      coachHidden = false; scrollMemory.mistakes = 0;
       ['gameScreen','resultsScreen','mistakesScreen','tutorialScreen','difficultyScreen','nameScreen','welcomeScreen'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
       document.getElementById('operationScreen').classList.remove('hidden');
       applyCurriculumToOperationButtons();
@@ -1053,7 +971,7 @@
       return shuffleArray(opts);
     }
 
-    /* ================== Audio (Desktop+Mobile) ================== */
+    /* ================== Audio ================== */
     function getAudioCtx(){
       if (isMuted) return null;
       try{
@@ -1068,10 +986,7 @@
     }
     function ensureAudioUnlocked(){
       const ctx = getAudioCtx(); if (!ctx) return;
-      try{
-        const buff = ctx.createBuffer(1, 1, 22050);
-        const src = ctx.createBufferSource(); src.buffer = buff; src.connect(ctx.destination); src.start(0);
-      } catch{}
+      try{ const buff = ctx.createBuffer(1, 1, 22050); const src = ctx.createBufferSource(); src.buffer = buff; src.connect(ctx.destination); src.start(0); } catch{}
     }
     function primeAudioOnce(){
       ensureAudioUnlocked();
@@ -1092,35 +1007,21 @@
       g.gain.setValueAtTime(gain, start); g.gain.exponentialRampToValueAtTime(0.001, start + dur);
       osc.connect(g); g.connect(ctx.destination); osc.start(start); osc.stop(start + dur);
     }
-    function playSelectTick(){
-      const ctx = getAudioCtx(); if (!ctx) return; const t = ctx.currentTime;
-      tone(440, 0.06, t, 'triangle', 0.10);
-    }
-    function playSuccessSound(){
-      const ctx = getAudioCtx(); if (!ctx) return; const t = ctx.currentTime;
-      tone(523.25, 0.12, t,      'sine', 0.22);
-      tone(659.25, 0.12, t+0.10, 'sine', 0.20);
-      tone(783.99, 0.14, t+0.20, 'sine', 0.18);
-    }
-    function playErrorSound(){
-      const ctx = getAudioCtx(); if (!ctx) return; const t = ctx.currentTime;
-      tone(220, 0.10, t,      'sawtooth', 0.18);
-      tone(180, 0.12, t+0.10, 'sawtooth', 0.16);
-    }
+    function playSelectTick(){ const ctx = getAudioCtx(); if (!ctx) return; const t = ctx.currentTime; tone(440, 0.06, t, 'triangle', 0.10); }
+    function playSuccessSound(){ const ctx = getAudioCtx(); if (!ctx) return; const t = ctx.currentTime; tone(523.25, 0.12, t, 'sine', 0.22); tone(659.25, 0.12, t+0.10, 'sine', 0.20); tone(783.99, 0.14, t+0.20, 'sine', 0.18); }
+    function playErrorSound(){ const ctx = getAudioCtx(); if (!ctx) return; const t = ctx.currentTime; tone(220, 0.10, t, 'sawtooth', 0.18); tone(180, 0.12, t+0.10, 'sawtooth', 0.16); }
 
-    // צליל בחירה לכל כפתור/CTA (לא לכרטיסי תשובה כדי לא לכפול — הם מנגנים בתוך onclick)
+    // צליל בחירה לכפתורים/CTA
     document.addEventListener('click', function(e){
       const el = e.target.closest('button, .op-btn');
       if (!el || el.id === 'audioToggle') return;
       if (el.disabled || el.getAttribute('aria-disabled') === 'true') return;
       playSelectTick();
-    }, true);
+    });
 
     /* ================== Confetti ================== */
     function confettiBurst(container){
-      try{
-        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      } catch{}
+      try{ if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch{}
       const n = 28;
       for (let i=0;i<n;i++){
         const dot = document.createElement('span');
@@ -1143,10 +1044,7 @@
     function initAudioToggle(){
       const btn = document.getElementById('audioToggle');
       if (!btn) return;
-      try {
-        const saved = localStorage.getItem('soundMuted');
-        if (saved === 'true') isMuted = true;
-      } catch{}
+      try { const saved = localStorage.getItem('soundMuted'); if (saved === 'true') isMuted = true; } catch{}
       btn.setAttribute('aria-pressed', isMuted ? 'true' : 'false');
       btn.title = isMuted ? 'הצליל מושתק' : 'הצליל פעיל';
 
@@ -1156,6 +1054,27 @@
         btn.title = isMuted ? 'הצליל מושתק' : 'הצליל פעיל';
         try { localStorage.setItem('soundMuted', String(isMuted)); } catch{}
         if (!isMuted) ensureAudioUnlocked();
+      });
+    }
+
+    /* ================== Answer grid delegation ================== */
+    function bindAnswerGrid(){
+      const grid = document.getElementById('answersGrid');
+      if (!grid) return;
+
+      grid.addEventListener('click', function(e){
+        const item = e.target.closest('.answer-item');
+        if (!item || !grid.contains(item)) return;
+        selectAnswerItem(item);
+      });
+
+      grid.addEventListener('keydown', function(e){
+        const item = e.target.closest('.answer-item');
+        if (!item || !grid.contains(item)) return;
+        if (e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          selectAnswerItem(item);
+        }
       });
     }
 
@@ -1176,8 +1095,8 @@
 
       bindCoach();
       hideCoach();
-
       initAudioToggle();
+      bindAnswerGrid();
 
       window.addEventListener('resize', refreshCoachMode);
       window.addEventListener('orientationchange', refreshCoachMode);
