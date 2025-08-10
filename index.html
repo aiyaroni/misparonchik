@@ -16,26 +16,36 @@
     /* תשובות */
     .answer-item{position:relative;transition:transform .14s,box-shadow .14s,border-color .14s;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;background:rgba(255,255,255,.92);border-radius:1rem;border:2px solid transparent;outline:none}
     .answer-item::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:var(--tint,transparent);opacity:.08}
-    .answer-item .accent{position:absolute;right:0;top:0;bottom:0;width:8px;border-radius:0 1rem 1rem 0;opacity:.55;background:var(--tint);pointer-events:none}
+    .answer-item .accent{display:none;position:absolute;right:0;top:0;bottom:0;width:8px;border-radius:0 1rem 1rem 0;opacity:.55;background:var(--tint);pointer-events:none}
     .answer-item[data-idx="0"]{--tint:#f87171}
     .answer-item[data-idx="1"]{--tint:#60a5fa}
     .answer-item[data-idx="2"]{--tint:#4ade80}
     .answer-item[data-idx="3"]{--tint:#facc15}
     .answer-item:active{transform:scale(.98)}
     .answer-item.selected{border-color:#2563eb;box-shadow:0 12px 30px rgba(0,0,0,.18)}
+    .answer-item.selected .accent{display:block}
 
     .confirm-button{transition:all .25s}
     .confirm-button[disabled]{opacity:.5;cursor:not-allowed}
 
-    /* וידג׳ט שופי */
+    /* וידג׳ט שופי – דסקטופ: בועה צפה */
     #coach{position:fixed;right:16px;bottom:24px;z-index:40;display:none}
     #coach .coach-inner{display:flex;align-items:flex-start;gap:.75rem;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.18);padding:.75rem 1rem;border:1px solid #e5e7eb;max-width:min(90vw,360px)}
     #coachClose{position:absolute;top:6px;right:8px;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;background:transparent;border:none;cursor:pointer;color:#4b5563}
     #coachClose:hover{background:rgba(0,0,0,.06);color:#111827}
 
+    /* מובייל: בר תחתון דביק */
     @media (max-width:640px){
-      #coach{right:12px}
-      body.with-coach-pad{padding-bottom:110px}
+      #coach{
+        position:fixed;left:0;right:0;bottom:0;z-index:40;display:none;
+        padding:0 12px calc(12px + env(safe-area-inset-bottom));
+      }
+      #coach .coach-inner{
+        width:100%;max-width:none;border-radius:16px 16px 0 0;
+        box-shadow:0 -8px 20px rgba(0,0,0,.12);
+      }
+      /* ריווח לעמוד כדי שהבר לא יכסה כפתורי תחתית */
+      body.with-coach-pad{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
     }
 
     /* כפתור השתקת אודיו */
@@ -305,16 +315,19 @@
       el.style.display = 'block';
       placeCoach(ctx);
     }
-    function hideCoach(){ const el=$('#coach'); if(el) el.style.display='none'; }
+    function hideCoach(){
+      const el=$('#coach'); if(el) el.style.display='none';
+      document.body.classList.remove('with-coach-pad');
+    }
     function placeCoach(ctx){
       const el=$('#coach'); if(!el) return;
-      const onGame = (ctx==='game');
-      if (window.innerWidth<=640 && onGame){
+      const isMobile = window.matchMedia('(max-width: 640px)').matches;
+      if (isMobile){
         document.body.classList.add('with-coach-pad');
-        el.style.bottom = '110px';
+        // אין צורך לקבוע bottom/left – CSS מטפל
       } else {
         document.body.classList.remove('with-coach-pad');
-        el.style.bottom = '24px';
+        el.style.right='16px'; el.style.bottom='24px';
       }
     }
 
@@ -508,15 +521,26 @@
       $('#mistakesCorrectBar').style.width=((correctCount/totalQuestions)*100)+'%';
       $('#mistakesIncorrectBar').style.width=((incorrect/totalQuestions)*100)+'%';
       const mm=$('#mistakesMessage');
-      if(mistakes.length===0){ mm.textContent='מושלם! ענית נכון על כל '+totalQuestions+' השאלות! 🌟'; mm.className='text-lg text-green-600 font-medium mb-4'; $('#mistakesList').innerHTML='<div class="text-center p-8"><div class="text-6xl mb-4">🎉</div><h3 class="text-2xl font-bold text-green-600">מעולה!</h3><p class="text-lg text-gray-600">לא היו לך טעויות במשחק הזה!</p></div>'; return; }
-      else if(correctCount>0){ mm.textContent='ענית נכון על '+correctCount+' מתוך '+totalQuestions+' - בואו נלמד מה-'+mistakes.length+' שנשארו'; mm.className='text-lg text-blue-600 font-medium mb-4'; }
-      else { mm.textContent='בואו נלמד יחד איך לפתור את השאלות האלה'; mm.className='text-lg text-orange-600 font-medium mb-4'; }
+      if(mistakes.length===0){
+        mm.textContent='מושלם! ענית נכון על כל '+totalQuestions+' השאלות! 🌟';
+        mm.className='text-lg text-green-600 font-medium mb-4';
+        $('#mistakesList').innerHTML='<div class="text-center p-8"><div class="text-6xl mb-4">🎉</div><h3 class="text-2xl font-bold text-green-600">מעולה!</h3><p class="text-lg text-gray-600">לא היו לך טעויות במשחק הזה!</p></div>';
+        return;
+      } else if(correctCount>0){
+        mm.textContent='ענית נכון על '+correctCount+' מתוך '+totalQuestions+' - בואו נלמד מה-'+mistakes.length+' שנשארו';
+        mm.className='text-lg text-blue-600 font-medium mb-4';
+      } else {
+        mm.textContent='בואו נלמד יחד איך לפתור את השאלות האלה';
+        mm.className='text-lg text-orange-600 font-medium mb-4';
+      }
 
       const list=$('#mistakesList'); list.innerHTML='';
-      questions.forEach((q,i)=>{ const m=mistakes.find(x=>x.question.questionText===q.questionText); if(!m) return;
-        const d=document.createElement('div'); d.className='bg-orange-50 border-2 border-orange-200 rounded-2xl p-6 cursor-pointer hover:bg-orange-100 transition-colors';
+      questions.forEach((q,i)=>{
+        const m=mistakes.find(x=>x.question.questionText===q.questionText); if(!m) return;
+        const d=document.createElement('div');
+        d.className='bg-orange-50 border-2 border-orange-200 rounded-2xl p-6 cursor-pointer hover:bg-orange-100 transition-colors';
         d.onclick=()=>showTutorial(m);
-        d.innerHTML='<div class="flex items-center justify-between mb-4"><div class="flex items-center gap-3"><div class="w-4 h-4 bg-orange-500 rounded-full"></div><h3 class="text-xl font-bold text-orange-600">שאלה '+(i+1)+'</h3></div><div class="text-۲xl">🤔</div></div><div class="text-2xl font-bold text-gray-800 mb-4 ltr">'+m.question.questionText+'</div><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"><div class="bg-red-100 border-2 border-red-300 rounded-xl p-4"><div class="text-sm text-red-600 font-bold mb-1">התשובה שלך:</div><div class="text-xl font-bold text-red-700 ltr">'+m.userAnswer+'</div></div><div class="bg-green-100 border-2 border-green-300 rounded-xl p-4"><div class="text-sm text-green-600 font-bold mb-1">התשובה הנכונה:</div><div class="text-xl font-bold text-green-700 ltr">'+m.correctAnswer+'</div></div></div><div class="text-center text-blue-600 font-bold">👆 לחץ כאן כדי ללמוד איך לפתור</div>';
+        d.innerHTML='<div class="flex items-center justify-between mb-4"><div class="flex items-center gap-3"><div class="w-4 h-4 bg-orange-500 rounded-full"></div><h3 class="text-xl font-bold text-orange-600">שאלה '+(i+1)+'</h3></div><div class="text-2xl">🤔</div></div><div class="text-2xl font-bold text-gray-800 mb-4 ltr">'+m.question.questionText+'</div><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"><div class="bg-red-100 border-2 border-red-300 rounded-xl p-4"><div class="text-sm text-red-600 font-bold mb-1">התשובה שלך:</div><div class="text-xl font-bold text-red-700 ltr">'+m.userAnswer+'</div></div><div class="bg-green-100 border-2 border-green-300 rounded-xl p-4"><div class="text-sm text-green-600 font-bold mb-1">התשובה הנכונה:</div><div class="text-xl font-bold text-green-700 ltr">'+m.correctAnswer+'</div></div></div><div class="text-center text-blue-600 font-bold">👆 לחץ כאן כדי ללמוד איך לפתור</div>';
         list.appendChild(d);
       });
       showCoach('לחץ על שאלה כדי לראות הסבר אינטראקטיבי.','default');
@@ -531,22 +555,86 @@
     }
 
     function createTutorialSteps(q){
-      const c=$('#tutorialSteps'); c.innerHTML=''; getTutorialSteps(q).forEach((s,i)=>{ const d=document.createElement('div'); d.className='bg-blue-50 border-2 border-blue-200 rounded-2xl p-6'; d.innerHTML='<div class="flex items-center mb-4"><div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4">'+(i+1)+'</div><h3 class="text-xl font-bold text-blue-600">'+s.title+'</h3></div><p class="text-gray-700 text-lg">'+s.description+'</p>'; c.appendChild(d); });
+      const c=$('#tutorialSteps'); c.innerHTML='';
+      getTutorialSteps(q).forEach((s,i)=>{
+        const d=document.createElement('div');
+        d.className='bg-blue-50 border-2 border-blue-200 rounded-2xl p-6';
+        d.innerHTML='<div class="flex items-center mb-4"><div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4">'+(i+1)+'</div><h3 class="text-xl font-bold text-blue-600">'+s.title+'</h3></div><p class="text-gray-700 text-lg">'+s.description+'</p>';
+        c.appendChild(d);
+      });
     }
     function getTutorialSteps(q){
       const {operation,num1,num2,answer}=q;
-      if(operation==='addition') return[{title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+num1+' + '+num2+'.'},{title:'הצגת הפריטים הראשונים',description:'נתחיל עם '+num1+' פריטים.'},{title:'הוספת פריטים',description:'נוסיף '+num2+' ונמנה הכול יחד.'},{title:'התוצאה',description:'יש '+answer+' פריטים. זו התשובה!'}];
-      if(operation==='subtraction') return[{title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+num1+' - '+num2+'.'},{title:'הצגת הפריטים הראשונים',description:'נתחיל עם '+num1+' פריטים.'},{title:'הסרת פריטים',description:'נסיר '+num2+' ונמנה כמה נשאר.'},{title:'התוצאה',description:'נשארו '+answer+' פריטים.'}];
-      if(operation==='multiplication') return[{title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+num1+' × '+num2+'.'},{title:'יצירת קבוצות',description:'ניצור '+num1+' קבוצות של '+num2+'.'},{title:'ספירה',description:'נספור את כל הפריטים.'},{title:'התוצאה',description:'יש '+answer+' פריטים בסך הכול.'}];
-      if(operation==='division'){ const dividend=parseInt(q.questionText.split(' ÷ ')[0],10); const divisor=q.num2; return[{title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+dividend+' ÷ '+divisor+'.'},{title:'הצגת כל הפריטים',description:'נתחיל עם '+dividend+' פריטים.'},{title:'חלוקה לקבוצות',description:'נחלק לקבוצות של '+divisor+'.'},{title:'התוצאה',description:'קיבלנו '+answer+' קבוצות.'}]; }
+      if(operation==='addition') return[
+        {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+num1+' + '+num2+'.'},
+        {title:'הצגת הפריטים הראשונים',description:'נתחיל עם '+num1+' פריטים.'},
+        {title:'הוספת פריטים',description:'נוסיף '+num2+' ונמנה הכול יחד.'},
+        {title:'התוצאה',description:'יש '+answer+' פריטים. זו התשובה!'}
+      ];
+      if(operation==='subtraction') return[
+        {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+num1+' - '+num2+'.'},
+        {title:'הצגת הפריטים הראשונים',description:'נתחיל עם '+num1+' פריטים.'},
+        {title:'הסרת פריטים',description:'נסיר '+num2+' ונמנה כמה נשאר.'},
+        {title:'התוצאה',description:'נשארו '+answer+' פריטים.'}
+      ];
+      if(operation==='multiplication') return[
+        {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+num1+' × '+num2+'.'},
+        {title:'יצירת קבוצות',description:'ניצור '+num1+' קבוצות של '+num2+'.'},
+        {title:'ספירה',description:'נספור את כל הפריטים.'},
+        {title:'התוצאה',description:'יש '+answer+' פריטים בסך הכול.'}
+      ];
+      if(operation==='division'){ const dividend=parseInt(q.questionText.split(' ÷ ')[0],10); const divisor=q.num2; return[
+        {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+dividend+' ÷ '+divisor+'.'},
+        {title:'הצגת כל הפריטים',description:'נתחיל עם '+dividend+' פריטים.'},
+        {title:'חלוקה לקבוצות',description:'נחלק לקבוצות של '+divisor+'.'},
+        {title:'התוצאה',description:'קיבלנו '+answer+' קבוצות.'}
+      ]; }
       return [];
     }
     function createInteractiveDemo(q){
-      const area=$('#interactiveContent'), info=$('#interactiveInstructions'); area.innerHTML=''; const {operation,num1,num2,answer}=q; const em=['🍎','🎈','⭐','🌟','🍊','🎯','🌈','🎪'][Math.floor(Math.random()*8)];
-      if(operation==='addition'){ let clicked=0,total=answer; for(let i=0;i<total;i++){ const s=document.createElement('span'); s.className='text-3xl m-1 opacity-50 cursor-pointer'; s.textContent=i<num1?'🔵':'🟡'; s.onclick=function(){ if(this.style.opacity!=='1'){ this.style.opacity='1'; clicked++; info.textContent=clicked===total?('מעולה! ספרת '+total+' פריטים - זו התשובה! 🎉'):('המשך לספור... ('+clicked+'/'+total+')'); } }; area.appendChild(s); if(((i+1)%5===0)&&i<total-1) area.appendChild(document.createElement('br')); } info.textContent='לחץ על הכדורים כדי לספור את '+num1+' + '+num2; return; }
-      if(operation==='subtraction'){ let removed=0; for(let i=0;i<num1;i++){ const s2=document.createElement('span'); s2.className='text-3xl m-1 cursor-pointer'; s2.textContent=em; s2.onclick=function(){ if(this.style.opacity!=='0.3'&&removed<num2){ this.style.opacity='0.3'; this.style.textDecoration='line-through'; removed++; info.textContent=removed===num2?('מעולה! הסרת '+num2+' פריטים; נשארו '+answer+'. 🎉'):('לחץ על עוד '+(num2-removed)); } }; area.appendChild(s2); if(((i+1)%5===0)&&i<num1-1) area.appendChild(document.createElement('br')); } info.textContent='לחץ על '+num2+' פריטים כדי להסיר מתוך '+num1; return; }
-      if(operation==='multiplication'){ let shown=0; for(let g=0; g<num1; g++){ const group=document.createElement('div'); group.className='inline-block border-2 border-dashed border-blue-300 rounded-lg p-3 m-2 bg-blue-50'; group.style.opacity='0.5'; const label=document.createElement('div'); label.className='text-sm font-bold text-blue-600 mb-2 text-center'; label.textContent='קבוצה '+(g+1); group.appendChild(label); for(let i=0;i<num2;i++){ const sp=document.createElement('span'); sp.className='text-2xl m-1'; sp.textContent=em; group.appendChild(sp); } group.onclick=function(){ if(this.style.opacity==='0.5'){ this.style.opacity='1'; shown++; info.textContent=(shown===num1)?('מעולה! '+num1+'×'+num2+' = '+answer+'. 🎉'):('נהדר! לחץ על עוד '+(num1-shown)+' קבוצות'); } }; area.appendChild(group); } info.textContent='לחץ על הקבוצות כדי לראות '+num1+' קבוצות של '+num2; return; }
-      if(operation==='division'){ let shown2=0; const dividend=parseInt(q.questionText.split(' ÷ ')[0],10); for(let g=0; g<answer; g++){ const group2=document.createElement('div'); group2.className='inline-block border-2 border-dashed border-purple-300 rounded-lg p-3 m-2 bg-purple-50'; group2.style.opacity='0.5'; const label2=document.createElement('div'); label2.className='text-sm font-bold text-purple-600 mb-2 text-center'; label2.textContent='קבוצה '+(g+1); group2.appendChild(label2); for(let i=0;i<num2;i++){ const sp2=document.createElement('span'); sp2.className='text-2xl m-1'; sp2.textContent=em; group2.appendChild(sp2); } group2.onclick=function(){ if(this.style.opacity==='0.5'){ this.style.opacity='1'; shown2++; info.textContent=(shown2===answer)?('מעולה! חילקת '+dividend+' ל-'+answer+' קבוצות של '+num2+'. 🎉'):('נהדר! לחץ על עוד '+(answer-shown2)+' קבוצות'); } }; area.appendChild(group2); } info.textContent='לחץ על הקבוצות כדי לראות חלוקה ל-'+answer+' קבוצות של '+num2; }
+      const area=$('#interactiveContent'), info=$('#interactiveInstructions'); area.innerHTML='';
+      const {operation,num1,num2,answer}=q;
+      const em=['🍎','🎈','⭐','🌟','🍊','🎯','🌈','🎪'][Math.floor(Math.random()*8)];
+      if(operation==='addition'){
+        let clicked=0,total=answer;
+        for(let i=0;i<total;i++){
+          const s=document.createElement('span'); s.className='text-3xl m-1 opacity-50 cursor-pointer'; s.textContent=i<num1?'🔵':'🟡';
+          s.onclick=function(){ if(this.style.opacity!=='1'){ this.style.opacity='1'; clicked++; info.textContent=clicked===total?('מעולה! ספרת '+total+' פריטים - זו התשובה! 🎉'):('המשך לספור... ('+clicked+'/'+total+')'); } };
+          area.appendChild(s); if(((i+1)%5===0)&&i<total-1) area.appendChild(document.createElement('br'));
+        }
+        info.textContent='לחץ על הכדורים כדי לספור את '+num1+' + '+num2; return;
+      }
+      if(operation==='subtraction'){
+        let removed=0;
+        for(let i=0;i<num1;i++){
+          const s2=document.createElement('span'); s2.className='text-3xl m-1 cursor-pointer'; s2.textContent=em;
+          s2.onclick=function(){ if(this.style.opacity!=='0.3'&&removed<num2){ this.style.opacity='0.3'; this.style.textDecoration='line-through'; removed++; info.textContent=removed===num2?('מעולה! הסרת '+num2+' פריטים; נשארו '+answer+'. 🎉'):('לחץ על עוד '+(num2-removed)); } };
+          area.appendChild(s2); if(((i+1)%5===0)&&i<num1-1) area.appendChild(document.createElement('br'));
+        }
+        info.textContent='לחץ על '+num2+' פריטים כדי להסיר מתוך '+num1; return;
+      }
+      if(operation==='multiplication'){
+        let shown=0;
+        for(let g=0; g<num1; g++){
+          const group=document.createElement('div'); group.className='inline-block border-2 border-dashed border-blue-300 rounded-lg p-3 m-2 bg-blue-50'; group.style.opacity='0.5';
+          const label=document.createElement('div'); label.className='text-sm font-bold text-blue-600 mb-2 text-center'; label.textContent='קבוצה '+(g+1); group.appendChild(label);
+          for(let i=0;i<num2;i++){ const sp=document.createElement('span'); sp.className='text-2xl m-1'; sp.textContent=em; group.appendChild(sp); }
+          group.onclick=function(){ if(this.style.opacity==='0.5'){ this.style.opacity='1'; shown++; info.textContent=(shown===num1)?('מעולה! '+num1+'×'+num2+' = '+answer+'. 🎉'):('נהדר! לחץ על עוד '+(num1-shown)+' קבוצות'); } };
+          area.appendChild(group);
+        }
+        info.textContent='לחץ על הקבוצות כדי לראות '+num1+' קבוצות של '+num2; return;
+      }
+      if(operation==='division'){
+        let shown2=0; const dividend=parseInt(q.questionText.split(' ÷ ')[0],10);
+        for(let g=0; g<answer; g++){
+          const group2=document.createElement('div'); group2.className='inline-block border-2 border-dashed border-purple-300 rounded-lg p-3 m-2 bg-purple-50'; group2.style.opacity='0.5';
+          const label2=document.createElement('div'); label2.className='text-sm font-bold text-purple-600 mb-2 text-center'; label2.textContent='קבוצה '+(g+1); group2.appendChild(label2);
+          for(let i=0;i<num2;i++){ const sp2=document.createElement('span'); sp2.className='text-2xl m-1'; sp2.textContent=em; group2.appendChild(sp2); }
+          group2.onclick=function(){ if(this.style.opacity==='0.5'){ this.style.opacity='1'; shown2++; info.textContent=(shown2===answer)?('מעולה! חילקת '+dividend+' ל-'+answer+' קבוצות של '+num2+'. 🎉'):('נהדר! לחץ על עוד '+(answer-shown2)+' קבוצות'); } };
+          area.appendChild(group2);
+        }
+        info.textContent='לחץ על הקבוצות כדי לראות חלוקה ל-'+answer+' קבוצות של '+num2;
+      }
     }
 
     /* ========= Answer grid (delegation) ========= */
@@ -566,7 +654,16 @@
     /* ========= Confetti ========= */
     function confettiBurst(container){
       try{ if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; }catch{}
-      const n=28; for(let i=0;i<n;i++){ const dot=document.createElement('span'); dot.style.position='absolute'; dot.style.width='8px'; dot.style.height='8px'; dot.style.borderRadius='50%'; dot.style.left='50%'; dot.style.top='10%'; const colors=['#22c55e','#3b82f6','#f59e0b','#ef4444','#a855f7']; dot.style.background=colors[i%colors.length]; const angle=(i/n)*Math.PI*2, dist=80+Math.random()*50, tx=Math.cos(angle)*dist, ty=Math.sin(angle)*dist; const anim=dot.animate([{transform:'translate(-50%,-50%) scale(1)',opacity:1},{transform:'translate('+(tx-50)+'%,'+(ty-50)+'%) scale(.9)',opacity:0}],{duration:900,easing:'cubic-bezier(.2,.8,.2,1)'}); anim.onfinish=()=>dot.remove(); (container||document.body).appendChild(dot); }
+      const n=28; for(let i=0;i<n;i++){
+        const dot=document.createElement('span');
+        dot.style.position='absolute'; dot.style.width='8px'; dot.style.height='8px'; dot.style.borderRadius='50%';
+        dot.style.left='50%'; dot.style.top='10%';
+        const colors=['#22c55e','#3b82f6','#f59e0b','#ef4444','#a855f7']; dot.style.background=colors[i%colors.length];
+        const angle=(i/n)*Math.PI*2, dist=80+Math.random()*50, tx=Math.cos(angle)*dist, ty=Math.sin(angle)*dist;
+        const anim=dot.animate([{transform:'translate(-50%,-50%) scale(1)',opacity:1},{transform:'translate('+(tx-50)+'%,'+(ty-50)+'%) scale(.9)',opacity:0}],{duration:900,easing:'cubic-bezier(.2,.8,.2,1)'});
+        anim.onfinish=()=>dot.remove();
+        (container||document.body).appendChild(dot);
+      }
     }
 
     /* ========= Init ========= */
@@ -584,11 +681,10 @@
 
       // תשובות
       bindAnswerGrid();
-
-      // אישור תשובה – מאזין יציב
+      // אישור תשובה
       $('#confirmButton')?.addEventListener('click',e=>{ if(e.currentTarget.hasAttribute('disabled')){ e.preventDefault(); return; } confirmAnswer(); });
 
-      // תוצאות: מאזינים פעילים
+      // תוצאות: מאזינים
       $('#retryBtn')?.addEventListener('click',()=> startGame(currentDifficulty));
       $('#mistakesButton')?.addEventListener('click',showMistakes);
       $('#altBtn')?.addEventListener('click',showOperationSelect);
