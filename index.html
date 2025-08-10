@@ -30,6 +30,7 @@
     .answer-item .accent{
       position:absolute; right:0; left:auto; top:0; bottom:0;
       width:8px; border-radius:0 1rem 1rem 0; opacity:.55;
+      background: var(--tint); /* תיקון: הצבע אכן מופיע */
     }
     .answer-item[data-idx="0"] { --tint:#f87171; } /* אדמדם */
     .answer-item[data-idx="1"] { --tint:#60a5fa; } /* כחול */
@@ -65,7 +66,7 @@
       <div class="text-6xl mb-4 owl-blink">🦉</div>
       <h1 class="text-4xl font-bold text-purple-600 mb-4">מספרונצ'יק</h1>
       <p class="text-lg text-gray-600 mb-8">בואו ללמוד חשבון עם שופי הינשוף</p>
-      <button onclick="showNameInput()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-lg">
+      <button type="button" onclick="showNameInput()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-lg">
         התחל משחק
       </button>
     </div>
@@ -73,14 +74,14 @@
 
   <!-- Name Input Screen -->
   <div id="nameScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
-    <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
+    <form id="nameForm" class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
       <div class="text-5xl mb-4">👋</div>
       <h2 class="text-3xl font-bold text-blue-600 mb-6">איך קוראים לך?</h2>
-      <input type="text" id="playerName" placeholder="הכנס את שמך כאן" class="w-full p-4 text-xl border-2 border-gray-300 rounded-xl mb-6 text-center focus:border-blue-500 focus:outline-none">
-      <button onclick="showOperationSelect()" class="bg-gradient-to-r from-blue-500 to-green-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:from-blue-600 hover:to-green-600 transform hover:scale-105 transition-all duration-200 shadow-lg">
+      <input type="text" id="playerName" name="playerName" required placeholder="הכנס את שמך כאן" class="w-full p-4 text-xl border-2 border-gray-300 rounded-xl mb-6 text-center focus:border-blue-500 focus:outline-none">
+      <button type="submit" class="bg-gradient-to-r from-blue-500 to-green-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:from-blue-600 hover:to-green-600 transform hover:scale-105 transition-all duration-200 shadow-lg">
         המשך
       </button>
-    </div>
+    </form>
   </div>
 
   <!-- Operation Selection Screen -->
@@ -90,7 +91,7 @@
       <h2 class="text-5xl font-extrabold text-green-600 mb-3 leading-tight">בואו נבחר את סוג התרגיל</h2>
       <p class="text-xl text-gray-700 mb-8 leading-relaxed">בכל סט תרגילים תוצג לך סדרת שאלות מגוונות</p>
 
-      <!-- Curriculum Selector (moved ABOVE the grid) -->
+      <!-- Curriculum Selector (ABOVE the grid) -->
       <div class="text-right mb-8">
         <label for="curriculumSelect" class="block text-lg font-semibold text-gray-800 mb-2">בחירת תוכנית לימוד</label>
         <select id="curriculumSelect" class="w-full p-4 text-lg border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none bg-white">
@@ -175,7 +176,7 @@
 
     <div class="text-center space-y-4">
       <button id="confirmButton" onclick="confirmAnswer()" disabled class="confirm-button bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-all duration-200 shadow-lg">אשר תשובה</button>
-      <button onclick="startOver()" class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-full text-lg font-bold hover:scale-105 transition-all duration-200 shadow-lg">התחל מחדש</button>
+      <button type="button" onclick="startOver()" class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-full text-lg font-bold hover:scale-105 transition-all duration-200 shadow-lg">התחל מחדש</button>
     </div>
 
     <!-- Feedback Modal -->
@@ -246,7 +247,7 @@
 
       <div class="text-center space-y-4">
         <button onclick="showResults()" class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-all duration-200 shadow-lg">חזור לתוצאות</button>
-        <button onclick="startOver()" class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-full text-lg font-bold hover:scale-105 transition-all duration-200 shadow-lg">התחל מחדש</button>
+        <button type="button" onclick="startOver()" class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-full text-lg font-bold hover:scale-105 transition-all duration-200 shadow-lg">התחל מחדש</button>
       </div>
     </div>
   </div>
@@ -255,7 +256,7 @@
   <div id="tutorialScreen" class="hidden min-h-screen p-6">
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="text-center mb-8">
-        <div class="text-6xl mb-4">🎓</div>
+        <div class="text-6ל mb-4">🎓</div>
         <h2 id="tutorialTitle" class="text-3xl font-bold text-blue-600 mb-4 ltr">7 ÷ 5 = ?</h2>
         <p class="text-lg text-gray-600">בואו נלמד יחד איך לפתור את השאלה הזו!</p>
       </div>
@@ -267,37 +268,37 @@
       </div>
       <div class="flex justify-center gap-4 flex-wrap">
         <button onclick="showMistakes()" class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-full text-lg font-bold hover:scale-105 transition-all duration-200 shadow-lg">חזור לרשימת הטעויות</button>
-        <button onclick="startOver()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-full text-lg font-bold hover:scale-105 transition-all duration-200 shadow-lg">התחל מחדש</button>
+        <button type="button" onclick="startOver()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-full text-lg font-bold hover:scale-105 transition-all duration-200 shadow-lg">התחל מחדש</button>
       </div>
     </div>
   </div>
 
   <script>
     // ===== State =====
-    let currentOperation = 'addition';
-    let currentDifficulty = 'easy';
-    let currentQuestionIndex = 0;
-    let correctCount = 0;
-    let totalQuestions = 6;
-    let questions = [];
-    let mistakes = [];
-    let startTime = 0;
-    let totalTime = 0;
-    let playerName = '';
-    let currentTutorialMistake = null;
-    let selectedAnswer = null;
-    let currentCurriculum = 'none';
-    let questionCount = 6;
+    var currentOperation = 'addition';
+    var currentDifficulty = 'easy';
+    var currentQuestionIndex = 0;
+    var correctCount = 0;
+    var totalQuestions = 6;
+    var questions = [];
+    var mistakes = [];
+    var startTime = 0;
+    var totalTime = 0;
+    var playerName = '';
+    var currentTutorialMistake = null;
+    var selectedAnswer = null;
+    var currentCurriculum = 'none';
+    var questionCount = 6;
 
     // Difficulty rules
-    const rulesByDifficulty = {
+    var rulesByDifficulty = {
       easy:   { addSubMax: 20,  mulMax: 5,  divMaxDivisor: 5,  divMaxQuotient: 5 },
       medium: { addSubMax: 100, mulMax: 10, divMaxDivisor: 10, divMaxQuotient: 10 },
       hard:   { addSubMax: 1000,mulMax: 12, divMaxDivisor: 12, divMaxQuotient: 12 }
     };
 
     // Curricula presets
-    const curricula = {
+    var curricula = {
       none: { name: 'ללא תוכנית' },
       il_g1_s1: { name: 'כיתה א׳ – מחצית א׳', operations: ['addition','subtraction'], addSubMax: 10 },
       il_g1_s2: { name: 'כיתה א׳ – מחצית ב׳', operations: ['addition','subtraction'], addSubMax: 20 },
@@ -309,57 +310,79 @@
 
     function getOpsList(selectedOp, cur){
       if (selectedOp !== 'mixed') return [selectedOp];
-      const allowed = cur?.operations;
-      return allowed && allowed.length ? allowed : ['addition','subtraction','multiplication','division'];
+      var allowed = cur && cur.operations ? cur.operations : null;
+      return (allowed && allowed.length) ? allowed : ['addition','subtraction','multiplication','division'];
     }
     function getEffectiveRules(difficulty){
-      const base = { ...rulesByDifficulty[difficulty] };
-      const cur = curricula[currentCurriculum];
-      if (cur?.addSubMax !== undefined) base.addSubMax = cur.addSubMax;
-      if (cur?.mulMax !== undefined) base.mulMax = cur.mulMax;
-      if (cur?.divMaxDivisor !== undefined) base.divMaxDivisor = cur.divMaxDivisor;
-      if (cur?.divMaxQuotient !== undefined) base.divMaxQuotient = cur.divMaxQuotient;
+      var base = {
+        addSubMax: rulesByDifficulty[difficulty].addSubMax,
+        mulMax: rulesByDifficulty[difficulty].mulMax,
+        divMaxDivisor: rulesByDifficulty[difficulty].divMaxDivisor,
+        divMaxQuotient: rulesByDifficulty[difficulty].divMaxQuotient
+      };
+      var cur = curricula[currentCurriculum];
+      if (cur && typeof cur.addSubMax !== 'undefined') base.addSubMax = cur.addSubMax;
+      if (cur && typeof cur.mulMax !== 'undefined') base.mulMax = cur.mulMax;
+      if (cur && typeof cur.divMaxDivisor !== 'undefined') base.divMaxDivisor = cur.divMaxDivisor;
+      if (cur && typeof cur.divMaxQuotient !== 'undefined') base.divMaxQuotient = cur.divMaxQuotient;
       return base;
     }
 
     // ===== Navigation =====
     function showNameInput(){
-      document.getElementById('welcomeScreen').classList.add('hidden');
-      document.getElementById('nameScreen').classList.remove('hidden');
-      setTimeout(()=>{ document.getElementById('playerName').focus(); }, 100);
+      var welcome = document.getElementById('welcomeScreen');
+      var nameScr = document.getElementById('nameScreen');
+      if (welcome) welcome.classList.add('hidden');
+      if (nameScr) nameScr.classList.remove('hidden');
+      setTimeout(function(){ var inp=document.getElementById('playerName'); if (inp) inp.focus(); }, 100);
     }
     function showOperationSelect(){
-      if (!playerName){
-        const name = (document.getElementById('playerName')?.value || '').trim();
-        if (!name){ alert('אנא הכנס את שמך'); return; }
-        playerName = name;
+      var inputEl = document.getElementById('playerName');
+      var name = inputEl ? String(inputEl.value || '').trim() : String(playerName || '').trim();
+      if (!name){
+        alert('אנא הכנס את שמך');
+        if (inputEl) inputEl.focus();
+        return;
       }
-      document.getElementById('playerNameDisplay')?.textContent = playerName;
-      ['nameScreen','resultsScreen','mistakesScreen','tutorialScreen'].forEach(id => document.getElementById(id).classList.add('hidden'));
-      document.getElementById('operationScreen').classList.remove('hidden');
+      playerName = name;
+
+      var disp = document.getElementById('playerNameDisplay');
+      if (disp) disp.textContent = playerName;
+
+      var hideIds = ['nameScreen','resultsScreen','mistakesScreen','tutorialScreen'];
+      for (var i=0;i<hideIds.length;i++){
+        var el = document.getElementById(hideIds[i]);
+        if (el) el.classList.add('hidden');
+      }
+      var op = document.getElementById('operationScreen');
+      if (op) op.classList.remove('hidden');
+
       applyCurriculumToOperationButtons();
     }
     function selectOperation(operation){
       currentOperation = operation;
-      document.getElementById('operationScreen').classList.add('hidden');
-      document.getElementById('difficultyScreen').classList.remove('hidden');
+      var op = document.getElementById('operationScreen');
+      var diff = document.getElementById('difficultyScreen');
+      if (op) op.classList.add('hidden');
+      if (diff) diff.classList.remove('hidden');
     }
     function applyCurriculumToOperationButtons(){
-      const cur = curricula[currentCurriculum];
-      const allowed = cur?.operations;
-      const buttons = document.querySelectorAll('#opsGrid .op-btn');
-      buttons.forEach(btn=>{
-        const op = btn.getAttribute('data-op');
-        let enabled = true;
-        if (allowed && op !== 'mixed') enabled = allowed.includes(op);
+      var cur = curricula[currentCurriculum];
+      var allowed = cur && cur.operations ? cur.operations : null;
+      var buttons = document.querySelectorAll('#opsGrid .op-btn');
+      for (var i=0;i<buttons.length;i++){
+        var btn = buttons[i];
+        var op = btn.getAttribute('data-op');
+        var enabled = true;
+        if (allowed && op !== 'mixed') enabled = allowed.indexOf(op) !== -1;
         if (!enabled){
           btn.classList.add('opacity-50','cursor-not-allowed','pointer-events-none');
           btn.setAttribute('aria-disabled','true');
-        }else{
+        } else {
           btn.classList.remove('opacity-50','cursor-not-allowed','pointer-events-none');
           btn.removeAttribute('aria-disabled');
         }
-      });
+      }
     }
 
     // ===== Game flow =====
@@ -371,77 +394,88 @@
       mistakes = [];
       selectedAnswer = null;
 
-      const curriculumSel = document.getElementById('curriculumSelect');
+      var curriculumSel = document.getElementById('curriculumSelect');
       if (curriculumSel) currentCurriculum = curriculumSel.value || 'none';
-      const qSel = document.getElementById('questionCountSelect');
+      var qSel = document.getElementById('questionCountSelect');
       questionCount = parseInt(qSel ? qSel.value : '6', 10) || 6;
 
       questions = generatePracticeSet(currentOperation, difficulty, questionCount);
       if (questions.length === 0){ alert('שגיאה: לא ניתן ליצור תרגילים עבור ההגדרות שנבחרו'); return; }
 
       totalQuestions = questions.length;
-      document.getElementById('totalQuestions').textContent = totalQuestions;
-      document.getElementById('resultsTotal').textContent = totalQuestions;
+      var tq = document.getElementById('totalQuestions'); if (tq) tq.textContent = totalQuestions;
+      var rt = document.getElementById('resultsTotal'); if (rt) rt.textContent = totalQuestions;
 
-      ['difficultyScreen','resultsScreen','mistakesScreen','tutorialScreen'].forEach(id => document.getElementById(id).classList.add('hidden'));
-      document.getElementById('gameScreen').classList.remove('hidden');
-      document.getElementById('gamePlayerName').textContent = playerName;
+      var ids = ['difficultyScreen','resultsScreen','mistakesScreen','tutorialScreen'];
+      for (var i=0;i<ids.length;i++){ var n=document.getElementById(ids[i]); if(n) n.classList.add('hidden'); }
+      var gs = document.getElementById('gameScreen'); if (gs) gs.classList.remove('hidden');
+      var nameSpan = document.getElementById('gamePlayerName'); if (nameSpan) nameSpan.textContent = playerName;
 
-      const pb = document.getElementById('progressBar');
-      pb.style.width = '0%'; pb.setAttribute('aria-valuenow','0');
+      var pb = document.getElementById('progressBar');
+      if (pb){ pb.style.width = '0%'; pb.setAttribute('aria-valuenow','0'); }
 
       showQuestion();
     }
 
     function generatePracticeSet(operation, difficulty, desiredCount){
-      const rules = getEffectiveRules(difficulty);
-      const cur = curricula[currentCurriculum];
-      const ops = getOpsList(operation, cur);
-      let pool = [];
-      ops.forEach(op => pool.push(...buildOpPool(op, rules, desiredCount * 4, difficulty)));
-      const map = new Map();
-      for (const q of pool) if (!map.has(q.questionText)) map.set(q.questionText, q);
-      return shuffleArray(Array.from(map.values())).slice(0, desiredCount);
+      var rules = getEffectiveRules(difficulty);
+      var cur = curricula[currentCurriculum];
+      var ops = getOpsList(operation, cur);
+      var pool = [];
+      for (var i=0;i<ops.length;i++){
+        var op = ops[i];
+        pool = pool.concat(buildOpPool(op, rules, desiredCount * 4, difficulty));
+      }
+      var map = {};
+      for (var j=0;j<pool.length;j++){
+        var q = pool[j];
+        if (!map[q.questionText]) map[q.questionText] = q;
+      }
+      var unique = [];
+      for (var k in map){ if (map.hasOwnProperty(k)) unique.push(map[k]); }
+      return shuffleArray(unique).slice(0, desiredCount);
     }
 
     function buildOpPool(operation, rules, targetSize, difficulty){
-      const pool = [];
-      let attempts = 0, maxAttempts = 6000;
-      const mkQ = (text, answer, operation, num1, num2, symbol, explanation) => ({questionText:text, answer, explanation, operation, num1, num2, symbol});
+      var pool = [];
+      var attempts = 0, maxAttempts = 6000;
+      function mkQ(text, answer, operation, num1, num2, symbol, explanation){
+        return {questionText:text, answer:answer, explanation:explanation, operation:operation, num1:num1, num2:num2, symbol:symbol};
+      }
 
       if (operation === 'addition'){
         while (pool.length < targetSize && attempts++ < maxAttempts){
-          const fluency = (difficulty === 'easy') && Math.random() < 0.5;
-          const cap = fluency ? Math.min(10, rules.addSubMax) : rules.addSubMax;
-          const a = randInt(0, cap);
-          const b = randInt(0, cap);
-          const ans = a + b;
-          if (ans <= cap) pool.push(mkQ(`${a} + ${b} = ?`, ans, 'addition', a, b, '+',''));
+          var fluency = (difficulty === 'easy') && Math.random() < 0.5;
+          var cap = fluency ? Math.min(10, rules.addSubMax) : rules.addSubMax;
+          var a = randInt(0, cap);
+          var b = randInt(0, cap);
+          var ans = a + b;
+          if (ans <= cap) pool.push(mkQ(a + " + " + b + " = ?", ans, 'addition', a, b, '+',''));
         }
       }
       if (operation === 'subtraction'){
         while (pool.length < targetSize && attempts++ < maxAttempts){
-          const fluency = (difficulty === 'easy') && Math.random() < 0.5;
-          const cap = fluency ? Math.min(10, rules.addSubMax) : rules.addSubMax;
-          const a = randInt(0, cap);
-          const b = randInt(0, a);
-          const ans = a - b;
-          if (ans >= 0 && ans <= cap) pool.push(mkQ(`${a} - ${b} = ?`, ans, 'subtraction', a, b, '-',''));
+          var fluency2 = (difficulty === 'easy') && Math.random() < 0.5;
+          var cap2 = fluency2 ? Math.min(10, rules.addSubMax) : rules.addSubMax;
+          var a2 = randInt(0, cap2);
+          var b2 = randInt(0, a2);
+          var ans2 = a2 - b2;
+          if (ans2 >= 0 && ans2 <= cap2) pool.push(mkQ(a2 + " - " + b2 + " = ?", ans2, 'subtraction', a2, b2, '-',''));
         }
       }
       if (operation === 'multiplication'){
         while (pool.length < targetSize && attempts++ < maxAttempts){
-          const a = randInt(1, rules.mulMax);
-          const b = randInt(1, rules.mulMax);
-          pool.push(mkQ(`${a} × ${b} = ?`, a*b, 'multiplication', a, b, '×',''));
+          var a3 = randInt(1, rules.mulMax);
+          var b3 = randInt(1, rules.mulMax);
+          pool.push(mkQ(a3 + " × " + b3 + " = ?", a3*b3, 'multiplication', a3, b3, '×',''));
         }
       }
       if (operation === 'division'){
         while (pool.length < targetSize && attempts++ < maxAttempts){
-          const divisor = randInt(1, rules.divMaxDivisor);
-          const quotient = randInt(1, rules.divMaxQuotient);
-          const dividend = divisor * quotient;
-          pool.push(mkQ(`${dividend} ÷ ${divisor} = ?`, quotient, 'division', quotient, divisor, '÷',''));
+          var divisor = randInt(1, rules.divMaxDivisor);
+          var quotient = randInt(1, rules.divMaxQuotient);
+          var dividend = divisor * quotient;
+          pool.push(mkQ(dividend + " ÷ " + divisor + " = ?", quotient, 'division', quotient, divisor, '÷',''));
         }
       }
       return pool;
@@ -450,401 +484,431 @@
     function showQuestion(){
       if (currentQuestionIndex >= questions.length){ showResults(); return; }
       selectedAnswer = null;
-      const q = questions[currentQuestionIndex];
+      var q = questions[currentQuestionIndex];
 
-      document.getElementById('questionText').textContent = q.questionText;
-      document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+      var qt = document.getElementById('questionText'); if (qt) qt.textContent = q.questionText;
+      var cq = document.getElementById('currentQuestion'); if (cq) cq.textContent = currentQuestionIndex + 1;
 
-      const progress = ((currentQuestionIndex) / totalQuestions) * 100;
-      const pb = document.getElementById('progressBar');
-      pb.style.width = Math.max(2, Math.round(progress)) + '%';
-      pb.setAttribute('aria-valuenow', String(Math.round(progress)));
+      var progress = (currentQuestionIndex / totalQuestions) * 100;
+      var pb = document.getElementById('progressBar');
+      if (pb){ var p = Math.max(2, Math.round(progress)); pb.style.width = p + '%'; pb.setAttribute('aria-valuenow', String(p)); }
 
-      const options = generateAnswerOptions(q.answer);
-      const items = document.querySelectorAll('.answer-item');
-      options.forEach((opt, i) => {
-        const el = items[i]; if (!el) return;
-        el.setAttribute('data-value', opt);
+      var options = generateAnswerOptions(q.answer);
+      var items = document.querySelectorAll('.answer-item');
+      for (var i=0;i<options.length;i++){
+        var opt = options[i];
+        var el = items[i];
+        if (!el) continue;
+        el.setAttribute('data-value', String(opt));
         el.setAttribute('data-idx', String(i));
-        el.querySelector('.tabular-nums').textContent = opt;
+        var num = el.querySelector('.tabular-nums');
+        if (num) num.textContent = String(opt);
         el.classList.remove('selected');
         el.setAttribute('aria-selected','false');
-      });
+      }
 
-      const confirmButton = document.getElementById('confirmButton');
-      confirmButton.disabled = true; confirmButton.setAttribute('aria-disabled','true');
+      var confirmButton = document.getElementById('confirmButton');
+      if (confirmButton){ confirmButton.disabled = true; confirmButton.setAttribute('aria-disabled','true'); }
 
       startTime = Date.now();
       setupAnswerSelection();
     }
 
     function setupAnswerSelection(){
-      const items = document.querySelectorAll('.answer-item');
-      items.forEach(item => {
+      var items = document.querySelectorAll('.answer-item');
+      for (var i=0;i<items.length;i++){
+        var item = items[i];
         item.setAttribute('tabindex','0');
         item.setAttribute('role','button');
         item.setAttribute('aria-selected','false');
 
-        // Mobile-friendly press feedback
-        item.onpointerdown = () => item.classList.add('pressed');
-        item.onpointerup = item.onpointercancel = item.onpointerleave = () => item.classList.remove('pressed');
+        item.onpointerdown = (function(el){ return function(){ el.classList.add('pressed'); }; })(item);
+        var clearPress = (function(el){ return function(){ el.classList.remove('pressed'); }; })(item);
+        item.onpointerup = clearPress; item.onpointercancel = clearPress; item.onpointerleave = clearPress;
 
-        item.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); } };
-        item.onclick = function(){
-          items.forEach(el => { el.classList.remove('selected'); el.setAttribute('aria-selected','false'); });
-          this.classList.add('selected');
-          this.setAttribute('aria-selected','true');
-          selectedAnswer = parseInt(this.getAttribute('data-value'));
-          const confirm = document.getElementById('confirmButton');
-          confirm.disabled = false; confirm.setAttribute('aria-disabled','false');
-        };
-      });
+        item.onkeydown = (function(el){ return function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); } }; })(item);
+        item.onclick = (function(el){
+          return function(){
+            for (var j=0;j<items.length;j++){ items[j].classList.remove('selected'); items[j].setAttribute('aria-selected','false'); }
+            el.classList.add('selected');
+            el.setAttribute('aria-selected','true');
+            selectedAnswer = parseInt(el.getAttribute('data-value'), 10);
+            var confirm = document.getElementById('confirmButton');
+            if (confirm){ confirm.disabled = false; confirm.setAttribute('aria-disabled','false'); }
+          };
+        })(item);
+      }
     }
 
     function confirmAnswer(){
       if (selectedAnswer === null) return;
-      const correctAnswer = questions[currentQuestionIndex].answer;
-      const endTime = Date.now(); totalTime += (endTime - startTime) / 1000;
+      var correctAnswer = questions[currentQuestionIndex].answer;
+      var endTime = Date.now(); totalTime += (endTime - startTime) / 1000;
       if (selectedAnswer === correctAnswer){ correctCount++; showFeedback(true); }
-      else { mistakes.push({ question: questions[currentQuestionIndex], userAnswer: selectedAnswer, correctAnswer }); showFeedback(false); }
+      else { mistakes.push({ question: questions[currentQuestionIndex], userAnswer: selectedAnswer, correctAnswer: correctAnswer }); showFeedback(false); }
     }
 
     function showFeedback(isCorrect){
-      const feedback = document.getElementById('feedback');
-      const icon = document.getElementById('feedbackIcon');
-      const text = document.getElementById('feedbackText');
+      var feedback = document.getElementById('feedback');
+      var icon = document.getElementById('feedbackIcon');
+      var text = document.getElementById('feedbackText');
 
       if (isCorrect){
-        icon.textContent = '🎉';
-        text.textContent = 'כל הכבוד! תשובה נכונה!';
-        text.className = 'text-2xl font-bold mb-6 text-green-600';
+        if (icon) icon.textContent = '🎉';
+        if (text){ text.textContent = 'כל הכבוד! תשובה נכונה!'; text.className = 'text-2xl font-bold mb-6 text-green-600'; }
         playSuccessSound();
       } else {
-        icon.textContent = '💪';
-        text.textContent = 'כמעט! בפעם הבאה תצליח!';
-        text.className = 'text-2xl font-bold mb-6 text-orange-600';
+        if (icon) icon.textContent = '💪';
+        if (text){ text.textContent = 'כמעט! בפעם הבאה תצליח!'; text.className = 'text-2xl font-bold mb-6 text-orange-600'; }
         playErrorSound();
       }
 
-      feedback.classList.remove('hidden');
+      if (feedback) feedback.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
-      document.getElementById('nextButton').focus();
+      var nb = document.getElementById('nextButton'); if (nb) nb.focus();
     }
 
     function nextQuestion(){
-      document.getElementById('feedback').classList.add('hidden');
+      var fb = document.getElementById('feedback'); if (fb) fb.classList.add('hidden');
       document.body.style.overflow = '';
       currentQuestionIndex++;
       if (currentQuestionIndex < totalQuestions){
         showQuestion();
-        document.getElementById('confirmButton').focus();
+        var c = document.getElementById('confirmButton'); if (c) c.focus();
       } else {
-        const pb = document.getElementById('progressBar'); pb.style.width = '100%'; pb.setAttribute('aria-valuenow','100');
+        var pb = document.getElementById('progressBar'); if (pb){ pb.style.width = '100%'; pb.setAttribute('aria-valuenow','100'); }
         showResults();
       }
     }
 
     function showResults(){
-      document.getElementById('gameScreen').classList.add('hidden');
-      document.getElementById('mistakesScreen').classList.add('hidden');
-      document.getElementById('tutorialScreen').classList.add('hidden');
-      document.getElementById('resultsScreen').classList.remove('hidden');
+      var idsHide = ['gameScreen','mistakesScreen','tutorialScreen'];
+      for (var i=0;i<idsHide.length;i++){ var n = document.getElementById(idsHide[i]); if(n) n.classList.add('hidden'); }
+      var rs = document.getElementById('resultsScreen'); if (rs) rs.classList.remove('hidden');
 
-      const incorrectCount = totalQuestions - correctCount;
-      const percentage = Math.round((correctCount / totalQuestions) * 100);
+      var incorrectCount = totalQuestions - correctCount;
+      var percentage = Math.round((correctCount / totalQuestions) * 100);
 
-      const msg = document.getElementById('performanceMessage');
-      const icon = document.querySelector('#resultsScreen .text-8xl');
-      const title = document.querySelector('#resultsScreen h2');
+      var msg = document.getElementById('performanceMessage');
+      var icon = rs ? rs.querySelector('.text-8xl') : null;
+      var title = rs ? rs.querySelector('h2') : null;
 
       if (correctCount === totalQuestions){
-        msg.textContent = 'מושלם! ענית נכון על כל השאלות! 🌟';
-        msg.className = 'mb-4 font-medium text-lg text-green-600';
-        icon.textContent = '🏆';
-        title.className = 'text-3xl font-bold text-green-600 mb-4';
-        // קונפטי: רק במקרה של 100% נכונות
-        const card = document.querySelector('#resultsScreen > div');
+        if (msg){ msg.textContent = 'מושלם! ענית נכון על כל השאלות! 🌟'; msg.className = 'mb-4 font-medium text-lg text-green-600'; }
+        if (icon) icon.textContent = '🏆';
+        if (title) title.className = 'text-3xl font-bold text-green-600 mb-4';
+        var card = rs ? rs.querySelector('div.text-center.bg-white') || rs.querySelector(':scope > div') : null;
         if (card) confettiBurst(card);
       } else if (correctCount === 0){
-        msg.textContent = 'סיימת את הסט! 🎯';
-        msg.className = 'mb-4 font-medium text-lg text-gray-600';
-        icon.textContent = '💪';
-        title.textContent = 'אופס, הפעם לא הלך - בואו נשתפר בסיבוב הבא!';
-        title.className = 'text-3xl font-bold text-orange-600 mb-4';
+        if (msg){ msg.textContent = 'סיימת את הסט! 🎯'; msg.className = 'mb-4 font-medium text-lg text-gray-600'; }
+        if (icon) icon.textContent = '💪';
+        if (title){ title.textContent = 'אופס, הפעם לא הלך - בואו נשתפר בסיבוב הבא!'; title.className = 'text-3xl font-bold text-orange-600 mb-4'; }
       } else {
-        msg.textContent = `ענית נכון על ${correctCount} מתוך ${totalQuestions} שאלות - כל הכבוד! 🎯`;
-        msg.className = 'mb-4 font-medium text-lg text-blue-600';
-        icon.textContent = '🏆';
-        title.innerHTML = `כל הכבוד <span id="finalPlayerName">${playerName}</span>!`;
-        title.className = 'text-3xl font-bold text-green-600 mb-4';
+        if (msg){ msg.textContent = 'ענית נכון על ' + correctCount + ' מתוך ' + totalQuestions + ' שאלות - כל הכבוד! 🎯'; msg.className = 'mb-4 font-medium text-lg text-blue-600'; }
+        if (icon) icon.textContent = '🏆';
+        if (title){ title.innerHTML = 'כל הכבוד <span id="finalPlayerName">' + playerName + '</span>!'; title.className = 'text-3xl font-bold text-green-600 mb-4'; }
       }
 
       updatePerformanceBar(correctCount, incorrectCount, percentage);
-      document.getElementById('correctAnswers').textContent = correctCount;
-      document.getElementById('averageTime').textContent = Math.max(1, Math.round(totalTime / totalQuestions));
-      document.getElementById('mistakesButton').classList.toggle('hidden', mistakes.length === 0);
+      var ca = document.getElementById('correctAnswers'); if (ca) ca.textContent = String(correctCount);
+      var at = document.getElementById('averageTime'); if (at) at.textContent = String(Math.max(1, Math.round(totalTime / totalQuestions)));
+      var mb = document.getElementById('mistakesButton'); if (mb) mb.classList.toggle('hidden', mistakes.length === 0);
     }
 
     function updatePerformanceBar(correct, incorrect, percentage){
-      const correctPercentage = (correct / totalQuestions) * 100;
-      const incorrectPercentage = (incorrect / totalQuestions) * 100;
-      document.getElementById('correctBar').style.width = `${correctPercentage}%`;
-      document.getElementById('incorrectBar').style.width = `${incorrectPercentage}%`;
-      document.getElementById('performancePercentage').textContent = `${percentage}%`;
-      document.getElementById('correctCount').textContent = correct;
-      document.getElementById('incorrectCount').textContent = incorrect;
+      var correctPercentage = (correct / totalQuestions) * 100;
+      var incorrectPercentage = (incorrect / totalQuestions) * 100;
+      var cb = document.getElementById('correctBar'); if (cb) cb.style.width = correctPercentage + '%';
+      var ib = document.getElementById('incorrectBar'); if (ib) ib.style.width = incorrectPercentage + '%';
+      var pp = document.getElementById('performancePercentage'); if (pp) pp.textContent = percentage + '%';
+      var cc = document.getElementById('correctCount'); if (cc) cc.textContent = String(correct);
+      var ic = document.getElementById('incorrectCount'); if (ic) ic.textContent = String(incorrect);
     }
 
     function showMistakes(){
-      document.getElementById('resultsScreen').classList.add('hidden');
-      document.getElementById('tutorialScreen').classList.add('hidden');
-      document.getElementById('mistakesScreen').classList.remove('hidden');
+      var rs = document.getElementById('resultsScreen'); if (rs) rs.classList.add('hidden');
+      var ts = document.getElementById('tutorialScreen'); if (ts) ts.classList.add('hidden');
+      var ms = document.getElementById('mistakesScreen'); if (ms) ms.classList.remove('hidden');
 
-      const incorrectCount = totalQuestions - correctCount;
-      document.getElementById('mistakesCorrectBar').style.width = `${(correctCount / totalQuestions) * 100}%`;
-      document.getElementById('mistakesIncorrectBar').style.width = `${(incorrectCount / totalQuestions) * 100}%`;
+      var incorrectCount = totalQuestions - correctCount;
+      var mcb = document.getElementById('mistakesCorrectBar'); if (mcb) mcb.style.width = ((correctCount / totalQuestions) * 100) + '%';
+      var mib = document.getElementById('mistakesIncorrectBar'); if (mib) mib.style.width = ((incorrectCount / totalQuestions) * 100) + '%';
 
-      const mm = document.getElementById('mistakesMessage');
+      var mm = document.getElementById('mistakesMessage');
       if (mistakes.length === 0){
-        mm.textContent = `מושלם! ענית נכון על כל ${totalQuestions} השאלות! 🌟`;
-        mm.className = 'text-lg text-green-600 font-medium mb-4';
+        if (mm){ mm.textContent = 'מושלם! ענית נכון על כל ' + totalQuestions + ' השאלות! 🌟'; mm.className = 'text-lg text-green-600 font-medium mb-4'; }
       } else if (correctCount > 0){
-        mm.textContent = `ענית נכון על ${correctCount} מתוך ${totalQuestions} - בואו נלמד מה-${mistakes.length} שנשארו`;
-        mm.className = 'text-lg text-blue-600 font-medium mb-4';
+        if (mm){ mm.textContent = 'ענית נכון על ' + correctCount + ' מתוך ' + totalQuestions + ' - בואו נלמד מה-' + mistakes.length + ' שנשארו'; mm.className = 'text-lg text-blue-600 font-medium mb-4'; }
       } else {
-        mm.textContent = 'בואו נלמד יחד איך לפתור את השאלות האלה';
-        mm.className = 'text-lg text-orange-600 font-medium mb-4';
+        if (mm){ mm.textContent = 'בואו נלמד יחד איך לפתור את השאלות האלה'; mm.className = 'text-lg text-orange-600 font-medium mb-4'; }
       }
 
-      const list = document.getElementById('mistakesList');
-      list.innerHTML = '';
+      var list = document.getElementById('mistakesList');
+      if (list) list.innerHTML = '';
       if (mistakes.length === 0){
-        list.innerHTML = '<div class="text-center p-8"><div class="text-6xl mb-4">🎉</div><h3 class="text-2xl font-bold text-green-600">מעולה!</h3><p class="text-lg text-gray-600">לא היו לך טעויות במשחק הזה!</p></div>';
+        if (list) list.innerHTML = '<div class="text-center p-8"><div class="text-6xl mb-4">🎉</div><h3 class="text-2xl font-bold text-green-600">מעולה!</h3><p class="text-lg text-gray-600">לא היו לך טעויות במשחק הזה!</p></div>';
         return;
       }
 
-      questions.forEach((q, i)=>{
-        const m = mistakes.find(x => x.question.questionText === q.questionText);
-        if (!m) return;
-        const div = document.createElement('div');
+      for (var i=0;i<questions.length;i++){
+        var q = questions[i];
+        var m = null;
+        for (var j=0;j<mistakes.length;j++){ if (mistakes[j].question.questionText === q.questionText) { m = mistakes[j]; break; } }
+        if (!m) continue;
+
+        var div = document.createElement('div');
         div.className = 'bg-orange-50 border-2 border-orange-200 rounded-2xl p-6 cursor-pointer hover:bg-orange-100 transition-colors';
-        div.onclick = () => showTutorial(m);
-        div.innerHTML = `
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-4">
-              <div class="w-4 h-4 bg-orange-500 rounded-full"></div>
-              <h3 class="text-xl font-bold text-orange-600">שאלה ${i + 1}</h3>
-            </div>
-            <div class="text-2xl">🤔</div>
-          </div>
-          <div class="text-2xl font-bold text-gray-800 mb-4 ltr">${m.question.questionText}</div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div class="bg-red-100 border-2 border-red-300 rounded-xl p-4">
-              <div class="text-sm text-red-600 font-bold mb-1">התשובה שלך:</div>
-              <div class="text-xl font-bold text-red-700 ltr">${m.userAnswer}</div>
-            </div>
-            <div class="bg-green-100 border-2 border-green-300 rounded-xl p-4">
-              <div class="text-sm text-green-600 font-bold mb-1">התשובה הנכונה:</div>
-              <div class="text-xl font-bold text-green-700 ltr">${m.correctAnswer}</div>
-            </div>
-          </div>
-          <div class="text-center text-blue-600 font-bold">👆 לחץ כאן כדי ללמוד איך לפתור</div>`;
-        list.appendChild(div);
-      });
+        div.onclick = (function(mk){ return function(){ showTutorial(mk); }; })(m);
+        div.innerHTML =
+          '<div class="flex items-center justify-between mb-4">' +
+            '<div class="flex items-center gap-4">' +
+              '<div class="w-4 h-4 bg-orange-500 rounded-full"></div>' +
+              '<h3 class="text-xl font-bold text-orange-600">שאלה ' + (i + 1) + '</h3>' +
+            '</div>' +
+            '<div class="text-2xl">🤔</div>' +
+          '</div>' +
+          '<div class="text-2xl font-bold text-gray-800 mb-4 ltr">' + m.question.questionText + '</div>' +
+          '<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">' +
+            '<div class="bg-red-100 border-2 border-red-300 rounded-xl p-4">' +
+              '<div class="text-sm text-red-600 font-bold mb-1">התשובה שלך:</div>' +
+              '<div class="text-xl font-bold text-red-700 ltr">' + m.userAnswer + '</div>' +
+            '</div>' +
+            '<div class="bg-green-100 border-2 border-green-300 rounded-xl p-4">' +
+              '<div class="text-sm text-green-600 font-bold mb-1">התשובה הנכונה:</div>' +
+              '<div class="text-xl font-bold text-green-700 ltr">' + m.correctAnswer + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="text-center text-blue-600 font-bold">👆 לחץ כאן כדי ללמוד איך לפתור</div>';
+        if (list) list.appendChild(div);
+      }
     }
 
     function showTutorial(mistake){
       currentTutorialMistake = mistake;
-      document.getElementById('mistakesScreen').classList.add('hidden');
-      document.getElementById('tutorialScreen').classList.remove('hidden');
+      var ms = document.getElementById('mistakesScreen'); if (ms) ms.classList.add('hidden');
+      var ts = document.getElementById('tutorialScreen'); if (ts) ts.classList.remove('hidden');
 
-      const q = mistake.question;
-      document.getElementById('tutorialTitle').textContent = q.questionText;
+      var q = mistake.question;
+      var title = document.getElementById('tutorialTitle'); if (title) title.textContent = q.questionText;
       createTutorialSteps(q);
       createInteractiveDemo(q);
     }
 
     function createTutorialSteps(question){
-      const c = document.getElementById('tutorialSteps');
-      c.innerHTML = '';
-      getTutorialSteps(question).forEach((s, idx)=>{
-        const d = document.createElement('div');
+      var c = document.getElementById('tutorialSteps');
+      if (c) c.innerHTML = '';
+      var steps = getTutorialSteps(question);
+      for (var i=0;i<steps.length;i++){
+        var s = steps[i];
+        var d = document.createElement('div');
         d.className = 'bg-blue-50 border-2 border-blue-200 rounded-2xl p-6';
-        d.innerHTML = `
-          <div class="flex items-center mb-4 gap-4">
-            <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">${idx + 1}</div>
-            <h3 class="text-xl font-bold text-blue-600">${s.title}</h3>
-          </div>
-          <p class="text-gray-700 text-lg">${s.description}</p>`;
-        c.appendChild(d);
-      });
+        d.innerHTML =
+          '<div class="flex items-center mb-4 gap-4">' +
+            '<div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">' + (i+1) + '</div>' +
+            '<h3 class="text-xl font-bold text-blue-600">' + s.title + '</h3>' +
+          '</div>' +
+          '<p class="text-gray-700 text-lg">' + s.description + '</p>';
+        if (c) c.appendChild(d);
+      }
     }
 
     function getTutorialSteps(q){
-      const { operation, num1, num2, answer } = q;
+      var operation = q.operation, num1 = q.num1, num2 = q.num2, answer = q.answer;
       if (operation === 'addition') return [
-        { title:'הבנת השאלה', description:`אנחנו רוצים לדעת כמה זה ${num1} + ${num2}.` },
-        { title:'הצגת הפריטים הראשונים', description:`נתחיל עם ${num1} פריטים.` },
-        { title:'הוספת פריטים', description:`נוסיף ${num2} ונמנה הכול יחד.` },
-        { title:'התוצאה', description:`יש ${answer} פריטים. זו התשובה!` }
+        { title:'הבנת השאלה', description:'אנחנו רוצים לדעת כמה זה ' + num1 + ' + ' + num2 + '.' },
+        { title:'הצגת הפריטים הראשונים', description:'נתחיל עם ' + num1 + ' פריטים.' },
+        { title:'הוספת פריטים', description:'נוסיף ' + num2 + ' ונמנה הכול יחד.' },
+        { title:'התוצאה', description:'יש ' + answer + ' פריטים. זו התשובה!' }
       ];
       if (operation === 'subtraction') return [
-        { title:'הבנת השאלה', description:`אנחנו רוצים לדעת כמה זה ${num1} - ${num2}.` },
-        { title:'הצגת הפריטים הראשונים', description:`נתחיל עם ${num1} פריטים.` },
-        { title:'הסרת פריטים', description:`נסיר ${num2} ונמנה כמה נשאר.` },
-        { title:'התוצאה', description:`נשארו ${answer} פריטים.` }
+        { title:'הבנת השאלה', description:'אנחנו רוצים לדעת כמה זה ' + num1 + ' - ' + num2 + '.' },
+        { title:'הצגת הפריטים הראשונים', description:'נתחיל עם ' + num1 + ' פריטים.' },
+        { title:'הסרת פריטים', description:'נסיר ' + num2 + ' ונמנה כמה נשאר.' },
+        { title:'התוצאה', description:'נשארו ' + answer + ' פריטים.' }
       ];
       if (operation === 'multiplication') return [
-        { title:'הבנת השאלה', description:`אנחנו רוצים לדעת כמה זה ${num1} × ${num2}.` },
-        { title:'יצירת קבוצות', description:`ניצור ${num1} קבוצות של ${num2}.` },
-        { title:'ספירה', description:`נספור את כל הפריטים.` },
-        { title:'התוצאה', description:`יש ${answer} פריטים בסך הכול.` }
+        { title:'הבנת השאלה', description:'אנחנו רוצים לדעת כמה זה ' + num1 + ' × ' + num2 + '.' },
+        { title:'יצירת קבוצות', description:'ניצור ' + num1 + ' קבוצות של ' + num2 + '.' },
+        { title:'ספירה', description:'נספור את כל הפריטים.' },
+        { title:'התוצאה', description:'יש ' + answer + ' פריטים בסך הכול.' }
       ];
       if (operation === 'division'){
-        const dividend = parseInt(q.questionText.split(' ÷ ')[0]); const divisor = num2;
+        var dividend = parseInt(q.questionText.split(' ÷ ')[0], 10);
+        var divisor = num2;
         return [
-          { title:'הבנת השאלה', description:`אנחנו רוצים לדעת כמה זה ${dividend} ÷ ${divisor}.` },
-          { title:'הצגת כל הפריטים', description:`נתחיל עם ${dividend} פריטים.` },
-          { title:'חלוקה לקבוצות', description:`נחלק לקבוצות של ${divisor}.` },
-          { title:'התוצאה', description:`קיבלנו ${answer} קבוצות.` }
+          { title:'הבנת השאלה', description:'אנחנו רוצים לדעת כמה זה ' + dividend + ' ÷ ' + divisor + '.' },
+          { title:'הצגת כל הפריטים', description:'נתחיל עם ' + dividend + ' פריטים.' },
+          { title:'חלוקה לקבוצות', description:'נחלק לקבוצות של ' + divisor + '.' },
+          { title:'התוצאה', description:'קיבלנו ' + answer + ' קבוצות.' }
         ];
       }
       return [];
     }
 
     // Tutorial interactive demo (אמוג'י נשמר רק למסך ההדרכה)
-    const tutorialEmojis = ['🍎','🎈','⭐','🌟','🍊','🎯','🌈','🎪'];
+    var tutorialEmojis = ['🍎','🎈','⭐','🌟','🍊','🎯','🌈','🎪'];
     function createInteractiveDemo(q){
-      const area = document.getElementById('interactiveContent');
-      const info = document.getElementById('interactiveInstructions');
-      area.innerHTML = '';
-      const { operation, num1, num2, answer } = q;
-      const emoji = tutorialEmojis[Math.floor(Math.random() * tutorialEmojis.length)];
+      var area = document.getElementById('interactiveContent');
+      var info = document.getElementById('interactiveInstructions');
+      if (area) area.innerHTML = '';
+      var operation = q.operation, num1 = q.num1, num2 = q.num2, answer = q.answer;
+      var emoji = tutorialEmojis[Math.floor(Math.random() * tutorialEmojis.length)];
 
       if (operation === 'addition'){
-        let clicked = 0, total = answer;
-        for (let i=0;i<total;i++){
-          const s = document.createElement('span'); s.className='text-3xl m-1 opacity-50 cursor-pointer'; s.textContent = i < num1 ? '🔵' : '🟡';
-          s.onclick=()=>{ if (clicked < total && s.style.opacity !== '1'){ s.style.opacity='1'; clicked++; info.textContent = clicked===total ? `מעולה! ספרת ${total} פריטים - זו התשובה! 🎉` : `המשך לספור... (${clicked}/${total})`; } };
-          area.appendChild(s); if((i+1)%5===0 && i<total-1) area.appendChild(document.createElement('br'));
+        var clicked = 0, total = answer;
+        for (var i=0;i<total;i++){
+          var s = document.createElement('span'); s.className='text-3xl m-1 opacity-50 cursor-pointer'; s.textContent = i < num1 ? '🔵' : '🟡';
+          s.onclick=(function(el){ return function(){ if (clicked < total && el.style.opacity !== '1'){ el.style.opacity='1'; clicked++; if (info) info.textContent = clicked===total ? ('מעולה! ספרת ' + total + ' פריטים - זו התשובה! 🎉') : ('המשך לספור... (' + clicked + '/' + total + ')'); } }; })(s);
+          if (area) area.appendChild(s); if(((i+1)%5===0) && i<total-1) if (area) area.appendChild(document.createElement('br'));
         }
-        info.textContent = `לחץ על הכדורים כדי לספור את ${num1} + ${num2}`; return;
+        if (info) info.textContent = 'לחץ על הכדורים כדי לספור את ' + num1 + ' + ' + num2;
+        return;
       }
       if (operation === 'subtraction'){
-        let removed = 0;
-        for (let i=0;i<num1;i++){
-          const s = document.createElement('span'); s.className='text-3xl m-1 cursor-pointer'; s.textContent = emoji;
-          s.onclick=()=>{ if (removed < num2 && s.style.opacity !== '0.3'){ s.style.opacity='0.3'; s.style.textDecoration='line-through'; removed++; info.textContent = removed===num2 ? `מעולה! הסרת ${num2} פריטים; נשארו ${answer}. 🎉` : `לחץ על עוד ${num2-removed}`; } };
-          area.appendChild(s); if((i+1)%5===0 && i<num1-1) area.appendChild(document.createElement('br'));
+        var removed = 0;
+        for (var i2=0;i2<num1;i2++){
+          var s2 = document.createElement('span'); s2.className='text-3xl m-1 cursor-pointer'; s2.textContent = emoji;
+          s2.onclick=(function(el){ return function(){ if (removed < num2 && el.style.opacity !== '0.3'){ el.style.opacity='0.3'; el.style.textDecoration='line-through'; removed++; if (info) info.textContent = removed===num2 ? ('מעולה! הסרת ' + num2 + ' פריטים; נשארו ' + answer + '. 🎉') : ('לחץ על עוד ' + (num2-removed)); } }; })(s2);
+          if (area) area.appendChild(s2); if(((i2+1)%5===0) && i2<num1-1) if (area) area.appendChild(document.createElement('br'));
         }
-        info.textContent = `לחץ על ${num2} פריטים כדי להסיר מתוך ${num1}`; return;
+        if (info) info.textContent = 'לחץ על ' + num2 + ' פריטים כדי להסיר מתוך ' + num1;
+        return;
       }
       if (operation === 'multiplication'){
-        let shown = 0;
-        for (let g=0; g<num1; g++){
-          const group = document.createElement('div'); group.className='inline-block border-2 border-dashed border-blue-300 rounded-lg p-3 m-2 bg-blue-50'; group.style.opacity='0.5';
-          const label = document.createElement('div'); label.className='text-sm font-bold text-blue-600 mb-2 text-center'; label.textContent=`קבוצה ${g+1}`; group.appendChild(label);
-          for (let i=0;i<num2;i++){ const s=document.createElement('span'); s.className='text-2xl m-1'; s.textContent=emoji; group.appendChild(s); }
-          group.onclick=()=>{ if (group.style.opacity==='0.5'){ group.style.opacity='1'; if(++shown===num1) info.textContent=`מעולה! ${num1}×${num2} = ${answer}. 🎉`; else info.textContent=`נהדר! לחץ על עוד ${num1-shown} קבוצות`; } };
-          area.appendChild(group);
+        var shown = 0;
+        for (var g=0; g<num1; g++){
+          var group = document.createElement('div'); group.className='inline-block border-2 border-dashed border-blue-300 rounded-lg p-3 m-2 bg-blue-50'; group.style.opacity='0.5';
+          var label = document.createElement('div'); label.className='text-sm font-bold text-blue-600 mb-2 text-center'; label.textContent='קבוצה ' + (g+1); group.appendChild(label);
+          for (var i3=0;i3<num2;i3++){ var sp=document.createElement('span'); sp.className='text-2xl m-1'; sp.textContent=emoji; group.appendChild(sp); }
+          group.onclick=(function(el){ return function(){ if (el.style.opacity==='0.5'){ el.style.opacity='1'; shown++; if (info) info.textContent = (shown===num1) ? ('מעולה! ' + num1 + '×' + num2 + ' = ' + answer + '. 🎉') : ('נהדר! לחץ על עוד ' + (num1-shown) + ' קבוצות'); } }; })(group);
+          if (area) area.appendChild(group);
         }
-        info.textContent = `לחץ על הקבוצות כדי לראות ${num1} קבוצות של ${num2}`; return;
+        if (info) info.textContent = 'לחץ על הקבוצות כדי לראות ' + num1 + ' קבוצות של ' + num2;
+        return;
       }
       if (operation === 'division'){
-        let shown = 0; const dividend = parseInt(q.questionText.split(' ÷ ')[0]);
-        for (let g=0; g<answer; g++){
-          const group = document.createElement('div'); group.className='inline-block border-2 border-dashed border-purple-300 rounded-lg p-3 m-2 bg-purple-50'; group.style.opacity='0.5';
-          const label = document.createElement('div'); label.className='text-sm font-bold text-purple-600 mb-2 text-center'; label.textContent=`קבוצה ${g+1}`; group.appendChild(label);
-          for (let i=0;i<num2;i++){ const s=document.createElement('span'); s.className='text-2xl m-1'; s.textContent=emoji; group.appendChild(s); }
-          group.onclick=()=>{ if (group.style.opacity==='0.5'){ group.style.opacity='1'; if(++shown===answer) info.textContent=`מעולה! חילקת ${dividend} ל-${answer} קבוצות של ${num2}. 🎉`; else info.textContent=`נהדר! לחץ על עוד ${answer-shown} קבוצות`; } };
-          area.appendChild(group);
+        var shown2 = 0; var dividend = parseInt(q.questionText.split(' ÷ ')[0], 10);
+        for (var g2=0; g2<answer; g2++){
+          var group2 = document.createElement('div'); group2.className='inline-block border-2 border-dashed border-purple-300 rounded-lg p-3 m-2 bg-purple-50'; group2.style.opacity='0.5';
+          var label2 = document.createElement('div'); label2.className='text-sm font-bold text-purple-600 mb-2 text-center'; label2.textContent='קבוצה ' + (g2+1); group2.appendChild(label2);
+          for (var i4=0;i4<num2;i4++){ var sp2=document.createElement('span'); sp2.className='text-2xl m-1'; sp2.textContent=emoji; group2.appendChild(sp2); }
+          group2.onclick=(function(el){ return function(){ if (el.style.opacity==='0.5'){ el.style.opacity='1'; shown2++; if (info) info.textContent = (shown2===answer) ? ('מעולה! חילקת ' + dividend + ' ל-' + answer + ' קבוצות של ' + num2 + '. 🎉') : ('נהדר! לחץ על עוד ' + (answer-shown2) + ' קבוצות'); } }; })(group2);
+          if (area) area.appendChild(group2);
         }
-        info.textContent = `לחץ על הקבוצות כדי לראות חלוקה ל-${answer} קבוצות של ${num2}`;
+        if (info) info.textContent = 'לחץ על הקבוצות כדי לראות חלוקה ל-' + answer + ' קבוצות של ' + num2;
       }
     }
 
     function startOver(){
       currentOperation='addition'; currentDifficulty='easy'; currentQuestionIndex=0;
       correctCount=0; questions=[]; mistakes=[]; startTime=0; totalTime=0; selectedAnswer=null; currentTutorialMistake=null;
-      ['gameScreen','resultsScreen','mistakesScreen','tutorialScreen','difficultyScreen','nameScreen','welcomeScreen'].forEach(id => document.getElementById(id).classList.add('hidden'));
-      document.getElementById('operationScreen').classList.remove('hidden');
+      var ids = ['gameScreen','resultsScreen','mistakesScreen','tutorialScreen','difficultyScreen','nameScreen','welcomeScreen'];
+      for (var i=0;i<ids.length;i++){ var el=document.getElementById(ids[i]); if (el) el.classList.add('hidden'); }
+      var op = document.getElementById('operationScreen'); if (op) op.classList.remove('hidden');
       applyCurriculumToOperationButtons();
     }
 
     // ===== Utilities =====
     function randInt(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
-    function shuffleArray(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i++){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+    function shuffleArray(arr){ var a=arr.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
     function generateAnswerOptions(correct){
-      const opts = [correct];
+      var opts = [correct];
       while (opts.length < 4){
-        const wrong = correct + Math.floor(Math.random()*7) - 3; // ±3
-        if (wrong > 0 && wrong !== correct && !opts.includes(wrong)) opts.push(wrong);
+        var wrong = correct + Math.floor(Math.random()*7) - 3; // ±3
+        if (wrong > 0 && wrong !== correct && opts.indexOf(wrong) === -1) opts.push(wrong);
       }
       return shuffleArray(opts);
     }
 
     // ===== Audio helpers =====
-    let audioCtx = null;
+    var audioCtx = null;
     function getAudioCtx(){
       try{
         if (!audioCtx){
-          const AC = window.AudioContext || window.webkitAudioContext;
+          var AC = window.AudioContext || window.webkitAudioContext;
           if (!AC) return null;
           audioCtx = new AC();
         }
         if (audioCtx.state === 'suspended') audioCtx.resume();
         return audioCtx;
-      } catch { return null; }
+      } catch (e) { return null; }
     }
-    function tone(freq, dur, t, type='sine', gain=0.15){
-      const ctx = getAudioCtx(); if (!ctx) return;
-      const start = t ?? ctx.currentTime;
-      const osc = ctx.createOscillator(); const g = ctx.createGain();
+    function tone(freq, dur, t, type, gain){
+      if (typeof type === 'undefined') type = 'sine';
+      if (typeof gain === 'undefined') gain = 0.15;
+      var ctx = getAudioCtx(); if (!ctx) return;
+      var start = (typeof t === 'number') ? t : ctx.currentTime;
+      var osc = ctx.createOscillator(); var g = ctx.createGain();
       osc.type = type; osc.frequency.setValueAtTime(freq, start);
       g.gain.setValueAtTime(gain, start); g.gain.exponentialRampToValueAtTime(0.001, start + dur);
       osc.connect(g); g.connect(ctx.destination); osc.start(start); osc.stop(start + dur);
     }
     function playSuccessSound(){
-      const ctx = getAudioCtx(); if (!ctx) return; const t = ctx.currentTime;
+      var ctx = getAudioCtx(); if (!ctx) return; var t = ctx.currentTime;
       tone(523.25, 0.12, t,      'sine', 0.18); // C5
       tone(659.25, 0.12, t+0.10, 'sine', 0.16); // E5
       tone(783.99, 0.14, t+0.20, 'sine', 0.14); // G5
     }
     function playErrorSound(){
-      const ctx = getAudioCtx(); if (!ctx) return; const t = ctx.currentTime;
+      var ctx = getAudioCtx(); if (!ctx) return; var t = ctx.currentTime;
       tone(220, 0.12, t,      'sawtooth', 0.12);
       tone(180, 0.14, t+0.10, 'sawtooth', 0.10);
     }
 
     // ===== Confetti (results only, 100% correct) =====
     function confettiBurst(container){
-      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const n = 28;
-      for (let i=0;i<n;i++){
-        const dot = document.createElement('span');
-        dot.style.position='absolute'; dot.style.width=dot.style.height='8px'; dot.style.borderRadius='50%';
+      try{
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      } catch(e){}
+      var n = 28;
+      for (var i=0;i<n;i++){
+        var dot = document.createElement('span');
+        dot.style.position='absolute'; dot.style.width='8px'; dot.style.height='8px'; dot.style.borderRadius='50%';
         dot.style.left='50%'; dot.style.top='10%';
-        dot.style.background=['#22c55e','#3b82f6','#f59e0b','#ef4444','#a855f7'][i%5];
-        const angle=(i/n)*Math.PI*2, dist=80+Math.random()*50, tx=Math.cos(angle)*dist, ty=Math.sin(angle)*dist;
-        const anim = dot.animate([
-          { transform:'translate(-50%,-50%) scale(1)', opacity:1 },
-          { transform:`translate(${tx-50}%,${ty-50}%) scale(0.9)`, opacity:0 }
-        ], { duration: 900, easing:'cubic-bezier(.2,.8,.2,1)' });
-        anim.onfinish=()=>dot.remove();
+        var colors = ['#22c55e','#3b82f6','#f59e0b','#ef4444','#a855f7'];
+        dot.style.background=colors[i%colors.length];
+        var angle=(i/n)*Math.PI*2, dist=80+Math.random()*50, tx=Math.cos(angle)*dist, ty=Math.sin(angle)*dist;
+        var anim = dot.animate(
+          [{ transform:'translate(-50%,-50%) scale(1)', opacity:1 },
+           { transform:'translate('+(tx-50)+'%,'+(ty-50)+'%) scale(0.9)', opacity:0 }],
+          { duration: 900, easing:'cubic-bezier(.2,.8,.2,1)' }
+        );
+        anim.onfinish=function(){ if (dot && dot.parentNode) dot.parentNode.removeChild(dot); };
         container.appendChild(dot);
       }
     }
 
     // ===== Init =====
-    document.addEventListener('DOMContentLoaded', ()=>{
-      const input = document.getElementById('playerName');
-      if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter') showOperationSelect(); });
+    document.addEventListener('DOMContentLoaded', function (){
+      var startBtn = document.querySelector('#welcomeScreen button');
+      if (startBtn){ startBtn.addEventListener('click', function(e){ e.preventDefault(); showNameInput(); }); }
 
-      const curriculumSel = document.getElementById('curriculumSelect');
-      if (curriculumSel) curriculumSel.addEventListener('change', e => { currentCurriculum = e.target.value; applyCurriculumToOperationButtons(); });
-
-      const qSel = document.getElementById('questionCountSelect');
-      if (qSel) qSel.addEventListener('change', e => { questionCount = parseInt(e.target.value, 10) || 6; });
+      var form = document.getElementById('nameForm');
+      if (form){
+        form.addEventListener('submit', function(e){
+          e.preventDefault();
+          showOperationSelect();
+        });
+      }
+      var input = document.getElementById('playerName');
+      if (input){
+        input.addEventListener('keydown', function(e){
+          if (e.key === 'Enter'){ e.preventDefault(); showOperationSelect(); }
+        });
+      }
+      var curriculumSel = document.getElementById('curriculumSelect');
+      if (curriculumSel){
+        curriculumSel.addEventListener('change', function(e){
+          currentCurriculum = e.target.value;
+          applyCurriculumToOperationButtons();
+        });
+      }
+      var qSel = document.getElementById('questionCountSelect');
+      if (qSel){
+        qSel.addEventListener('change', function(e){
+          questionCount = parseInt(e.target.value, 10) || 6;
+        });
+      }
     });
   </script>
 </body>
