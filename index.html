@@ -19,16 +19,13 @@
       -webkit-tap-highlight-color: transparent;
     }
     .answer-item:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
-    .answer-item.selected { transform: scale(1.05); box-shadow: 0 12px 30px rgba(0,0,0,0.2); border: 3px solid #10b981; }
+    /* בחירה – מסגרת ניטרלית בלבד */
+    .answer-item.selected { transform: scale(1.03); box-shadow: 0 12px 30px rgba(0,0,0,0.2); border: 3px solid #2563eb; }
 
     .owl-blink { animation: blink 2s infinite; }
     @keyframes blink { 0%, 90%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
 
     .progress-fill { transition: width 0.5s ease-in-out; }
-
-    .interactive-item { transition: all 0.3s ease; cursor: pointer; }
-    .interactive-item:hover { transform: scale(1.1); }
-    .interactive-item.selected { transform: scale(1.2); filter: brightness(1.2); }
 
     .step-animation { animation: stepHighlight 1s ease-in-out; }
     @keyframes stepHighlight { 0%, 100% { background-color: transparent; } 50% { background-color: rgba(34, 197, 94, 0.2); } }
@@ -38,6 +35,10 @@
 
     /* מספרים וביטויים מתמטיים תמיד LTR בתוך UI RTL */
     .ltr { direction: ltr; unicode-bidi: embed; display: inline-block; }
+
+    /* נקודות המחשה עדינות */
+    .dots-grid { display: grid; grid-template-columns: repeat(6, 0.5rem); gap: 0.25rem; justify-content: center; }
+    .dot { width: 0.5rem; height: 0.5rem; border-radius: 9999px; background-color: #374151; display: inline-block; }
   </style>
 </head>
 <body class="bg-gradient-to-br from-blue-100 via-purple-50 to-green-100 min-h-screen">
@@ -107,7 +108,6 @@
         <button onclick="startGame('medium')" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-6 rounded-2xl text-xl font-bold hover:scale-105 transition-all duration-200 shadow-lg"><div class="text-3xl mb-2">🔥</div><div class="font-bold">בינוני</div></button>
         <button onclick="startGame('hard')" class="bg-gradient-to-r from-red-400 to-purple-500 text-white p-6 rounded-2xl text-xl font-bold hover:scale-105 transition-all duration-200 shadow-lg"><div class="text-3xl mb-2">⚡</div><div class="font-bold">מתקדם</div></button>
       </div>
-      <!-- Question count selector -->
       <div class="mt-2 text-right">
         <label for="questionCountSelect" class="block text-sm font-medium text-gray-700 mb-1">מספר שאלות בסט</label>
         <select id="questionCountSelect" class="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none bg-white">
@@ -138,21 +138,33 @@
     </div>
 
     <div class="grid grid-cols-1 gap-3 max-w-2xl mx-auto px-4 mb-6">
-      <div class="answer-item bg-gradient-to-br from-red-200 to-red-300 rounded-2xl p-3 shadow-lg flex items-center justify-between" data-value="6">
-        <div class="text-3xl font-bold text-red-800 min-w-[60px] text-center ltr">6</div>
-        <div class="text-xl flex-1 text-center">🍎🍎🍎<br>🍎🍎🍎</div>
+      <!-- תבנית תתעדכן דינמית -->
+      <div class="answer-item bg-gradient-to-br from-red-200 to-red-300 rounded-2xl p-4 shadow-lg flex items-center justify-between" data-value="6">
+        <div class="flex-1 text-center">
+          <div class="dots-grid" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+        </div>
+        <div class="text-4xl font-extrabold text-gray-900 min-w-[72px] text-center ltr">6</div>
       </div>
-      <div class="answer-item bg-gradient-to-br from-blue-200 to-blue-300 rounded-2xl p-3 shadow-lg flex items-center justify-between" data-value="8">
-        <div class="text-3xl font-bold text-blue-800 min-w-[60px] text-center ltr">8</div>
-        <div class="text-xl flex-1 text-center">🎈🎈🎈🎈<br>🎈🎈🎈🎈</div>
+      <div class="answer-item bg-gradient-to-br from-blue-200 to-blue-300 rounded-2xl p-4 shadow-lg flex items-center justify-between" data-value="8">
+        <div class="flex-1 text-center">
+          <div class="dots-grid" aria-hidden="true">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="dot"></span><span class="dot"></span>
+          </div>
+        </div>
+        <div class="text-4xl font-extrabold text-gray-900 min-w-[72px] text-center ltr">8</div>
       </div>
-      <div class="answer-item bg-gradient-to-br from-green-200 to-green-300 rounded-2xl p-3 shadow-lg flex items-center justify-between" data-value="7">
-        <div class="text-3xl font-bold text-green-800 min-w-[60px] text-center ltr">7</div>
-        <div class="text-xl flex-1 text-center">⭐⭐⭐⭐<br>⭐⭐⭐</div>
+      <div class="answer-item bg-gradient-to-br from-green-200 to-green-300 rounded-2xl p-4 shadow-lg flex items-center justify-between" data-value="7">
+        <div class="flex-1 text-center"><div class="dots-grid" aria-hidden="true"></div></div>
+        <div class="text-4xl font-extrabold text-gray-900 min-w-[72px] text-center ltr">7</div>
       </div>
-      <div class="answer-item bg-gradient-to-br from-yellow-200 to-yellow-300 rounded-2xl p-3 shadow-lg flex items-center justify-between" data-value="5">
-        <div class="text-3xl font-bold text-yellow-800 min-w-[60px] text-center ltr">5</div>
-        <div class="text-xl flex-1 text-center">🌟🌟🌟<br>🌟🌟</div>
+      <div class="answer-item bg-gradient-to-br from-yellow-200 to-yellow-300 rounded-2xl p-4 shadow-lg flex items-center justify-between" data-value="5">
+        <div class="flex-1 text-center"><div class="dots-grid" aria-hidden="true"></div></div>
+        <div class="text-4xl font-extrabold text-gray-900 min-w-[72px] text-center ltr">5</div>
       </div>
     </div>
 
@@ -210,7 +222,7 @@
   <div id="mistakesScreen" class="hidden min-h-screen p-6">
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="text-center mb-8">
-        <div class="text-6xl mb-4">📚</div>
+        <div class="text-6ל mb-4">📚</div>
         <h2 class="text-3xl font-bold text-orange-600 mb-4">למד מהטעויות</h2>
 
         <div class="mb-6 max-w-md mx-auto">
@@ -273,19 +285,16 @@
     let currentCurriculum = 'none';
     let questionCount = 6;
 
-    const emojis = ['🍎','🎈','⭐','🌟','🍊','🎯','🌈','🎪'];
+    const emojis = ['🍎','🎈','⭐','🌟','🍊','🎯','🌈','🎪']; // נשתמש רק במסכי ההסבר
 
-    // Difficulty rules:
-    // easy: add/sub <= 20, עם הטיה ל"שטף <= 10"; mult/div <= 5×5
-    // medium: add/sub <= 100; mult/div <= 10×10
-    // hard: add/sub <= 1000; mult/div <= 12×12
+    // Difficulty rules (עם הטיה ל"שטף <=10" בחיבור/חיסור ברמת קל)
     const rulesByDifficulty = {
       easy:   { addSubMax: 20,  mulMax: 5,  divMaxDivisor: 5,  divMaxQuotient: 5 },
       medium: { addSubMax: 100, mulMax: 10, divMaxDivisor: 10, divMaxQuotient: 10 },
       hard:   { addSubMax: 1000,mulMax: 12, divMaxDivisor: 12, divMaxQuotient: 12 }
     };
 
-    // Curricula presets (ישראל לדוגמה)
+    // Curricula presets
     const curricula = {
       none: { name: 'ללא תוכנית' },
       il_g1_s1: { name: 'ישראל: כיתה א׳ – סמסטר א׳', operations: ['addition','subtraction'], addSubMax: 10 },
@@ -328,7 +337,7 @@
       document.getElementById('playerNameDisplay').textContent = playerName;
       ['nameScreen','resultsScreen','mistakesScreen','tutorialScreen'].forEach(id => document.getElementById(id).classList.add('hidden'));
       document.getElementById('operationScreen').classList.remove('hidden');
-      applyCurriculumToOperationButtons(); // לעדכן זמינות כפתורים לפי תוכנית נבחרת
+      applyCurriculumToOperationButtons();
     }
 
     function selectOperation(operation) {
@@ -337,7 +346,6 @@
       document.getElementById('difficultyScreen').classList.remove('hidden');
     }
 
-    // השבתת פעולות שלא מאושרות ע"י התוכנית
     function applyCurriculumToOperationButtons() {
       const cur = curricula[currentCurriculum];
       const allowed = cur?.operations;
@@ -346,7 +354,6 @@
         const op = btn.getAttribute('data-op');
         let enabled = true;
         if (allowed && op !== 'mixed') enabled = allowed.includes(op);
-        // mixed תמיד זמין; ייבחר רק ממה שמותר
         if (!enabled) {
           btn.classList.add('opacity-50','cursor-not-allowed','pointer-events-none');
           btn.setAttribute('aria-disabled','true');
@@ -382,7 +389,6 @@
       document.getElementById('gameScreen').classList.remove('hidden');
       document.getElementById('gamePlayerName').textContent = playerName;
 
-      // reset progressbar
       const pb = document.getElementById('progressBar');
       pb.style.width = '0%';
       pb.setAttribute('aria-valuenow', '0');
@@ -396,9 +402,8 @@
       const ops = getOpsList(operation, cur);
 
       let pool = [];
-      ops.forEach(op => pool.push(...buildOpPool(op, rules, desiredCount * 4, difficulty))); // נפח גדול, דגימה אח"כ
+      ops.forEach(op => pool.push(...buildOpPool(op, rules, desiredCount * 4, difficulty)));
 
-      // unique by question text
       const map = new Map();
       for (const q of pool) if (!map.has(q.questionText)) map.set(q.questionText, q);
       const unique = Array.from(map.values());
@@ -406,7 +411,6 @@
       return shuffleArray(unique).slice(0, Math.min(desiredCount, unique.length));
     }
 
-    // יצירת תרגילים רנדומלית עם אילוצים; ב-easy יש הטיה לשטף עד 10 לחיבור/חיסור
     function buildOpPool(operation, rules, targetSize, difficulty) {
       const pool = [];
       let attempts = 0, maxAttempts = 6000;
@@ -417,7 +421,7 @@
 
       if (operation === 'addition') {
         while (pool.length < targetSize && attempts++ < maxAttempts) {
-          const fluency = (difficulty === 'easy') && Math.random() < 0.5; // 50% עד 10
+          const fluency = (difficulty === 'easy') && Math.random() < 0.5;
           const cap = fluency ? Math.min(10, rules.addSubMax) : rules.addSubMax;
           const a = randInt(0, cap);
           const b = randInt(0, cap);
@@ -434,7 +438,7 @@
           const fluency = (difficulty === 'easy') && Math.random() < 0.5;
           const cap = fluency ? Math.min(10, rules.addSubMax) : rules.addSubMax;
           const a = randInt(0, cap);
-          const b = randInt(0, a); // לא תוצאה שלילית
+          const b = randInt(0, a);
           const ans = a - b;
           if (ans >= 0 && ans <= cap) {
             pool.push(mkQ(`${a} - ${b} = ?`, ans, 'subtraction', a, b, '-',
@@ -482,18 +486,18 @@
       const options = generateAnswerOptions(q.answer);
       const answerItems = document.querySelectorAll('.answer-item');
       const colors = [
-        { bg: 'from-red-200 to-red-300', text: 'text-red-800' },
-        { bg: 'from-blue-200 to-blue-300', text: 'text-blue-800' },
-        { bg: 'from-green-200 to-green-300', text: 'text-green-800' },
-        { bg: 'from-yellow-200 to-yellow-300', text: 'text-yellow-800' }
+        { bg: 'from-red-200 to-red-300' },
+        { bg: 'from-blue-200 to-blue-300' },
+        { bg: 'from-green-200 to-green-300' },
+        { bg: 'from-yellow-200 to-yellow-300' }
       ];
       options.forEach((opt, i) => {
         if (!answerItems[i]) return;
         answerItems[i].setAttribute('data-value', opt);
-        answerItems[i].className = `answer-item bg-gradient-to-br ${colors[i].bg} rounded-2xl p-3 shadow-lg flex items-center justify-between`;
+        answerItems[i].className = `answer-item bg-gradient-to-br ${colors[i].bg} rounded-2xl p-4 shadow-lg flex items-center justify-between`;
         answerItems[i].innerHTML = `
-          <div class="text-3xl font-bold ${colors[i].text} min-w-[60px] text-center ltr">${opt}</div>
-          <div class="text-xl flex-1 text-center">${createVisualRepresentation(opt)}</div>`;
+          <div class="flex-1 text-center">${createDots(opt)}</div>
+          <div class="text-4xl font-extrabold text-gray-900 min-w-[72px] text-center ltr">${opt}</div>`;
       });
 
       const confirmButton = document.getElementById('confirmButton');
@@ -509,11 +513,13 @@
       answerItems.forEach(item => {
         item.setAttribute('tabindex','0');
         item.setAttribute('role','button');
+        item.setAttribute('aria-selected','false');
         item.classList.add('focus:outline-none','focus:ring-2','focus:ring-offset-2','focus:ring-blue-400');
         item.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { item.click(); e.preventDefault(); } };
         item.onclick = function() {
-          answerItems.forEach(el => el.classList.remove('selected'));
+          answerItems.forEach(el => { el.classList.remove('selected'); el.setAttribute('aria-selected','false'); });
           this.classList.add('selected');
+          this.setAttribute('aria-selected','true');
           selectedAnswer = parseInt(this.getAttribute('data-value'));
           const confirm = document.getElementById('confirmButton');
           confirm.disabled = false;
@@ -720,7 +726,7 @@
         let clicked = 0, total = answer;
         for (let i = 0; i < total; i++) {
           const item = document.createElement('span');
-          item.className = 'interactive-item text-3xl m-1 opacity-50 cursor-pointer';
+          item.className = 'text-3xl m-1 opacity-50 cursor-pointer';
           item.textContent = i < num1 ? '🔵' : '🟡';
           item.onclick = () => {
             if (clicked < total && item.style.opacity !== '1') {
@@ -740,7 +746,7 @@
         let removed = 0;
         for (let i = 0; i < num1; i++) {
           const item = document.createElement('span');
-          item.className = 'interactive-item text-3xl m-1 cursor-pointer';
+          item.className = 'text-3xl m-1 cursor-pointer';
           item.textContent = emoji;
           item.onclick = () => {
             if (removed < num2 && item.style.opacity !== '0.3') {
@@ -835,24 +841,17 @@
       return shuffleArray(options);
     }
 
-    function createVisualRepresentation(number) {
-      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-      let visual = '';
-      if (number <= 10) {
-        const rows = Math.ceil(number / 5);
-        for (let row = 0; row < rows; row++) {
-          const n = Math.min(5, number - (row * 5));
-          for (let i = 0; i < n; i++) visual += emoji;
-          if (row < rows - 1) visual += '<br>';
-        }
-      } else {
-        for (let i = 0; i < Math.min(8, number); i++) { visual += emoji; if (i === 4) visual += '<br>'; }
-        if (number > 8) visual += '<br><span class="text-sm text-gray-500">...ועוד <span class="ltr">' + (number - 8) + '</span></span>';
-      }
-      return visual;
+    // המחשה על הכרטיס: נקודות עד 12 בלבד; מעבר לזה – אין המחשה
+    function createDots(n) {
+      if (n <= 0) return '';
+      if (n > 12) return '';
+      let html = '<div class="dots-grid" aria-hidden="true">';
+      for (let i = 0; i < n; i++) html += '<span class="dot"></span>';
+      html += '</div>';
+      return html;
     }
 
-    // ===== Sounds (simple WebAudio beeps) =====
+    // ===== Sounds =====
     function playSuccessSound() {
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -860,7 +859,6 @@
         osc.connect(gain); gain.connect(ctx.destination);
         osc.frequency.setValueAtTime(523.25, ctx.currentTime);
         osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
-        osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2);
         gain.gain.setValueAtTime(0.3, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
         osc.start(); osc.stop(ctx.currentTime + 0.3);
