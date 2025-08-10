@@ -56,8 +56,24 @@
     .confirm-button{ transition: all .25s ease; }
     .confirm-button:disabled{ opacity:.5; cursor:not-allowed; transform:none !important; }
 
-    /* Shufi coach */
+    /* ===== Coach (Shufi) ===== */
     #coach { padding-bottom: calc(env(safe-area-inset-bottom,0px)); }
+    #coach .coach-inner { position: relative; }
+    /* כפתור X גדול ונוח */
+    #coachClose{
+      position: absolute;
+      top: 6px; right: 8px;
+      width: 36px; height: 36px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 9999px;
+      font-size: 20px; line-height: 1;
+      background: transparent; border: none; cursor: pointer;
+      color: #4b5563;
+    }
+    #coachClose:hover{ background: rgba(0,0,0,.06); color:#111827; }
+    #coachClose:focus-visible{ outline: 2px solid #60a5fa; outline-offset: 2px; }
+    /* מרווח לצד ה-X כדי שלא יכסה את הטקסט */
+    #coach .coach-inner{ padding-inline-end: 44px; }
 
     /* Audio toggle */
     #audioToggle {
@@ -71,6 +87,22 @@
     #audioToggle[aria-pressed="true"] .unmuted { display: none; }
     #audioToggle[aria-pressed="false"] .muted { display: none; }
     #audioToggle[aria-pressed="false"] .unmuted { display: inline; }
+
+    /* Dock mode for mobile */
+    body.with-coach-dock {
+      padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    }
+    @media (max-width: 640px) {
+      #coach.dock {
+        position: fixed;
+        left: 0; right: 0; bottom: 0; top: auto;
+        max-width: none; margin: 0; z-index: 50;
+      }
+      #coach.dock .coach-inner {
+        margin: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+        border-radius: 16px;
+      }
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-blue-100 via-purple-50 to-green-100 min-h-screen">
@@ -292,10 +324,10 @@
 
   <!-- Shufi Coach Widget -->
   <div id="coach" class="fixed right-4 bottom-6 sm:right-6 sm:bottom-6 z-40 max-w-[90vw]" dir="rtl" hidden>
-    <div class="flex items-start gap-3 bg-white/95 backdrop-blur rounded-2xl shadow-xl px-4 py-3 border border-gray-200">
+    <div class="coach-inner flex items-start gap-3 bg-white/95 backdrop-blur rounded-2xl shadow-xl px-4 py-3 border border-gray-200">
       <div class="text-3xl" aria-hidden="true">🦉</div>
       <p id="coachMsg" class="text-base sm:text-lg text-gray-800 leading-snug" aria-live="polite">היי! אני שופי. בהצלחה!</p>
-      <button id="coachClose" class="ml-1 text-gray-500 hover:text-gray-700 text-xl leading-none" aria-label="סגור הודעת מאמן">×</button>
+      <button id="coachClose" class="ml-1" aria-label="סגור הודעת מאמן" title="סגור">x</button>
     </div>
     <div class="h-2"></div>
   </div>
@@ -352,8 +384,31 @@
       document.body.style.overflow = v;
     }
 
-    /* ================== Coach ================== */
+    /* ================== Coach (Shufi) ================== */
     let coachHidden = false;
+
+    function setCoachDockMode(on) {
+      const c = document.getElementById('coach');
+      if (!c) return;
+      if (on) {
+        c.classList.add('dock');
+        document.body.classList.add('with-coach-dock');
+      } else {
+        c.classList.remove('dock');
+        document.body.classList.remove('with-coach-dock');
+      }
+    }
+    function refreshCoachMode() {
+      const c = document.getElementById('coach');
+      if (!c || c.hidden) { setCoachDockMode(false); return; }
+      const onMobile = window.innerWidth < 640;
+      setCoachDockMode(onMobile);
+    }
+    function isDock() {
+      const c = document.getElementById('coach');
+      return !!(c && c.classList.contains('dock'));
+    }
+
     function showCoach(msg){
       if (coachHidden) return;
       const c = document.getElementById('coach');
@@ -361,48 +416,50 @@
       if (!c || !m) return;
       m.textContent = msg;
       c.hidden = false;
-      avoidCoachOverlap();
+      refreshCoachMode();      // דוק במובייל + padding לעמוד
     }
-    function hideCoach(){ const c = document.getElementById('coach'); if (c) c.hidden = true; }
-    function bindCoach(){
-      const x = document.getElementById('coachClose');
-      if (x){ x.onclick = () => { coachHidden = true; hideCoach(); }; }
+    function hideCoach(){
+      const c = document.getElementById('coach');
+      if (c) {
+        c.hidden = true;
+        setCoachDockMode(false); // הסר דוק וריפוד כשמוסתר
+      }
     }
     function placeCoachForContext(ctx){
       const c = document.getElementById('coach'); if (!c) return;
+      if (isDock()) return; // במצב דוק אין צורך למקם ידנית
       let bottomPx = 24;
       if (ctx === 'game' && window.innerWidth < 640) bottomPx = 110;
       c.style.bottom = bottomPx + 'px';
-      c.style.right = (window.innerWidth < 640 ? 16 : 24) + 'px';
-      c.style.top = 'auto';
+      c.style.right  = (window.innerWidth < 640 ? 16 : 24) + 'px';
+      c.style.top    = 'auto';
     }
     function avoidCoachOverlap() {
+      if (isDock()) return; // דוק לא יכסה, יש ריפוד
       const coach = document.getElementById('coach');
       const confirm = document.getElementById('confirmButton');
-      if (!coach || coach.hidden) return;
+      if (!coach || coach.hidden || !confirm || confirm.offsetParent === null) return;
 
       let defaultBottom = (window.innerWidth < 640) ? 110 : 24;
       coach.style.top = 'auto';
       coach.style.bottom = defaultBottom + 'px';
       coach.style.right = (window.innerWidth < 640 ? 16 : 24) + 'px';
 
-      if (!confirm || confirm.offsetParent === null) return;
-
       const cr = coach.getBoundingClientRect();
       const br = confirm.getBoundingClientRect();
-
       const overlap = !(cr.right < br.left || cr.left > br.right || cr.bottom < br.top || cr.top > br.bottom);
       if (!overlap) return;
 
       const margin = 16;
       const desiredBottom = Math.max(window.innerHeight - br.top + margin, defaultBottom);
       coach.style.bottom = desiredBottom + 'px';
-
       const newCr = coach.getBoundingClientRect();
-      if (newCr.top < 8) {
-        coach.style.bottom = 'auto';
-        coach.style.top = (window.innerWidth < 640 ? 16 : 24) + 'px';
-      }
+      if (newCr.top < 8) { coach.style.bottom = 'auto'; coach.style.top = (window.innerWidth < 640 ? 16 : 24) + 'px'; }
+    }
+
+    function bindCoach(){
+      const x = document.getElementById('coachClose');
+      if (x){ x.onclick = () => { coachHidden = true; hideCoach(); }; }
     }
 
     /* ================== Navigation ================== */
@@ -1110,10 +1167,10 @@
       // Audio toggle
       initAudioToggle();
 
-      // מניעת חפיפה – חלון/סיבוב/גלילה
-      window.addEventListener('resize', avoidCoachOverlap);
-      window.addEventListener('orientationchange', avoidCoachOverlap);
-      window.addEventListener('scroll', avoidCoachOverlap, { passive: true });
+      // שינויי תצוגה למניעת חפיפות
+      window.addEventListener('resize', refreshCoachMode);
+      window.addEventListener('orientationchange', refreshCoachMode);
+      window.addEventListener('scroll', ()=>{ if (!isDock()) avoidCoachOverlap(); }, { passive: true });
     });
   </script>
 </body>
