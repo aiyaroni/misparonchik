@@ -10,6 +10,10 @@
     body{font-family:'Assistant',system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
     .ltr{direction:ltr;unicode-bidi:embed;display:inline-block}
     .tabular-nums{font-variant-numeric:tabular-nums}
+    .owl-blink{animation:blink 2s infinite}
+    @keyframes blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+
+    /* תשובות */
     .answer-item{position:relative;transition:transform .14s,box-shadow .14s,border-color .14s;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;background:rgba(255,255,255,.92);border-radius:1rem;border:2px solid transparent;outline:none}
     .answer-item::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:var(--tint,transparent);opacity:.08}
     .answer-item .accent{position:absolute;right:0;top:0;bottom:0;width:8px;border-radius:0 1rem 1rem 0;opacity:.55;background:var(--tint);pointer-events:none}
@@ -19,11 +23,22 @@
     .answer-item[data-idx="3"]{--tint:#facc15}
     .answer-item:active{transform:scale(.98)}
     .answer-item.selected{border-color:#2563eb;box-shadow:0 12px 30px rgba(0,0,0,.18)}
+
     .confirm-button{transition:all .25s}
     .confirm-button[disabled]{opacity:.5;cursor:not-allowed}
-    .owl-blink{animation:blink 2s infinite}
-    @keyframes blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
-    #coach{z-index:40}
+
+    /* וידג׳ט שופי */
+    #coach{position:fixed;right:16px;bottom:24px;z-index:40;display:none}
+    #coach .coach-inner{display:flex;align-items:flex-start;gap:.75rem;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.18);padding:.75rem 1rem;border:1px solid #e5e7eb;max-width:min(90vw,360px)}
+    #coachClose{position:absolute;top:6px;right:8px;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;background:transparent;border:none;cursor:pointer;color:#4b5563}
+    #coachClose:hover{background:rgba(0,0,0,.06);color:#111827}
+
+    @media (max-width:640px){
+      #coach{right:12px}
+      body.with-coach-pad{padding-bottom:110px}
+    }
+
+    /* כפתור השתקת אודיו */
     #audioToggle{padding:.5rem .7rem;border-radius:9999px;background:rgba(255,255,255,.95);border:1px solid #e5e7eb;box-shadow:0 6px 20px rgba(0,0,0,.12)}
     #audioToggle[aria-pressed="true"] .muted{display:inline}
     #audioToggle[aria-pressed="true"] .unmuted{display:none}
@@ -237,6 +252,15 @@
     </div>
   </div>
 
+  <!-- Shufi Coach Widget -->
+  <div id="coach" aria-live="polite">
+    <div class="coach-inner relative">
+      <div class="text-3xl mr-1" aria-hidden="true">🦉</div>
+      <p id="coachMsg" class="text-base sm:text-lg text-gray-800 leading-snug">היי! אני שופי. בהצלחה!</p>
+      <button id="coachClose" aria-label="סגור">×</button>
+    </div>
+  </div>
+
   <!-- Audio toggle -->
   <button id="audioToggle" class="fixed left-4 top-4 z-50" type="button" aria-label="החלפת מצב צליל" aria-pressed="false" title="הצליל פעיל">
     <span class="unmuted" aria-hidden="true">🔊</span>
@@ -244,12 +268,13 @@
   </button>
 
   <script>
-    // ======== State ========
+    /* ========= State ========= */
     let currentOperation='addition', currentDifficulty='easy', currentQuestionIndex=0;
     let correctCount=0, totalQuestions=6, questions=[], mistakes=[];
     let startTime=0, totalTime=0, playerName='', selectedAnswer=null;
     let questionCount=6, currentCurriculum='none';
     let isMuted=false, audioCtx=null;
+    let coachHidden=false;
 
     const rulesByDifficulty={ easy:{addSubMax:20,mulMax:5,divMaxDivisor:5,divMaxQuotient:5},
       medium:{addSubMax:100,mulMax:10,divMaxDivisor:10,divMaxQuotient:10},
@@ -265,13 +290,35 @@
       il_g4:{name:'כיתה ד׳',operations:['addition','subtraction','multiplication','division'],addSubMax:1000,mulMax:12,divMaxDivisor:12,divMaxQuotient:12}
     };
 
-    // ======== Utils ========
+    /* ========= Helpers ========= */
     const $=sel=>document.querySelector(sel);
     const $$=sel=>document.querySelectorAll(sel);
     const randInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
     function shuffle(a){const c=a.slice();for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]]}return c}
 
-    // ======== Audio ========
+    /* ========= Coach (Shufi) ========= */
+    function showCoach(msg, ctx='default'){
+      if (coachHidden) return;
+      const el = $('#coach'); const txt = $('#coachMsg');
+      if (!el || !txt) return;
+      txt.textContent = msg || 'בהצלחה!';
+      el.style.display = 'block';
+      placeCoach(ctx);
+    }
+    function hideCoach(){ const el=$('#coach'); if(el) el.style.display='none'; }
+    function placeCoach(ctx){
+      const el=$('#coach'); if(!el) return;
+      const onGame = (ctx==='game');
+      if (window.innerWidth<=640 && onGame){
+        document.body.classList.add('with-coach-pad');
+        el.style.bottom = '110px';
+      } else {
+        document.body.classList.remove('with-coach-pad');
+        el.style.bottom = '24px';
+      }
+    }
+
+    /* ========= Audio ========= */
     function getAudioCtx(){ if(isMuted) return null; const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return null; if(!audioCtx) audioCtx=new AC(); if(audioCtx.state==='suspended'&&audioCtx.resume) audioCtx.resume(); return audioCtx;}
     function tone(freq,dur,t,type='sine',gain=0.22){ if(isMuted) return; const ctx=getAudioCtx(); if(!ctx) return; const start=(typeof t==='number')?t:ctx.currentTime; const o=ctx.createOscillator(), g=ctx.createGain(); o.type=type; o.frequency.setValueAtTime(freq,start); g.gain.setValueAtTime(gain,start); g.gain.exponentialRampToValueAtTime(0.001,start+dur); o.connect(g); g.connect(ctx.destination); o.start(start); o.stop(start+dur); }
     function playSelectTick(){const ctx=getAudioCtx(); if(!ctx) return; const t=ctx.currentTime; tone(440,0.06,t,'triangle',0.10);}
@@ -280,7 +327,7 @@
     function initAudioToggle(){ const btn=$('#audioToggle'); if(!btn) return; try{isMuted=localStorage.getItem('soundMuted')==='true';}catch{} btn.setAttribute('aria-pressed',isMuted?'true':'false'); btn.addEventListener('click',()=>{isMuted=!isMuted; btn.setAttribute('aria-pressed',isMuted?'true':'false'); try{localStorage.setItem('soundMuted',String(isMuted));}catch{} if(!isMuted) getAudioCtx();}); }
     document.addEventListener('click',e=>{const el=e.target.closest('button,.op-btn'); if(!el||el.id==='audioToggle') return; if(el.disabled||el.getAttribute('aria-disabled')==='true') return; playSelectTick(); });
 
-    // ======== Curriculum gating ========
+    /* ========= Curriculum gating ========= */
     function applyCurriculumToOperationButtons(){
       const cur=curricula[currentCurriculum]; const allowed=cur&&cur.operations?cur.operations:null;
       $$('#opsGrid .op-btn').forEach(btn=>{
@@ -293,7 +340,7 @@
       });
     }
 
-    // ======== Build questions ========
+    /* ========= Build questions ========= */
     function getEffectiveRules(diff){
       const base=Object.assign({},rulesByDifficulty[diff]); const cur=curricula[currentCurriculum]||{};
       ['addSubMax','mulMax','divMaxDivisor','divMaxQuotient'].forEach(k=>{ if(typeof cur[k]!=='undefined') base[k]=cur[k]; });
@@ -319,17 +366,27 @@
       const opts=[correct]; while(opts.length<4){ const wrong=correct+Math.floor(Math.random()*7)-3; if(wrong>0 && wrong!==correct && !opts.includes(wrong)) opts.push(wrong); } return shuffle(opts);
     }
 
-    // ======== UI flow ========
-    function showNameInput(){ $('#welcomeScreen').classList.add('hidden'); $('#nameScreen').classList.remove('hidden'); setTimeout(()=>$('#playerName')?.focus(),100); }
+    /* ========= Flow ========= */
+    function showNameInput(){
+      $('#welcomeScreen').classList.add('hidden');
+      $('#nameScreen').classList.remove('hidden');
+      hideCoach(); setTimeout(()=>$('#playerName')?.focus(),100);
+    }
     function showOperationSelect(){
       const inp=$('#playerName'); const name=(inp?.value||'').trim(); if(!name){ alert('אנא הכנס את שמך'); inp?.focus(); return; }
       playerName=name;
       ['nameScreen','resultsScreen','mistakesScreen','tutorialScreen'].forEach(id=>$('#'+id)?.classList.add('hidden'));
       $('#operationScreen').classList.remove('hidden');
       applyCurriculumToOperationButtons();
+      showCoach('בחר תרגיל כדי להתחיל, '+playerName+'.','default');
+    }
+    function selectOperation(op){
+      currentOperation=op;
+      $('#operationScreen').classList.add('hidden');
+      $('#difficultyScreen').classList.remove('hidden');
+      showCoach('בחר מספר שאלות ורמת קושי, ואז התחל.','default');
     }
 
-    // Start game
     function startGame(diff){
       currentDifficulty=diff; currentQuestionIndex=0; correctCount=0; totalTime=0; mistakes=[]; selectedAnswer=null;
       const curSel=$('#curriculumSelect'); currentCurriculum=curSel?curSel.value:'none';
@@ -342,11 +399,12 @@
       ['difficultyScreen','resultsScreen','mistakesScreen','tutorialScreen'].forEach(id=>$('#'+id)?.classList.add('hidden'));
       $('#gameScreen').classList.remove('hidden');
       $('#gamePlayerName').textContent=playerName;
-      const pb=$('#progressBar'); pb.style.width='0%'; pb.setAttribute('aria-valuenow','0');
-      showQuestion();
-    }
 
-    function selectOperation(op){ currentOperation=op; $('#operationScreen').classList.add('hidden'); $('#difficultyScreen').classList.remove('hidden'); }
+      const pb=$('#progressBar'); pb.style.width='0%'; pb.setAttribute('aria-valuenow','0');
+
+      showQuestion();
+      showCoach('יצאנו לדרך! קרא את השאלה, בחר תשובה ואז אשר.','game');
+    }
 
     function showQuestion(){
       if(currentQuestionIndex>=questions.length){ showResults(); return; }
@@ -360,40 +418,58 @@
       const options=generateAnswerOptions(q.answer);
       const items=$$('#answersGrid .answer-item');
       options.forEach((opt,i)=>{ const el=items[i]; if(!el) return; el.setAttribute('data-value',String(opt)); el.setAttribute('data-idx',String(i)); el.querySelector('.tabular-nums').textContent=String(opt); el.classList.remove('selected'); el.setAttribute('aria-selected','false'); });
+
       disableConfirm();
       startTime=Date.now();
+      placeCoach('game');
     }
 
-    function nextQuestion(){
-      $('#feedback').classList.add('hidden');
-      currentQuestionIndex++;
-      if(currentQuestionIndex<totalQuestions){
-        showQuestion();
-        $('#confirmButton').focus();
-      } else {
-        const pb=$('#progressBar'); pb.style.width='100%'; pb.setAttribute('aria-valuenow','100');
-        showResults();
-      }
+    function enableConfirm(){
+      const btn=$('#confirmButton');
+      btn.disabled=false;
+      btn.removeAttribute('disabled');
+      btn.setAttribute('aria-disabled','false');
+    }
+    function disableConfirm(){
+      const btn=$('#confirmButton');
+      btn.disabled=true;
+      btn.setAttribute('disabled','');
+      btn.setAttribute('aria-disabled','true');
+    }
+
+    function confirmAnswer(){
+      const btn=$('#confirmButton');
+      if(btn.hasAttribute('disabled')) return;
+      if(selectedAnswer===null) return;
+      const correct=questions[currentQuestionIndex].answer;
+      const end=Date.now(); totalTime+=(end-startTime)/1000;
+      if(selectedAnswer===correct) { correctCount++; showFeedback(true); }
+      else { mistakes.push({question:questions[currentQuestionIndex],userAnswer:selectedAnswer,correctAnswer:correct}); showFeedback(false); }
     }
 
     function showFeedback(ok){
       const fb=$('#feedback'), icon=$('#feedbackIcon'), text=$('#feedbackText'), nextBtn=$('#nextButton');
       const isLast=currentQuestionIndex===totalQuestions-1;
-      if(ok){ icon.textContent='🎉'; text.className='text-2xl font-bold mb-6 text-green-600'; text.textContent=isLast?'מעולה! סיימת את הסט!':'כל הכבוד! תשובה נכונה!'; playSuccessSound(); }
-      else{ icon.textContent='💪'; text.className='text-2xl font-bold mb-6 text-orange-600'; text.textContent=isLast?'סיימנו את הסט.':'כמעט! בשאלה הבאה תצליח!'; playErrorSound(); }
+      if(ok){ icon.textContent='🎉'; text.className='text-2xl font-bold mb-6 text-green-600'; text.textContent=isLast?'מעולה! סיימת את הסט!':'כל הכבוד! תשובה נכונה!'; playSuccessSound(); showCoach(isLast?'סיימנו את הסט. נעבור לסיכום.':'יפה! לשאלה הבאה.','game'); }
+      else{ icon.textContent='💪'; text.className='text-2xl font-bold mb-6 text-orange-600'; text.textContent=isLast?'סיימנו את הסט.':'כמעט! בשאלה הבאה תצליח!'; playErrorSound(); showCoach(isLast?'סיימנו את הסט. נעבור לסיכום.':'כמעט! עוברים לשאלה הבאה.','game'); }
       nextBtn.textContent=isLast?'לסיכום התרגיל':'השאלה הבאה';
       nextBtn.onclick=isLast?showResults:nextQuestion;
       fb.classList.remove('hidden');
     }
+    function nextQuestion(){
+      $('#feedback').classList.add('hidden');
+      currentQuestionIndex++;
+      if(currentQuestionIndex<totalQuestions){ showQuestion(); $('#confirmButton').focus(); }
+      else { const pb=$('#progressBar'); pb.style.width='100%'; pb.setAttribute('aria-valuenow','100'); showResults(); }
+    }
 
-    function confirmAnswer(){
-      if($('#confirmButton').hasAttribute('disabled')) return; // ביטחון
-      if(selectedAnswer===null) return;
-      const correct=questions[currentQuestionIndex].answer;
-      const end=Date.now(); totalTime+=(end-startTime)/1000;
-      if(selectedAnswer===correct) correctCount++;
-      else mistakes.push({question:questions[currentQuestionIndex],userAnswer:selectedAnswer,correctAnswer:correct});
-      showFeedback(selectedAnswer===correct);
+    function getResultsTitleCopy(name,pct){
+      if (pct===0) return `לא נורא ${name}, שופי בטוח שבפעם הבאה תהיה תוצאה טובה יותר`;
+      else if (pct<=40) return `${name} רואים שיפור, שופי מחכה לתרגול נוסף`;
+      else if (pct<=59) return `${name} רואים שיפור, שופי מחכה לתרגול נוסף`;
+      else if (pct<=79) return `${name} עבודה טובה, שופי מחכה לתרגול נוסף`;
+      else if (pct<=89) return `ואוו ${name}, איזו שליטה נמשיך לתרגל עם שופי`;
+      return `כל הכבוד ${name} שופי גאה בך!`;
     }
 
     function showResults(){
@@ -402,17 +478,7 @@
 
       const incorrect=totalQuestions-correctCount;
       const pct=Math.round((correctCount/totalQuestions)*100);
-      const title=$('#resultsTitle');
-
-      // כותרת לפי המדרג שסיכמנו
-      let t='';
-      if(pct===0) t=`לא נורא ${playerName}, שופי בטוח שבפעם הבאה תהיה תוצאה טובה יותר`;
-      else if(pct<=40) t=`${playerName} רואים שיפור, שופי מחכה לתרגול נוסף`;
-      else if(pct<=59) t=`${playerName} רואים שיפור, שופי מחכה לתרגול נוסף`;
-      else if(pct<=79) t=`${playerName} עבודה טובה, שופי מחכה לתרגול נוסף`;
-      else if(pct<=89) t=`ואוו ${playerName}, איזו שליטה נמשיך לתרגל עם שופי`;
-      else t=`כל הכבוד ${playerName} שופי גאה בך!`;
-      title.textContent=t;
+      $('#resultsTitle').textContent=getResultsTitleCopy(playerName,pct);
 
       const msg=$('#performanceMessage'), icon=rs.querySelector('.text-8xl');
       if(correctCount===totalQuestions){ msg.textContent='מושלם! ענית נכון על כל השאלות! 🌟'; msg.className='mb-4 font-medium text-lg text-green-600'; icon.textContent='🏆'; confettiBurst(rs.querySelector('.bg-white')||rs); }
@@ -423,6 +489,9 @@
       $('#correctAnswers').textContent=String(correctCount);
       $('#averageTime').textContent=String(Math.max(1,Math.round(totalTime/totalQuestions)));
       $('#mistakesButton').classList.toggle('hidden', mistakes.length===0);
+
+      showCoach('סיכום הסט הושלם. אפשר לתרגל מחדש או ללמוד מהטעויות.','default');
+      placeCoach('default');
     }
 
     function updatePerformanceBar(correct,incorrect,pct){
@@ -447,10 +516,10 @@
       questions.forEach((q,i)=>{ const m=mistakes.find(x=>x.question.questionText===q.questionText); if(!m) return;
         const d=document.createElement('div'); d.className='bg-orange-50 border-2 border-orange-200 rounded-2xl p-6 cursor-pointer hover:bg-orange-100 transition-colors';
         d.onclick=()=>showTutorial(m);
-        d.innerHTML='<div class="flex items-center justify-between mb-4"><div class="flex items-center gap-3"><div class="w-4 h-4 bg-orange-500 rounded-full"></div><h3 class="text-xl font-bold text-orange-600">שאלה '+(i+1)+'</h3></div><div class="text-2xl">🤔</div></div><div class="text-2xl font-bold text-gray-800 mb-4 ltr">'+m.question.questionText+'</div><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"><div class="bg-red-100 border-2 border-red-300 rounded-xl p-4"><div class="text-sm text-red-600 font-bold mb-1">התשובה שלך:</div><div class="text-xl font-bold text-red-700 ltr">'+m.userAnswer+'</div></div><div class="bg-green-100 border-2 border-green-300 rounded-xl p-4"><div class="text-sm text-green-600 font-bold mb-1">התשובה הנכונה:</div><div class="text-xl font-bold text-green-700 ltr">'+m.correctAnswer+'</div></div></div><div class="text-center text-blue-600 font-bold">👆 לחץ כאן כדי ללמוד איך לפתור</div>';
+        d.innerHTML='<div class="flex items-center justify-between mb-4"><div class="flex items-center gap-3"><div class="w-4 h-4 bg-orange-500 rounded-full"></div><h3 class="text-xl font-bold text-orange-600">שאלה '+(i+1)+'</h3></div><div class="text-۲xl">🤔</div></div><div class="text-2xl font-bold text-gray-800 mb-4 ltr">'+m.question.questionText+'</div><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"><div class="bg-red-100 border-2 border-red-300 rounded-xl p-4"><div class="text-sm text-red-600 font-bold mb-1">התשובה שלך:</div><div class="text-xl font-bold text-red-700 ltr">'+m.userAnswer+'</div></div><div class="bg-green-100 border-2 border-green-300 rounded-xl p-4"><div class="text-sm text-green-600 font-bold mb-1">התשובה הנכונה:</div><div class="text-xl font-bold text-green-700 ltr">'+m.correctAnswer+'</div></div></div><div class="text-center text-blue-600 font-bold">👆 לחץ כאן כדי ללמוד איך לפתור</div>';
         list.appendChild(d);
       });
-      window.scrollTo({top:0,behavior:'auto'});
+      showCoach('לחץ על שאלה כדי לראות הסבר אינטראקטיבי.','default');
     }
 
     function showTutorial(m){
@@ -458,7 +527,9 @@
       const q=m.question; const title=$('#tutorialTitle'); title.textContent=q.questionText;
       createTutorialSteps(q); createInteractiveDemo(q);
       requestAnimationFrame(()=>{ title.focus({preventScroll:true}); window.scrollTo({top:0,behavior:'auto'}); });
+      showCoach('הנה הסבר צעד־אחר־צעד. נסה את האזור האינטראקטיבי.','default');
     }
+
     function createTutorialSteps(q){
       const c=$('#tutorialSteps'); c.innerHTML=''; getTutorialSteps(q).forEach((s,i)=>{ const d=document.createElement('div'); d.className='bg-blue-50 border-2 border-blue-200 rounded-2xl p-6'; d.innerHTML='<div class="flex items-center mb-4"><div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4">'+(i+1)+'</div><h3 class="text-xl font-bold text-blue-600">'+s.title+'</h3></div><p class="text-gray-700 text-lg">'+s.description+'</p>'; c.appendChild(d); });
     }
@@ -478,12 +549,12 @@
       if(operation==='division'){ let shown2=0; const dividend=parseInt(q.questionText.split(' ÷ ')[0],10); for(let g=0; g<answer; g++){ const group2=document.createElement('div'); group2.className='inline-block border-2 border-dashed border-purple-300 rounded-lg p-3 m-2 bg-purple-50'; group2.style.opacity='0.5'; const label2=document.createElement('div'); label2.className='text-sm font-bold text-purple-600 mb-2 text-center'; label2.textContent='קבוצה '+(g+1); group2.appendChild(label2); for(let i=0;i<num2;i++){ const sp2=document.createElement('span'); sp2.className='text-2xl m-1'; sp2.textContent=em; group2.appendChild(sp2); } group2.onclick=function(){ if(this.style.opacity==='0.5'){ this.style.opacity='1'; shown2++; info.textContent=(shown2===answer)?('מעולה! חילקת '+dividend+' ל-'+answer+' קבוצות של '+num2+'. 🎉'):('נהדר! לחץ על עוד '+(answer-shown2)+' קבוצות'); } }; area.appendChild(group2); } info.textContent='לחץ על הקבוצות כדי לראות חלוקה ל-'+answer+' קבוצות של '+num2; }
     }
 
-    // ======== Answer grid (delegation) ========
+    /* ========= Answer grid (delegation) ========= */
     function bindAnswerGrid(){
       const grid=$('#answersGrid'); if(!grid) return;
-      grid.addEventListener('click',e=>{ const item=e.target.closest('.answer-item'); if(!item||!grid.contains(item)) return; selectItem(item); });
-      grid.addEventListener('keydown',e=>{ const item=e.target.closest('.answer-item'); if(!item||!grid.contains(item)) return; if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectItem(item);} });
-      function selectItem(item){
+      grid.addEventListener('click',e=>{ const item=e.target.closest('.answer-item'); if(!item||!grid.contains(item)) return; chooseItem(item); });
+      grid.addEventListener('keydown',e=>{ const item=e.target.closest('.answer-item'); if(!item||!grid.contains(item)) return; if(e.key==='Enter'||e.key===' '){ e.preventDefault(); chooseItem(item);} });
+      function chooseItem(item){
         $$('#answersGrid .answer-item').forEach(it=>{ it.classList.remove('selected'); it.setAttribute('aria-selected','false'); });
         item.classList.add('selected'); item.setAttribute('aria-selected','true');
         selectedAnswer=parseInt(item.getAttribute('data-value'),10);
@@ -492,60 +563,57 @@
       }
     }
 
-    // ======== Confirm button robust control ========
-    function enableConfirm(){
-      const btn=$('#confirmButton');
-      btn.disabled=false;
-      btn.removeAttribute('disabled'); // חשוב: הסרת ה-attribute עצמו
-      btn.setAttribute('aria-disabled','false');
-    }
-    function disableConfirm(){
-      const btn=$('#confirmButton');
-      btn.disabled=true;
-      btn.setAttribute('disabled',''); // חשוב: הוספת ה-attribute עצמו
-      btn.setAttribute('aria-disabled','true');
-    }
-
-    // ======== Confetti ========
+    /* ========= Confetti ========= */
     function confettiBurst(container){
       try{ if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; }catch{}
       const n=28; for(let i=0;i<n;i++){ const dot=document.createElement('span'); dot.style.position='absolute'; dot.style.width='8px'; dot.style.height='8px'; dot.style.borderRadius='50%'; dot.style.left='50%'; dot.style.top='10%'; const colors=['#22c55e','#3b82f6','#f59e0b','#ef4444','#a855f7']; dot.style.background=colors[i%colors.length]; const angle=(i/n)*Math.PI*2, dist=80+Math.random()*50, tx=Math.cos(angle)*dist, ty=Math.sin(angle)*dist; const anim=dot.animate([{transform:'translate(-50%,-50%) scale(1)',opacity:1},{transform:'translate('+(tx-50)+'%,'+(ty-50)+'%) scale(.9)',opacity:0}],{duration:900,easing:'cubic-bezier(.2,.8,.2,1)'}); anim.onfinish=()=>dot.remove(); (container||document.body).appendChild(dot); }
     }
 
-    // ======== Events init ========
+    /* ========= Init ========= */
     document.addEventListener('DOMContentLoaded',()=>{
-      // כניסה
+      // ניווט ראשוני
       $('#startBtn')?.addEventListener('click',e=>{e.preventDefault(); showNameInput();});
       $('#nameForm')?.addEventListener('submit',e=>{e.preventDefault(); showOperationSelect();});
-
-      // בחירת תוכנית
+      // תוכנית לימוד
       $('#curriculumSelect')?.addEventListener('change',e=>{ currentCurriculum=e.target.value; applyCurriculumToOperationButtons(); });
-
-      // בחירת סוג תרגיל
+      // בחירת תרגיל
       $$('#opsGrid .op-btn').forEach(b=>b.addEventListener('click',()=>{ selectOperation(b.getAttribute('data-op')); }));
-
       // רמת קושי
       $$('#difficultyScreen .diff-btn').forEach(b=>b.addEventListener('click',()=>{ startGame(b.getAttribute('data-diff')); }));
       $('#questionCountSelect')?.addEventListener('change',e=>{ questionCount=parseInt(e.target.value,10)||6; });
 
-      // גריד תשובות
+      // תשובות
       bindAnswerGrid();
 
-      // כפתור אישור – מאזין יציב
-      $('#confirmButton')?.addEventListener('click',e=>{
-        if(e.currentTarget.hasAttribute('disabled')){ e.preventDefault(); return; }
-        confirmAnswer();
-      });
+      // אישור תשובה – מאזין יציב
+      $('#confirmButton')?.addEventListener('click',e=>{ if(e.currentTarget.hasAttribute('disabled')){ e.preventDefault(); return; } confirmAnswer(); });
 
-      // ריסטארט
+      // תוצאות: מאזינים פעילים
+      $('#retryBtn')?.addEventListener('click',()=> startGame(currentDifficulty));
+      $('#mistakesButton')?.addEventListener('click',showMistakes);
+      $('#altBtn')?.addEventListener('click',showOperationSelect);
+
+      // טעויות/הדרכה חזרה וריסטארט
+      $('#backToResults')?.addEventListener('click',()=>{ $('#mistakesScreen').classList.add('hidden'); $('#resultsScreen').classList.remove('hidden'); showCoach('חזרה לסיכום.','default'); });
       $('#restartBtn')?.addEventListener('click',()=>location.reload());
       $('#restartFromMistakes')?.addEventListener('click',()=>location.reload());
       $('#restartFromTutorial')?.addEventListener('click',()=>location.reload());
-      $('#backToResults')?.addEventListener('click',()=>{ $('#mistakesScreen').classList.add('hidden'); $('#resultsScreen').classList.remove('hidden'); });
-      $('#backToMistakes')?.addEventListener('click',()=>{ $('#tutorialScreen').classList.add('hidden'); $('#mistakesScreen').classList.remove('hidden'); });
+      $('#backToMistakes')?.addEventListener('click',()=>{ $('#tutorialScreen').classList.add('hidden'); $('#mistakesScreen').classList.remove('hidden'); showCoach('חזרה לרשימת הטעויות.','default'); });
+
+      // שופי – סגירה
+      $('#coachClose')?.addEventListener('click',()=>{ coachHidden=true; hideCoach(); });
 
       // אודיו
       initAudioToggle();
+
+      // הצגת שופי במסך פתיחה
+      showCoach('ברוך הבא! בואו נתחיל.','default');
+
+      // רספונסיביות – עדכון מיקום שופי
+      window.addEventListener('resize', ()=>{
+        const ctx = (!$('#gameScreen').classList.contains('hidden')) ? 'game' : 'default';
+        placeCoach(ctx);
+      });
     });
   </script>
 </body>
