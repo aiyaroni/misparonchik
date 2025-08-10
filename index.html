@@ -306,7 +306,8 @@
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="text-center mb-8">
         <div class="text-6xl mb-4">🎓</div>
-        <h2 id="tutorialTitle" class="text-3xl font-bold text-blue-600 mb-4 ltr">7 ÷ 5 = ?</h2>
+        <!-- tabindex="-1" לצורך פוקוס מנוהל -->
+        <h2 id="tutorialTitle" tabindex="-1" class="text-3xl font-bold text-blue-600 mb-4 ltr">7 ÷ 5 = ?</h2>
         <p class="text-lg text-gray-600">בואו נלמד יחד איך לפתור את השאלה הזו!</p>
       </div>
       <div id="tutorialSteps" class="space-y-8 mb-8"></div>
@@ -354,6 +355,9 @@
     let selectedAnswer = null;
     let currentCurriculum = 'none';
     let questionCount = 6;
+
+    // Scroll memory for Mistakes/Tutorial navigation
+    let scrollMemory = { mistakes: 0 };
 
     // Audio
     let isMuted = false;
@@ -416,18 +420,18 @@
       if (!c || !m) return;
       m.textContent = msg;
       c.hidden = false;
-      refreshCoachMode();      // דוק במובייל + padding לעמוד
+      refreshCoachMode();
     }
     function hideCoach(){
       const c = document.getElementById('coach');
       if (c) {
         c.hidden = true;
-        setCoachDockMode(false); // הסר דוק וריפוד כשמוסתר
+        setCoachDockMode(false);
       }
     }
     function placeCoachForContext(ctx){
       const c = document.getElementById('coach'); if (!c) return;
-      if (isDock()) return; // במצב דוק אין צורך למקם ידנית
+      if (isDock()) return;
       let bottomPx = 24;
       if (ctx === 'game' && window.innerWidth < 640) bottomPx = 110;
       c.style.bottom = bottomPx + 'px';
@@ -435,7 +439,7 @@
       c.style.top    = 'auto';
     }
     function avoidCoachOverlap() {
-      if (isDock()) return; // דוק לא יכסה, יש ריפוד
+      if (isDock()) return;
       const coach = document.getElementById('coach');
       const confirm = document.getElementById('confirmButton');
       if (!coach || coach.hidden || !confirm || confirm.offsetParent === null) return;
@@ -525,12 +529,10 @@
       const qSel = document.getElementById('questionCountSelect');
       questionCount = parseInt(qSel ? qSel.value : '6', 10) || 6;
 
-      // ודא שאין מודאל פתוח מסשן קודם
       const fb = document.getElementById('feedback');
       if (fb && !fb.classList.contains('hidden')) fb.classList.add('hidden');
       setScrollLock(false);
 
-      // נטרל האזנות ישנות ל-nextButton
       const nextBtn = document.getElementById('nextButton');
       if (nextBtn) nextBtn.onclick = null;
 
@@ -739,15 +741,15 @@
     function getResultsTitleCopy(name, pct){
       if (pct === 0) {
         return `לא נורא ${name}, שופי בטוח שבפעם הבאה תהיה תוצאה טובה יותר`;
-      } else if (pct <= 40) {            // 1–40
+      } else if (pct <= 40) {
         return `${name} רואים שיפור, שופי מחכה לתרגול נוסף`;
-      } else if (pct <= 59) {            // 41–59
+      } else if (pct <= 59) {
         return `${name} רואים שיפור, שופי מחכה לתרגול נוסף`;
-      } else if (pct <= 79) {            // 60–79
+      } else if (pct <= 79) {
         return `${name} עבודה טובה, שופי מחכה לתרגול נוסף`;
-      } else if (pct <= 89) {            // 80–89
+      } else if (pct <= 89) {
         return `ואוו ${name}, איזו שליטה נמשיך לתרגל עם שופי`;
-      } else {                           // 90–100
+      } else {
         return `כל הכבוד ${name} שופי גאה בך!`;
       }
     }
@@ -764,10 +766,8 @@
       const icon = rs.querySelector('.text-8xl');
       const title = document.getElementById('resultsTitle');
 
-      // כותרת לפי מדרגות
       title.textContent = getResultsTitleCopy(playerName, percentage);
 
-      // הודעת משנה + איקון + קונפטי ל-100%
       if (correctCount === totalQuestions){
         msg.textContent = 'מושלם! ענית נכון על כל השאלות! 🌟';
         msg.className = 'mb-4 font-medium text-lg text-green-600';
@@ -788,7 +788,6 @@
       document.getElementById('averageTime').textContent = String(Math.max(1, Math.round(totalTime / totalQuestions)));
       document.getElementById('mistakesButton').classList.toggle('hidden', mistakes.length === 0);
 
-      // CTA עיקרי + הודעת שופי תואמת
       const retryBtn = document.getElementById('retryBtn');
       const mistakesBtn = document.getElementById('mistakesButton');
       const altBtn = document.getElementById('altBtn');
@@ -856,6 +855,8 @@
       if (mistakes.length === 0){
         list.innerHTML = '<div class="text-center p-8"><div class="text-6xl mb-4">🎉</div><h3 class="text-2xl font-bold text-green-600">מעולה!</h3><p class="text-lg text-gray-600">לא היו לך טעויות במשחק הזה!</p></div>';
         setScrollLock(false);
+        // גלול לראש המסך כברירת מחדל
+        requestAnimationFrame(()=>{ window.scrollTo({ top: 0, behavior: 'auto' }); });
         return;
       }
 
@@ -890,22 +891,37 @@
 
       placeCoachForContext('default');
       showCoach('נעבור על השאלות שבהן טעית – לחץ כדי ללמוד.');
-      setScrollLock(false); // הבטח גלילה פעילה תמיד
+      setScrollLock(false);
+
+      // שחזור מיקום גלילה ברשימת הטעויות
+      requestAnimationFrame(()=>{
+        window.scrollTo({ top: scrollMemory.mistakes || 0, behavior: 'auto' });
+      });
     }
 
     function showTutorial(mistake){
-      currentTutorialMistake = mistake;
+      // שמור מיקום גלילה לפני מעבר
+      scrollMemory.mistakes = window.scrollY || 0;
+
       document.getElementById('mistakesScreen').classList.add('hidden');
       document.getElementById('tutorialScreen').classList.remove('hidden');
 
       const q = mistake.question;
-      document.getElementById('tutorialTitle').textContent = q.questionText;
+      const titleEl = document.getElementById('tutorialTitle');
+      titleEl.textContent = q.questionText;
+
       createTutorialSteps(q);
       createInteractiveDemo(q);
 
       placeCoachForContext('default');
       showCoach('הנה הסבר צעד־אחר־צעד. נסה את האזור האינטראקטיבי.');
-      setScrollLock(false); // הבטח גלילה פעילה במסך ארוך
+      setScrollLock(false);
+
+      // פוקוס מנוהל + גלילה לראש
+      requestAnimationFrame(()=>{
+        titleEl.focus({ preventScroll: true });
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      });
     }
 
     function createTutorialSteps(q){
@@ -1004,7 +1020,7 @@
           const group2 = document.createElement('div'); group2.className='inline-block border-2 border-dashed border-purple-300 rounded-lg p-3 m-2 bg-purple-50'; group2.style.opacity='0.5';
           const label2 = document.createElement('div'); label2.className='text-sm font-bold text-purple-600 mb-2 text-center'; label2.textContent='קבוצה ' + (g+1); group2.appendChild(label2);
           for (let i=0;i<num2;i++){ const sp2=document.createElement('span'); sp2.className='text-2xl m-1'; sp2.textContent=emoji; group2.appendChild(sp2); }
-          group2.onclick=function(){ if (this.style.opacity==='0.5'){ this.style.opacity='1'; shown2++; info.textContent = (shown2===answer) ? ('מעולה! חילקת ' + dividend + ' ל-' + answer + ' קבוצות של ' + num2 + '. 🎉') : ('נהדר! לחץ על עוד ' + (answer-shown2) + ' קבוצות'); } };
+          group2.onclick=function(){ if (this.style.opacity==='0.5'){ this.style.opacity='1'; shown2++; info.text.content = ''; info.textContent = (shown2===answer) ? ('מעולה! חילקת ' + dividend + ' ל-' + answer + ' קבוצות של ' + num2 + '. 🎉') : ('נהדר! לחץ על עוד ' + (answer-shown2) + ' קבוצות'); } };
           area.appendChild(group2);
         }
         info.textContent = 'לחץ על הקבוצות כדי לראות חלוקה ל-' + answer + ' קבוצות של ' + num2;
@@ -1015,17 +1031,19 @@
       currentOperation='addition'; currentDifficulty='easy'; currentQuestionIndex=0;
       correctCount=0; questions=[]; mistakes=[]; startTime=0; totalTime=0; selectedAnswer=null; currentTutorialMistake=null;
       coachHidden = false;
+      scrollMemory.mistakes = 0;
       ['gameScreen','resultsScreen','mistakesScreen','tutorialScreen','difficultyScreen','nameScreen','welcomeScreen'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
       document.getElementById('operationScreen').classList.remove('hidden');
       applyCurriculumToOperationButtons();
       placeCoachForContext('default');
       showCoach('בחר תרגיל חדש או שנה תוכנית לימוד.');
       setScrollLock(false);
+      requestAnimationFrame(()=>{ window.scrollTo({ top: 0, behavior: 'auto' }); });
     }
 
     /* ================== Utilities ================== */
     function randInt(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
-    function shuffleArray(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+    function shuffleArray(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j]]; } return a; }
     function generateAnswerOptions(correct){
       const opts = [correct];
       while (opts.length < 4){
@@ -1143,31 +1161,24 @@
 
     /* ================== Init & Events ================== */
     document.addEventListener('DOMContentLoaded', function (){
-      // כפתור התחל
       document.querySelector('#welcomeScreen button')?.addEventListener('click', e => { e.preventDefault(); showNameInput(); });
 
-      // שליחת טופס שם
       const form = document.getElementById('nameForm');
       form?.addEventListener('submit', e => { e.preventDefault(); showOperationSelect(); });
       document.getElementById('playerName')?.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); showOperationSelect(); } });
 
-      // Select תוכנית לימוד
       const curriculumSel = document.getElementById('curriculumSelect');
       curriculumSel?.addEventListener('change', e => { currentCurriculum = e.target.value; applyCurriculumToOperationButtons(); });
       curriculumSel?.addEventListener('focus', ()=>{ try{ curriculumSel.scrollIntoView({block:'center', behavior:'smooth'}); }catch(_){} });
 
-      // מספר שאלות
       const qSel = document.getElementById('questionCountSelect');
       qSel?.addEventListener('change', e => { questionCount = parseInt(e.target.value, 10) || 6; });
 
-      // Coach
       bindCoach();
       hideCoach();
 
-      // Audio toggle
       initAudioToggle();
 
-      // שינויי תצוגה למניעת חפיפות
       window.addEventListener('resize', refreshCoachMode);
       window.addEventListener('orientationchange', refreshCoachMode);
       window.addEventListener('scroll', ()=>{ if (!isDock()) avoidCoachOverlap(); }, { passive: true });
