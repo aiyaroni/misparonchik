@@ -7,38 +7,48 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&display=swap');
-
     :root { color-scheme: light; }
     body { font-family: 'Assistant', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
-
-    .answer-item {
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      cursor: pointer;
-      user-select: none;
-      -webkit-user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .answer-item:hover { transform: scale(1.02); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
-    /* בחירה – מסגרת ניטרלית בלבד */
-    .answer-item.selected { transform: scale(1.03); box-shadow: 0 12px 30px rgba(0,0,0,0.2); border: 3px solid #2563eb; }
-
-    .owl-blink { animation: blink 2s infinite; }
-    @keyframes blink { 0%, 90%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
-
-    .progress-fill { transition: width 0.5s ease-in-out; }
-
-    .step-animation { animation: stepHighlight 1s ease-in-out; }
-    @keyframes stepHighlight { 0%, 100% { background-color: transparent; } 50% { background-color: rgba(34, 197, 94, 0.2); } }
-
-    .confirm-button { transition: all 0.3s ease; }
-    .confirm-button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
-
-    /* מספרים וביטויים מתמטיים תמיד LTR בתוך UI RTL */
     .ltr { direction: ltr; unicode-bidi: embed; display: inline-block; }
 
-    /* נקודות המחשה עדינות */
-    .dots-grid { display: grid; grid-template-columns: repeat(6, 0.5rem); gap: 0.25rem; justify-content: center; }
-    .dot { width: 0.5rem; height: 0.5rem; border-radius: 9999px; background-color: #374151; display: inline-block; }
+    /* ===== Answer cards ===== */
+    .answer-item {
+      position: relative;
+      transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+      cursor: pointer;
+      user-select: none; -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .answer-item:active, .answer-item.pressed { transform: scale(0.98); }
+    /* selected state – single clear cue, no green/red during game */
+    .answer-item.selected {
+      border: 3px solid #2563eb; /* blue-600 */
+      box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+    }
+    /* focus ring for keyboard */
+    .answer-item:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.45);
+    }
+    /* thin decorative accent (not critical for meaning) */
+    .answer-item .accent {
+      position: absolute; left: 0; top: 0; bottom: 0; width: 8px; border-radius: 1rem 0 0 1rem; opacity: .55;
+    }
+    .answer-item[data-idx="0"] .accent { background: linear-gradient(#fca5a5,#f87171); }
+    .answer-item[data-idx="1"] .accent { background: linear-gradient(#93c5fd,#60a5fa); }
+    .answer-item[data-idx="2"] .accent { background: linear-gradient(#86efac,#4ade80); }
+    .answer-item[data-idx="3"] .accent { background: linear-gradient(#fde68a,#facc15); }
+
+    /* prefers-reduced-motion: no decorative motion */
+    @media (prefers-reduced-motion: reduce) {
+      .answer-item { transition: none !important; }
+    }
+
+    .owl-blink { animation: blink 2s infinite; }
+    @keyframes blink { 0%, 90%, 100% { transform: scaleY(1) } 95% { transform: scaleY(0.1) } }
+
+    .confirm-button { transition: all 0.25s ease; }
+    .confirm-button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
   </style>
 </head>
 <body class="bg-gradient-to-br from-blue-100 via-purple-50 to-green-100 min-h-screen">
@@ -60,9 +70,7 @@
       <div class="text-5xl mb-4">👋</div>
       <h2 class="text-3xl font-bold text-blue-600 mb-6">איך קוראים לך?</h2>
       <input type="text" id="playerName" placeholder="הכנס את שמך כאן" class="w-full p-4 text-xl border-2 border-gray-300 rounded-xl mb-6 text-center focus:border-blue-500 focus:outline-none">
-      <button onclick="showOperationSelect()" class="bg-gradient-to-r from-blue-500 to-green-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:from-blue-600 hover:to-green-600 transform hover:scale-105 transition-all duration-200 shadow-lg">
-        המשך
-      </button>
+      <button onclick="showOperationSelect()" class="bg-gradient-to-r from-blue-500 to-green-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:from-blue-600 hover:to-green-600 transform hover:scale-105 transition-all duration-200 shadow-lg">המשך</button>
     </div>
   </div>
 
@@ -82,7 +90,6 @@
         <button data-op="mixed" onclick="selectOperation('mixed')" class="op-btn bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-6 rounded-2xl text-xl font-bold hover:scale-105 transition-all duration-200 shadow-lg col-span-2"><div class="text-3xl mb-2">🎲</div>הכל</button>
       </div>
 
-      <!-- Curriculum Selector -->
       <div class="mt-2 text-right">
         <label for="curriculumSelect" class="block text-sm font-medium text-gray-700 mb-1">בחר תוכנית (לא חובה)</label>
         <select id="curriculumSelect" class="w-full p-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none bg-white">
@@ -127,7 +134,7 @@
         <div class="text-xl text-gray-600">שלום <span id="gamePlayerName"></span>! 👋</div>
       </div>
       <div class="w-full bg-gray-200 rounded-full h-4">
-        <div id="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" class="progress-fill bg-gradient-to-r from-green-400 to-blue-500 h-4 rounded-full" style="width: 0%"></div>
+        <div id="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" class="bg-gradient-to-r from-green-400 to-blue-500 h-4 rounded-full" style="width: 0%"></div>
       </div>
     </div>
 
@@ -137,34 +144,23 @@
       <div class="text-lg text-gray-600 mb-4">בחר את התשובה הנכונה:</div>
     </div>
 
+    <!-- Answer Options -->
     <div class="grid grid-cols-1 gap-3 max-w-2xl mx-auto px-4 mb-6">
-      <!-- תבנית תתעדכן דינמית -->
-      <div class="answer-item bg-gradient-to-br from-red-200 to-red-300 rounded-2xl p-4 shadow-lg flex items-center justify-between" data-value="6">
-        <div class="flex-1 text-center">
-          <div class="dots-grid" aria-hidden="true">
-            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-          </div>
-        </div>
-        <div class="text-4xl font-extrabold text-gray-900 min-w-[72px] text-center ltr">6</div>
+      <div class="answer-item bg-white/70 backdrop-blur rounded-2xl p-4 shadow-lg flex items-center justify-center min-h-[80px]" data-value="6" data-idx="0" tabindex="0" role="button" aria-selected="false">
+        <span class="accent" aria-hidden="true"></span>
+        <div class="text-4xl font-extrabold text-gray-900 tracking-tight ltr tabular-nums">6</div>
       </div>
-      <div class="answer-item bg-gradient-to-br from-blue-200 to-blue-300 rounded-2xl p-4 shadow-lg flex items-center justify-between" data-value="8">
-        <div class="flex-1 text-center">
-          <div class="dots-grid" aria-hidden="true">
-            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            <span class="dot"></span><span class="dot"></span>
-          </div>
-        </div>
-        <div class="text-4xl font-extrabold text-gray-900 min-w-[72px] text-center ltr">8</div>
+      <div class="answer-item bg-white/70 backdrop-blur rounded-2xl p-4 shadow-lg flex items-center justify-center min-h-[80px]" data-value="8" data-idx="1" tabindex="0" role="button" aria-selected="false">
+        <span class="accent" aria-hidden="true"></span>
+        <div class="text-4xl font-extrabold text-gray-900 tracking-tight ltr tabular-nums">8</div>
       </div>
-      <div class="answer-item bg-gradient-to-br from-green-200 to-green-300 rounded-2xl p-4 shadow-lg flex items-center justify-between" data-value="7">
-        <div class="flex-1 text-center"><div class="dots-grid" aria-hidden="true"></div></div>
-        <div class="text-4xl font-extrabold text-gray-900 min-w-[72px] text-center ltr">7</div>
+      <div class="answer-item bg-white/70 backdrop-blur rounded-2xl p-4 shadow-lg flex items-center justify-center min-h-[80px]" data-value="7" data-idx="2" tabindex="0" role="button" aria-selected="false">
+        <span class="accent" aria-hidden="true"></span>
+        <div class="text-4xl font-extrabold text-gray-900 tracking-tight ltr tabular-nums">7</div>
       </div>
-      <div class="answer-item bg-gradient-to-br from-yellow-200 to-yellow-300 rounded-2xl p-4 shadow-lg flex items-center justify-between" data-value="5">
-        <div class="flex-1 text-center"><div class="dots-grid" aria-hidden="true"></div></div>
-        <div class="text-4xl font-extrabold text-gray-900 min-w-[72px] text-center ltr">5</div>
+      <div class="answer-item bg-white/70 backdrop-blur rounded-2xl p-4 shadow-lg flex items-center justify-center min-h-[80px]" data-value="5" data-idx="3" tabindex="0" role="button" aria-selected="false">
+        <span class="accent" aria-hidden="true"></span>
+        <div class="text-4xl font-extrabold text-gray-900 tracking-tight ltr tabular-nums">5</div>
       </div>
     </div>
 
@@ -173,6 +169,7 @@
       <button onclick="startOver()" class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-full text-lg font-bold hover:scale-105 transition-all duration-200 shadow-lg">התחל מחדש</button>
     </div>
 
+    <!-- Feedback Modal -->
     <div id="feedback" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div role="dialog" aria-modal="true" aria-labelledby="feedbackText" class="bg-white rounded-3xl p-8 text-center max-w-md mx-4">
         <div id="feedbackIcon" class="text-8xl mb-4">🎉</div>
@@ -187,7 +184,6 @@
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full">
       <div class="text-8xl mb-4">🏆</div>
       <h2 class="text-3xl font-bold text-green-600 mb-4">כל הכבוד <span id="finalPlayerName"></span>!</h2>
-
       <div class="mb-6">
         <div class="flex justify-between items-center mb-2">
           <span class="text-sm font-medium text-gray-600">הביצועים שלך:</span>
@@ -204,7 +200,6 @@
           <span class="text-orange-600 font-medium">✗ שגויות: <span id="incorrectCount" class="ltr">0</span></span>
         </div>
       </div>
-
       <div class="text-xl text-gray-700 mb-6">
         <div id="performanceMessage" class="mb-4 font-medium text-lg">סיימת את הסט! 🎯</div>
         <div class="mb-2">תשובות נכונות: <span id="correctAnswers" class="font-bold text-green-600 ltr">0</span>/<span id="resultsTotal" class="ltr">6</span></div>
@@ -222,9 +217,8 @@
   <div id="mistakesScreen" class="hidden min-h-screen p-6">
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="text-center mb-8">
-        <div class="text-6ל mb-4">📚</div>
+        <div class="text-6xl mb-4">📚</div>
         <h2 class="text-3xl font-bold text-orange-600 mb-4">למד מהטעויות</h2>
-
         <div class="mb-6 max-w-md mx-auto">
           <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden mb-3">
             <div id="mistakesPerformanceBar" class="h-4 rounded-full transition-all duration-1000 flex" aria-label="Performance summary">
@@ -234,12 +228,9 @@
           </div>
           <div id="mistakesMessage" class="text-lg text-gray-700 font-medium mb-4">הנה התרגילים שבהם טעית</div>
         </div>
-
         <p class="text-lg text-gray-600">לחץ על כל תרגיל כדי ללמוד איך לפתור אותו:</p>
       </div>
-
       <div id="mistakesList" class="space-y-6 mb-8"></div>
-
       <div class="text-center space-y-4">
         <button onclick="showResults()" class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-all duration-200 shadow-lg">חזור לתוצאות</button>
         <button onclick="startOver()" class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-full text-lg font-bold hover:scale-105 transition-all duration-200 shadow-lg">התחל מחדש</button>
@@ -285,16 +276,13 @@
     let currentCurriculum = 'none';
     let questionCount = 6;
 
-    const emojis = ['🍎','🎈','⭐','🌟','🍊','🎯','🌈','🎪']; // נשתמש רק במסכי ההסבר
-
-    // Difficulty rules (עם הטיה ל"שטף <=10" בחיבור/חיסור ברמת קל)
+    // rules
     const rulesByDifficulty = {
       easy:   { addSubMax: 20,  mulMax: 5,  divMaxDivisor: 5,  divMaxQuotient: 5 },
       medium: { addSubMax: 100, mulMax: 10, divMaxDivisor: 10, divMaxQuotient: 10 },
       hard:   { addSubMax: 1000,mulMax: 12, divMaxDivisor: 12, divMaxQuotient: 12 }
     };
 
-    // Curricula presets
     const curricula = {
       none: { name: 'ללא תוכנית' },
       il_g1_s1: { name: 'ישראל: כיתה א׳ – סמסטר א׳', operations: ['addition','subtraction'], addSubMax: 10 },
@@ -310,7 +298,6 @@
       const allowed = cur?.operations;
       return allowed && allowed.length ? allowed : ['addition','subtraction','multiplication','division'];
     }
-
     function getEffectiveRules(difficulty) {
       const base = { ...rulesByDifficulty[difficulty] };
       const cur = curricula[currentCurriculum];
@@ -327,7 +314,6 @@
       document.getElementById('nameScreen').classList.remove('hidden');
       setTimeout(() => { document.getElementById('playerName').focus(); }, 100);
     }
-
     function showOperationSelect() {
       if (!playerName) {
         const name = (document.getElementById('playerName')?.value || '').trim();
@@ -339,13 +325,11 @@
       document.getElementById('operationScreen').classList.remove('hidden');
       applyCurriculumToOperationButtons();
     }
-
     function selectOperation(operation) {
       currentOperation = operation;
       document.getElementById('operationScreen').classList.add('hidden');
       document.getElementById('difficultyScreen').classList.remove('hidden');
     }
-
     function applyCurriculumToOperationButtons() {
       const cur = curricula[currentCurriculum];
       const allowed = cur?.operations;
@@ -364,7 +348,7 @@
       });
     }
 
-    // ===== Game flow =====
+    // ===== Game Flow =====
     function startGame(difficulty) {
       currentDifficulty = difficulty;
       currentQuestionIndex = 0;
@@ -390,8 +374,7 @@
       document.getElementById('gamePlayerName').textContent = playerName;
 
       const pb = document.getElementById('progressBar');
-      pb.style.width = '0%';
-      pb.setAttribute('aria-valuenow', '0');
+      pb.style.width = '0%'; pb.setAttribute('aria-valuenow','0');
 
       showQuestion();
     }
@@ -400,25 +383,19 @@
       const rules = getEffectiveRules(difficulty);
       const cur = curricula[currentCurriculum];
       const ops = getOpsList(operation, cur);
-
       let pool = [];
       ops.forEach(op => pool.push(...buildOpPool(op, rules, desiredCount * 4, difficulty)));
-
       const map = new Map();
       for (const q of pool) if (!map.has(q.questionText)) map.set(q.questionText, q);
-      const unique = Array.from(map.values());
-
-      return shuffleArray(unique).slice(0, Math.min(desiredCount, unique.length));
+      return shuffleArray(Array.from(map.values())).slice(0, desiredCount);
     }
 
     function buildOpPool(operation, rules, targetSize, difficulty) {
       const pool = [];
       let attempts = 0, maxAttempts = 6000;
-
       function mkQ(text, answer, operation, num1, num2, symbol, explanation) {
         return { questionText: text, answer, explanation, operation, num1, num2, symbol };
       }
-
       if (operation === 'addition') {
         while (pool.length < targetSize && attempts++ < maxAttempts) {
           const fluency = (difficulty === 'easy') && Math.random() < 0.5;
@@ -426,13 +403,9 @@
           const a = randInt(0, cap);
           const b = randInt(0, cap);
           const ans = a + b;
-          if (ans <= cap) {
-            pool.push(mkQ(`${a} + ${b} = ?`, ans, 'addition', a, b, '+',
-              `כדי לחבר ${a} + ${b}, מוסיפים ${b} ל-${a}. התוצאה ${ans}.`));
-          }
+          if (ans <= cap) pool.push(mkQ(`${a} + ${b} = ?`, ans, 'addition', a, b, '+', ''));
         }
       }
-
       if (operation === 'subtraction') {
         while (pool.length < targetSize && attempts++ < maxAttempts) {
           const fluency = (difficulty === 'easy') && Math.random() < 0.5;
@@ -440,41 +413,32 @@
           const a = randInt(0, cap);
           const b = randInt(0, a);
           const ans = a - b;
-          if (ans >= 0 && ans <= cap) {
-            pool.push(mkQ(`${a} - ${b} = ?`, ans, 'subtraction', a, b, '-',
-              `כדי לחסר ${a} - ${b}, מתחילים ב-${a} ומורידים ${b}. נשאר ${ans}.`));
-          }
+          if (ans >= 0 && ans <= cap) pool.push(mkQ(`${a} - ${b} = ?`, ans, 'subtraction', a, b, '-', ''));
         }
       }
-
       if (operation === 'multiplication') {
         while (pool.length < targetSize && attempts++ < maxAttempts) {
           const a = randInt(1, rules.mulMax);
           const b = randInt(1, rules.mulMax);
-          const ans = a * b;
-          pool.push(mkQ(`${a} × ${b} = ?`, ans, 'multiplication', a, b, '×',
-            `כפל ${a} × ${b} הוא ${a} קבוצות של ${b}. התוצאה ${ans}.`));
+          pool.push(mkQ(`${a} × ${b} = ?`, a*b, 'multiplication', a, b, '×', ''));
         }
       }
-
       if (operation === 'division') {
         while (pool.length < targetSize && attempts++ < maxAttempts) {
           const divisor = randInt(1, rules.divMaxDivisor);
           const quotient = randInt(1, rules.divMaxQuotient);
           const dividend = divisor * quotient;
-          pool.push(mkQ(`${dividend} ÷ ${divisor} = ?`, quotient, 'division', quotient, divisor, '÷',
-            `חילקנו ${dividend} לקבוצות של ${divisor}. קיבלנו ${quotient} קבוצות.`));
+          pool.push(mkQ(`${dividend} ÷ ${divisor} = ?`, quotient, 'division', quotient, divisor, '÷', ''));
         }
       }
-
       return pool;
     }
 
     function showQuestion() {
       if (currentQuestionIndex >= questions.length) { showResults(); return; }
       selectedAnswer = null;
-
       const q = questions[currentQuestionIndex];
+
       document.getElementById('questionText').textContent = q.questionText;
       document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
 
@@ -484,46 +448,38 @@
       pb.setAttribute('aria-valuenow', String(Math.round(progress)));
 
       const options = generateAnswerOptions(q.answer);
-      const answerItems = document.querySelectorAll('.answer-item');
-      const colors = [
-        { bg: 'from-red-200 to-red-300' },
-        { bg: 'from-blue-200 to-blue-300' },
-        { bg: 'from-green-200 to-green-300' },
-        { bg: 'from-yellow-200 to-yellow-300' }
-      ];
+      const items = document.querySelectorAll('.answer-item');
       options.forEach((opt, i) => {
-        if (!answerItems[i]) return;
-        answerItems[i].setAttribute('data-value', opt);
-        answerItems[i].className = `answer-item bg-gradient-to-br ${colors[i].bg} rounded-2xl p-4 shadow-lg flex items-center justify-between`;
-        answerItems[i].innerHTML = `
-          <div class="flex-1 text-center">${createDots(opt)}</div>
-          <div class="text-4xl font-extrabold text-gray-900 min-w-[72px] text-center ltr">${opt}</div>`;
+        const el = items[i]; if (!el) return;
+        el.setAttribute('data-value', opt);
+        el.setAttribute('data-idx', String(i));
+        el.querySelector('.tabular-nums').textContent = opt;
+        el.classList.remove('selected');
+        el.setAttribute('aria-selected','false');
       });
 
       const confirmButton = document.getElementById('confirmButton');
-      confirmButton.disabled = true;
-      confirmButton.setAttribute('aria-disabled','true');
+      confirmButton.disabled = true; confirmButton.setAttribute('aria-disabled','true');
 
       startTime = Date.now();
       setupAnswerSelection();
     }
 
     function setupAnswerSelection() {
-      const answerItems = document.querySelectorAll('.answer-item');
-      answerItems.forEach(item => {
-        item.setAttribute('tabindex','0');
-        item.setAttribute('role','button');
-        item.setAttribute('aria-selected','false');
-        item.classList.add('focus:outline-none','focus:ring-2','focus:ring-offset-2','focus:ring-blue-400');
-        item.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { item.click(); e.preventDefault(); } };
-        item.onclick = function() {
-          answerItems.forEach(el => { el.classList.remove('selected'); el.setAttribute('aria-selected','false'); });
+      const items = document.querySelectorAll('.answer-item');
+      items.forEach(item => {
+        // pointer feedback for mobile (no hover dependency)
+        item.onpointerdown = () => item.classList.add('pressed');
+        item.onpointerup = item.onpointercancel = item.onpointerleave = () => item.classList.remove('pressed');
+
+        item.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); } };
+        item.onclick = function () {
+          items.forEach(el => { el.classList.remove('selected'); el.setAttribute('aria-selected','false'); });
           this.classList.add('selected');
           this.setAttribute('aria-selected','true');
           selectedAnswer = parseInt(this.getAttribute('data-value'));
           const confirm = document.getElementById('confirmButton');
-          confirm.disabled = false;
-          confirm.setAttribute('aria-disabled','false');
+          confirm.disabled = false; confirm.setAttribute('aria-disabled','false');
         };
       });
     }
@@ -531,9 +487,7 @@
     function confirmAnswer() {
       if (selectedAnswer === null) return;
       const correctAnswer = questions[currentQuestionIndex].answer;
-      const endTime = Date.now();
-      totalTime += (endTime - startTime) / 1000;
-
+      const endTime = Date.now(); totalTime += (endTime - startTime) / 1000;
       if (selectedAnswer === correctAnswer) { correctCount++; showFeedback(true); }
       else { mistakes.push({ question: questions[currentQuestionIndex], userAnswer: selectedAnswer, correctAnswer }); showFeedback(false); }
     }
@@ -542,12 +496,9 @@
       const feedback = document.getElementById('feedback');
       const icon = document.getElementById('feedbackIcon');
       const text = document.getElementById('feedbackText');
-
-      if (isCorrect) { icon.textContent = '🎉'; text.textContent = 'כל הכבוד! תשובה נכונה!'; text.className = 'text-2xl font-bold mb-6 text-green-600'; playSuccessSound(); }
-      else { icon.textContent = '💪'; text.textContent = 'כמעט! בפעם הבאה תצליח!'; text.className = 'text-2xl font-bold mb-6 text-orange-600'; playErrorSound(); }
-
-      feedback.classList.remove('hidden');
-      document.body.style.overflow = 'hidden';
+      if (isCorrect) { icon.textContent = '🎉'; text.textContent = 'כל הכבוד! תשובה נכונה!'; text.className = 'text-2xl font-bold mb-6 text-green-600'; }
+      else { icon.textContent = '💪'; text.textContent = 'כמעט! בפעם הבאה תצליח!'; text.className = 'text-2xl font-bold mb-6 text-orange-600'; }
+      feedback.classList.remove('hidden'); document.body.style.overflow = 'hidden';
       document.getElementById('nextButton').focus();
     }
 
@@ -559,8 +510,7 @@
         showQuestion();
         document.getElementById('confirmButton').focus();
       } else {
-        const pb = document.getElementById('progressBar');
-        pb.style.width = '100%'; pb.setAttribute('aria-valuenow', '100');
+        const pb = document.getElementById('progressBar'); pb.style.width = '100%'; pb.setAttribute('aria-valuenow','100');
         showResults();
       }
     }
@@ -571,23 +521,20 @@
       document.getElementById('tutorialScreen').classList.add('hidden');
       document.getElementById('resultsScreen').classList.remove('hidden');
 
-      const resultsTitle = document.querySelector('#resultsScreen h2');
-      const resultsIcon = document.querySelector('#resultsScreen .text-8xl');
       const incorrectCount = totalQuestions - correctCount;
       const percentage = Math.round((correctCount / totalQuestions) * 100);
 
-      const performanceMessage = document.getElementById('performanceMessage');
-      if (correctCount === totalQuestions) { performanceMessage.textContent = 'מושלם! ענית נכון על כל השאלות! 🌟'; performanceMessage.className = 'mb-4 font-medium text-lg text-green-600'; }
-      else if (correctCount === 0) { performanceMessage.textContent = 'סיימת את הסט! 🎯'; performanceMessage.className = 'mb-4 font-medium text-lg text-gray-600'; }
-      else { performanceMessage.textContent = `ענית נכון על ${correctCount} מתוך ${totalQuestions} שאלות - כל הכבוד! 🎯`; performanceMessage.className = 'mb-4 font-medium text-lg text-blue-600'; }
+      const msg = document.getElementById('performanceMessage');
+      const icon = document.querySelector('#resultsScreen .text-8xl');
+      const title = document.querySelector('#resultsScreen h2');
 
-      if (correctCount === 0) { resultsIcon.textContent = '💪'; resultsTitle.innerHTML = 'אופס, הפעם לא הלך - בואו נשתפר בסיבוב הבא!'; resultsTitle.className = 'text-3xl font-bold text-orange-600 mb-4'; }
-      else { resultsIcon.textContent = '🏆'; resultsTitle.innerHTML = `כל הכבוד <span id="finalPlayerName">${playerName}</span>!`; resultsTitle.className = 'text-3xl font-bold text-green-600 mb-4'; }
+      if (correctCount === totalQuestions) { msg.textContent = 'מושלם! ענית נכון על כל השאלות! 🌟'; msg.className = 'mb-4 font-medium text-lg text-green-600'; icon.textContent = '🏆'; title.className = 'text-3xl font-bold text-green-600 mb-4'; }
+      else if (correctCount === 0) { msg.textContent = 'סיימת את הסט! 🎯'; msg.className = 'mb-4 font-medium text-lg text-gray-600'; icon.textContent = '💪'; title.textContent = 'אופס, הפעם לא הלך - בואו נשתפר בסיבוב הבא!'; title.className = 'text-3xl font-bold text-orange-600 mb-4'; }
+      else { msg.textContent = `ענית נכון על ${correctCount} מתוך ${totalQuestions} שאלות - כל הכבוד! 🎯`; msg.className = 'mb-4 font-medium text-lg text-blue-600'; icon.textContent = '🏆'; title.innerHTML = `כל הכבוד <span id="finalPlayerName">${playerName}</span>!`; title.className = 'text-3xl font-bold text-green-600 mb-4'; }
 
       updatePerformanceBar(correctCount, incorrectCount, percentage);
       document.getElementById('correctAnswers').textContent = correctCount;
       document.getElementById('averageTime').textContent = Math.max(1, Math.round(totalTime / totalQuestions));
-
       document.getElementById('mistakesButton').classList.toggle('hidden', mistakes.length === 0);
     }
 
@@ -610,10 +557,10 @@
       document.getElementById('mistakesCorrectBar').style.width = `${(correctCount / totalQuestions) * 100}%`;
       document.getElementById('mistakesIncorrectBar').style.width = `${(incorrectCount / totalQuestions) * 100}%`;
 
-      const mistakesMessage = document.getElementById('mistakesMessage');
-      if (mistakes.length === 0) { mistakesMessage.textContent = `מושלם! ענית נכון על כל ${totalQuestions} השאלות! 🌟`; mistakesMessage.className = 'text-lg text-green-600 font-medium mb-4'; }
-      else if (correctCount > 0) { mistakesMessage.textContent = `ענית נכון על ${correctCount} מתוך ${totalQuestions} - בואו נלמד מה-${mistakes.length} שנשארו`; mistakesMessage.className = 'text-lg text-blue-600 font-medium mb-4'; }
-      else { mistakesMessage.textContent = 'בואו נלמד יחד איך לפתור את השאלות האלה'; mistakesMessage.className = 'text-lg text-orange-600 font-medium mb-4'; }
+      const mm = document.getElementById('mistakesMessage');
+      if (mistakes.length === 0) { mm.textContent = `מושלם! ענית נכון על כל ${totalQuestions} השאלות! 🌟`; mm.className = 'text-lg text-green-600 font-medium mb-4'; }
+      else if (correctCount > 0) { mm.textContent = `ענית נכון על ${correctCount} מתוך ${totalQuestions} - בואו נלמד מה-${mistakes.length} שנשארו`; mm.className = 'text-lg text-blue-600 font-medium mb-4'; }
+      else { mm.textContent = 'בואו נלמד יחד איך לפתור את השאלות האלה'; mm.className = 'text-lg text-orange-600 font-medium mb-4'; }
 
       const list = document.getElementById('mistakesList');
       list.innerHTML = '';
@@ -621,30 +568,29 @@
         list.innerHTML = '<div class="text-center p-8"><div class="text-6xl mb-4">🎉</div><h3 class="text-2xl font-bold text-green-600">מעולה!</h3><p class="text-lg text-gray-600">לא היו לך טעויות במשחק הזה!</p></div>';
         return;
       }
-
-      questions.forEach((question, index) => {
-        const found = mistakes.find(m => m.question.questionText === question.questionText);
-        if (!found) return;
+      questions.forEach((q, i) => {
+        const m = mistakes.find(x => x.question.questionText === q.questionText);
+        if (!m) return;
         const div = document.createElement('div');
         div.className = 'bg-orange-50 border-2 border-orange-200 rounded-2xl p-6 cursor-pointer hover:bg-orange-100 transition-colors';
-        div.onclick = () => showTutorial(found);
+        div.onclick = () => showTutorial(m);
         div.innerHTML = `
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-4">
               <div class="w-4 h-4 bg-orange-500 rounded-full"></div>
-              <h3 class="text-xl font-bold text-orange-600">שאלה ${index + 1}</h3>
+              <h3 class="text-xl font-bold text-orange-600">שאלה ${i + 1}</h3>
             </div>
             <div class="text-2xl">🤔</div>
           </div>
-          <div class="text-2xl font-bold text-gray-800 mb-4 ltr">${found.question.questionText}</div>
+          <div class="text-2xl font-bold text-gray-800 mb-4 ltr">${m.question.questionText}</div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div class="bg-red-100 border-2 border-red-300 rounded-xl p-4">
               <div class="text-sm text-red-600 font-bold mb-1">התשובה שלך:</div>
-              <div class="text-xl font-bold text-red-700 ltr">${found.userAnswer}</div>
+              <div class="text-xl font-bold text-red-700 ltr">${m.userAnswer}</div>
             </div>
             <div class="bg-green-100 border-2 border-green-300 rounded-xl p-4">
               <div class="text-sm text-green-600 font-bold mb-1">התשובה הנכונה:</div>
-              <div class="text-xl font-bold text-green-700 ltr">${found.correctAnswer}</div>
+              <div class="text-xl font-bold text-green-700 ltr">${m.correctAnswer}</div>
             </div>
           </div>
           <div class="text-center text-blue-600 font-bold">👆 לחץ כאן כדי ללמוד איך לפתור</div>`;
@@ -664,165 +610,105 @@
     }
 
     function createTutorialSteps(question) {
-      const stepsContainer = document.getElementById('tutorialSteps');
-      stepsContainer.innerHTML = '';
-      const steps = getTutorialSteps(question);
-      steps.forEach((step, i) => {
-        const stepDiv = document.createElement('div');
-        stepDiv.className = 'bg-blue-50 border-2 border-blue-200 rounded-2xl p-6';
-        stepDiv.innerHTML = `
+      const c = document.getElementById('tutorialSteps');
+      c.innerHTML = '';
+      getTutorialSteps(question).forEach((s, idx) => {
+        const d = document.createElement('div');
+        d.className = 'bg-blue-50 border-2 border-blue-200 rounded-2xl p-6';
+        d.innerHTML = `
           <div class="flex items-center mb-4 gap-4">
-            <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">${i + 1}</div>
-            <h3 class="text-xl font-bold text-blue-600">${step.title}</h3>
+            <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">${idx + 1}</div>
+            <h3 class="text-xl font-bold text-blue-600">${s.title}</h3>
           </div>
-          <p class="text-gray-700 text-lg">${step.description}</p>`;
-        stepsContainer.appendChild(stepDiv);
+          <p class="text-gray-700 text-lg">${s.description}</p>`;
+        c.appendChild(d);
       });
     }
-
-    function getTutorialSteps(question) {
-      const { operation, num1, num2, answer } = question;
+    function getTutorialSteps(q) {
+      const { operation, num1, num2, answer } = q;
       if (operation === 'addition') return [
         { title: 'הבנת השאלה', description: `אנחנו רוצים לדעת כמה זה ${num1} + ${num2}.` },
         { title: 'הצגת הפריטים הראשונים', description: `נתחיל עם ${num1} פריטים.` },
-        { title: 'הוספת פריטים', description: `נוסיף ${num2} פריטים ונמנה הכול יחד.` },
-        { title: 'התוצאה', description: `יש לנו ${answer} פריטים. זו התשובה!` }
+        { title: 'הוספת פריטים', description: `נוסיף ${num2} ונמנה הכול יחד.` },
+        { title: 'התוצאה', description: `יש ${answer} פריטים. זו התשובה!` }
       ];
       if (operation === 'subtraction') return [
         { title: 'הבנת השאלה', description: `אנחנו רוצים לדעת כמה זה ${num1} - ${num2}.` },
         { title: 'הצגת הפריטים הראשונים', description: `נתחיל עם ${num1} פריטים.` },
-        { title: 'הסרת פריטים', description: `נסיר ${num2} פריטים ונמנה כמה נשאר.` },
-        { title: 'התוצאה', description: `נשארו ${answer} פריטים. זו התשובה!` }
+        { title: 'הסרת פריטים', description: `נסיר ${num2} ונמנה כמה נשאר.` },
+        { title: 'התוצאה', description: `נשארו ${answer} פריטים.` }
       ];
       if (operation === 'multiplication') return [
         { title: 'הבנת השאלה', description: `אנחנו רוצים לדעת כמה זה ${num1} × ${num2}.` },
-        { title: 'יצירת קבוצות', description: `ניצור ${num1} קבוצות של ${num2} פריטים.` },
-        { title: 'ספירה', description: `נספור את כל הפריטים מכל הקבוצות.` },
+        { title: 'יצירת קבוצות', description: `ניצור ${num1} קבוצות של ${num2}.` },
+        { title: 'ספירה', description: `נספור את כל הפריטים.` },
         { title: 'התוצאה', description: `יש ${answer} פריטים בסך הכול.` }
       ];
       if (operation === 'division') {
-        const parts = question.questionText.split(' ÷ ');
-        const dividend = parseInt(parts[0]);
-        const divisor = num2;
+        const dividend = parseInt(q.questionText.split(' ÷ ')[0]); const divisor = num2;
         return [
           { title: 'הבנת השאלה', description: `אנחנו רוצים לדעת כמה זה ${dividend} ÷ ${divisor}.` },
           { title: 'הצגת כל הפריטים', description: `נתחיל עם ${dividend} פריטים.` },
-          { title: 'חלוקה לקבוצות', description: `נחלק לקבוצות של ${divisor} פריטים.` },
-          { title: 'התוצאה', description: `קיבלנו ${answer} קבוצות מלאות.` }
+          { title: 'חלוקה לקבוצות', description: `נחלק לקבוצות של ${divisor}.` },
+          { title: 'התוצאה', description: `קיבלנו ${answer} קבוצות.` }
         ];
       }
       return [];
     }
 
-    function createInteractiveDemo(question) {
-      const interactiveContent = document.getElementById('interactiveContent');
-      const instructions = document.getElementById('interactiveInstructions');
-      interactiveContent.innerHTML = '';
-
-      const { operation, num1, num2, answer } = question;
-      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-
+    // simple interactive demo (שומר על אימוג׳ים רק למסך ההדרכה)
+    const tutorialEmojis = ['🍎','🎈','⭐','🌟','🍊','🎯','🌈','🎪'];
+    function createInteractiveDemo(q) {
+      const area = document.getElementById('interactiveContent');
+      const info = document.getElementById('interactiveInstructions');
+      area.innerHTML = '';
+      const { operation, num1, num2, answer } = q;
+      const emoji = tutorialEmojis[Math.floor(Math.random() * tutorialEmojis.length)];
       if (operation === 'addition') {
         let clicked = 0, total = answer;
         for (let i = 0; i < total; i++) {
-          const item = document.createElement('span');
-          item.className = 'text-3xl m-1 opacity-50 cursor-pointer';
-          item.textContent = i < num1 ? '🔵' : '🟡';
-          item.onclick = () => {
-            if (clicked < total && item.style.opacity !== '1') {
-              item.style.opacity = '1'; item.style.filter = 'brightness(1.2)'; item.style.transform = 'scale(1.1)'; clicked++;
-              if (clicked === total) setTimeout(() => { instructions.textContent = `מעולה! ספרת ${total} פריטים - זו התשובה! 🎉`; instructions.className = 'text-green-600 font-bold text-lg'; }, 500);
-              else instructions.textContent = `המשך לספור... (${clicked}/${total})`;
-            }
-          };
-          interactiveContent.appendChild(item);
-          if ((i + 1) % 5 === 0 && i < total - 1) interactiveContent.appendChild(document.createElement('br'));
+          const s = document.createElement('span'); s.className = 'text-3xl m-1 opacity-50 cursor-pointer'; s.textContent = i < num1 ? '🔵' : '🟡';
+          s.onclick = () => { if (clicked < total && s.style.opacity !== '1') { s.style.opacity = '1'; clicked++; info.textContent = clicked === total ? `מעולה! ספרת ${total} פריטים - זו התשובה! 🎉` : `המשך לספור... (${clicked}/${total})`; } };
+          area.appendChild(s); if ((i + 1) % 5 === 0 && i < total - 1) area.appendChild(document.createElement('br'));
         }
-        instructions.textContent = `לחץ על הכדורים כדי לספור את ${num1} + ${num2}`;
-        return;
+        info.textContent = `לחץ על הכדורים כדי לספור את ${num1} + ${num2}`; return;
       }
-
       if (operation === 'subtraction') {
         let removed = 0;
         for (let i = 0; i < num1; i++) {
-          const item = document.createElement('span');
-          item.className = 'text-3xl m-1 cursor-pointer';
-          item.textContent = emoji;
-          item.onclick = () => {
-            if (removed < num2 && item.style.opacity !== '0.3') {
-              item.style.opacity = '0.3'; item.style.textDecoration = 'line-through'; item.style.transform = 'scale(0.8)'; removed++;
-              if (removed === num2) setTimeout(() => { instructions.textContent = `מעולה! הסרת ${num2} פריטים; נשארו ${answer}. 🎉`; instructions.className = 'text-green-600 font-bold text-lg'; }, 500);
-              else instructions.textContent = `לחץ על עוד ${num2 - removed} פריטים כדי להסיר`;
-            }
-          };
-          interactiveContent.appendChild(item);
-          if ((i + 1) % 5 === 0 && i < num1 - 1) interactiveContent.appendChild(document.createElement('br'));
+          const s = document.createElement('span'); s.className = 'text-3xl m-1 cursor-pointer'; s.textContent = emoji;
+          s.onclick = () => { if (removed < num2 && s.style.opacity !== '0.3') { s.style.opacity = '0.3'; s.style.textDecoration = 'line-through'; removed++; info.textContent = removed === num2 ? `מעולה! הסרת ${num2} פריטים; נשארו ${answer}. 🎉` : `לחץ על עוד ${num2 - removed}`; } };
+          area.appendChild(s); if ((i + 1) % 5 === 0 && i < num1 - 1) area.appendChild(document.createElement('br'));
         }
-        instructions.textContent = `לחץ על ${num2} פריטים כדי להסיר מתוך ${num1}`;
-        return;
+        info.textContent = `לחץ על ${num2} פריטים כדי להסיר מתוך ${num1}`; return;
       }
-
       if (operation === 'multiplication') {
         let shown = 0;
         for (let g = 0; g < num1; g++) {
-          const group = document.createElement('div');
-          group.className = 'inline-block border-2 border-dashed border-blue-300 rounded-lg p-3 m-2 bg-blue-50';
-          group.style.opacity = '0.5';
-          const label = document.createElement('div');
-          label.className = 'text-sm font-bold text-blue-600 mb-2 text-center';
-          label.textContent = `קבוצה ${g + 1}`;
-          group.appendChild(label);
+          const group = document.createElement('div'); group.className = 'inline-block border-2 border-dashed border-blue-300 rounded-lg p-3 m-2 bg-blue-50'; group.style.opacity = '0.5';
+          const label = document.createElement('div'); label.className = 'text-sm font-bold text-blue-600 mb-2 text-center'; label.textContent = `קבוצה ${g + 1}`; group.appendChild(label);
           for (let i = 0; i < num2; i++) { const s = document.createElement('span'); s.className = 'text-2xl m-1'; s.textContent = emoji; group.appendChild(s); }
-          group.onclick = () => {
-            if (group.style.opacity === '0.5') {
-              group.style.opacity = '1'; group.style.transform = 'scale(1.05)'; group.style.borderColor = '#10b981'; group.style.backgroundColor = '#d1fae5';
-              if (++shown === num1) setTimeout(() => { instructions.textContent = `מעולה! ${num1}×${num2} = ${answer}. 🎉`; instructions.className = 'text-green-600 font-bold text-lg'; }, 500);
-              else instructions.textContent = `נהדר! לחץ על עוד ${num1 - shown} קבוצות`;
-            }
-          };
-          interactiveContent.appendChild(group);
+          group.onclick = () => { if (group.style.opacity === '0.5') { group.style.opacity = '1'; if (++shown === num1) info.textContent = `מעולה! ${num1}×${num2} = ${answer}. 🎉`; else info.textContent = `נהדר! לחץ על עוד ${num1 - shown} קבוצות`; } };
+          area.appendChild(group);
         }
-        instructions.textContent = `לחץ על הקבוצות כדי לראות ${num1} קבוצות של ${num2}`;
-        return;
+        info.textContent = `לחץ על הקבוצות כדי לראות ${num1} קבוצות של ${num2}`; return;
       }
-
       if (operation === 'division') {
-        let shown = 0;
-        const dividend = parseInt(question.questionText.split(' ÷ ')[0]);
+        let shown = 0; const dividend = parseInt(q.questionText.split(' ÷ ')[0]);
         for (let g = 0; g < answer; g++) {
-          const group = document.createElement('div');
-          group.className = 'inline-block border-2 border-dashed border-purple-300 rounded-lg p-3 m-2 bg-purple-50';
-          group.style.opacity = '0.5';
-          const label = document.createElement('div');
-          label.className = 'text-sm font-bold text-purple-600 mb-2 text-center';
-          label.textContent = `קבוצה ${g + 1}`;
-          group.appendChild(label);
+          const group = document.createElement('div'); group.className = 'inline-block border-2 border-dashed border-purple-300 rounded-lg p-3 m-2 bg-purple-50'; group.style.opacity = '0.5';
+          const label = document.createElement('div'); label.className = 'text-sm font-bold text-purple-600 mb-2 text-center'; label.textContent = `קבוצה ${g + 1}`; group.appendChild(label);
           for (let i = 0; i < num2; i++) { const s = document.createElement('span'); s.className = 'text-2xl m-1'; s.textContent = emoji; group.appendChild(s); }
-          group.onclick = () => {
-            if (group.style.opacity === '0.5') {
-              group.style.opacity = '1'; group.style.transform = 'scale(1.05)'; group.style.borderColor = '#8b5cf6'; group.style.backgroundColor = '#ede9fe';
-              if (++shown === answer) setTimeout(() => { instructions.textContent = `מעולה! חילקת ${dividend} ל-${answer} קבוצות של ${num2}. 🎉`; instructions.className = 'text-green-600 font-bold text-lg'; }, 500);
-              else instructions.textContent = `נהדר! לחץ על עוד ${answer - shown} קבוצות`;
-            }
-          };
-          interactiveContent.appendChild(group);
+          group.onclick = () => { if (group.style.opacity === '0.5') { group.style.opacity = '1'; if (++shown === answer) info.textContent = `מעולה! חילקת ${dividend} ל-${answer} קבוצות של ${num2}. 🎉`; else info.textContent = `נהדר! לחץ על עוד ${answer - shown} קבוצות`; } };
+          area.appendChild(group);
         }
-        instructions.textContent = `לחץ על הקבוצות כדי לראות חלוקה ל-${answer} קבוצות של ${num2}`;
+        info.textContent = `לחץ על הקבוצות כדי לראות חלוקה ל-${answer} קבוצות של ${num2}`;
       }
     }
 
     function startOver() {
-      currentOperation = 'addition';
-      currentDifficulty = 'easy';
-      currentQuestionIndex = 0;
-      correctCount = 0;
-      questions = [];
-      mistakes = [];
-      startTime = 0;
-      totalTime = 0;
-      selectedAnswer = null;
-      currentTutorialMistake = null;
-
+      currentOperation = 'addition'; currentDifficulty = 'easy'; currentQuestionIndex = 0;
+      correctCount = 0; questions = []; mistakes = []; startTime = 0; totalTime = 0; selectedAnswer = null; currentTutorialMistake = null;
       ['gameScreen','resultsScreen','mistakesScreen','tutorialScreen','difficultyScreen','nameScreen','welcomeScreen'].forEach(id => document.getElementById(id).classList.add('hidden'));
       document.getElementById('operationScreen').classList.remove('hidden');
       applyCurriculumToOperationButtons();
@@ -831,66 +717,21 @@
     // ===== Utils =====
     function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
     function shuffleArray(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-
-    function generateAnswerOptions(correctAnswer) {
-      const options = [correctAnswer];
-      while (options.length < 4) {
-        const wrong = correctAnswer + Math.floor(Math.random() * 7) - 3; // ±3
-        if (wrong > 0 && wrong !== correctAnswer && !options.includes(wrong)) options.push(wrong);
+    function generateAnswerOptions(correct) {
+      const opts = [correct];
+      while (opts.length < 4) {
+        const wrong = correct + Math.floor(Math.random() * 7) - 3; // ±3
+        if (wrong > 0 && wrong !== correct && !opts.includes(wrong)) opts.push(wrong);
       }
-      return shuffleArray(options);
+      return shuffleArray(opts);
     }
 
-    // המחשה על הכרטיס: נקודות עד 12 בלבד; מעבר לזה – אין המחשה
-    function createDots(n) {
-      if (n <= 0) return '';
-      if (n > 12) return '';
-      let html = '<div class="dots-grid" aria-hidden="true">';
-      for (let i = 0; i < n; i++) html += '<span class="dot"></span>';
-      html += '</div>';
-      return html;
-    }
-
-    // ===== Sounds =====
-    function playSuccessSound() {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator(), gain = ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.frequency.setValueAtTime(523.25, ctx.currentTime);
-        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.3, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-        osc.start(); osc.stop(ctx.currentTime + 0.3);
-      } catch {}
-    }
-    function playErrorSound() {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator(), gain = ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.frequency.setValueAtTime(200, ctx.currentTime);
-        osc.frequency.setValueAtTime(150, ctx.currentTime + 0.1);
-        gain.gain.setValueAtTime(0.2, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
-        osc.start(); osc.stop(ctx.currentTime + 0.2);
-      } catch {}
-    }
-
-    // ===== Init =====
-    window.addEventListener('load', () => { /* no heavy preloads */ });
+    // Init
     document.addEventListener('DOMContentLoaded', () => {
       const input = document.getElementById('playerName');
       if (input) input.addEventListener('keydown', e => { if (e.key === 'Enter') showOperationSelect(); });
-
       const curriculumSel = document.getElementById('curriculumSelect');
-      if (curriculumSel) {
-        curriculumSel.addEventListener('change', e => {
-          currentCurriculum = e.target.value;
-          applyCurriculumToOperationButtons();
-        });
-      }
-
+      if (curriculumSel) curriculumSel.addEventListener('change', e => { currentCurriculum = e.target.value; applyCurriculumToOperationButtons(); });
       const qSel = document.getElementById('questionCountSelect');
       if (qSel) qSel.addEventListener('change', e => { questionCount = parseInt(e.target.value, 10) || 6; });
     });
