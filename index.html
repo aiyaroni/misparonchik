@@ -568,14 +568,35 @@
     }
 
     function showFeedback(ok){
-      const fb=$('#feedback'), icon=$('#feedbackIcon'), text=$('#feedbackText'), nextBtn=$('#nextButton');
-      const isLast=currentQuestionIndex===totalQuestions-1;
-      if(ok){ icon.textContent='🎉'; text.className='text-2xl font-bold mb-6 text-green-600'; text.textContent=isLast?'מעולה! סיימת את הסט!':'כל הכבוד! תשובה נכונה!'; playSuccessSound(); showCoach(isLast?'סיימנו את הסט. נעבור לסיכום.':'יפה! לשאלה הבאה.','game'); }
-      else{ icon.textContent='💪'; text.className='text-2xl font-bold mb-6 text-orange-600'; text.textContent=isLast?'סיימנו את הסט.':'כמעט! בשאלה הבאה תצליח!'; playErrorSound(); showCoach(isLast?'סיימנו את הסט. נעבור לסיכום.':'כמעט! עוברים לשאלה הבאה.','game'); }
-      nextBtn.textContent=isLast?'לסיכום התרגיל':'השאלה הבאה';
-      nextBtn.onclick=isLast?showResults:nextQuestion;
-      fb.classList.remove('hidden');
+  const fb = $('#feedback'), icon = $('#feedbackIcon'), text = $('#feedbackText'), nextBtn = $('#nextButton');
+  const isLast = currentQuestionIndex === totalQuestions - 1;
+
+  if (ok) {
+    icon.textContent = '🎉';
+    text.className = 'text-2xl font-bold mb-6 text-green-600';
+    if (isLast) {
+      text.innerHTML = '<div class="mb-2">תשובה נכונה!</div><div>מעולה! סיימת את הסט!</div>';
+    } else {
+      text.textContent = 'כל הכבוד! תשובה נכונה!';
     }
+    playSuccessSound();
+    showCoach(isLast ? 'סיימנו את הסט. נעבור לסיכום.' : 'יפה! לשאלה הבאה.', 'game');
+  } else {
+    icon.textContent = '💪';
+    text.className = 'text-2xl font-bold mb-6 text-orange-600';
+    if (isLast) {
+      text.innerHTML = '<div class="mb-2">תשובה שגויה.</div><div>סיימנו את הסט.</div>';
+    } else {
+      text.textContent = 'כמעט! בשאלה הבאה תצליח!';
+    }
+    playErrorSound();
+    showCoach(isLast ? 'סיימנו את הסט. נעבור לסיכום.' : 'כמעט! עוברים לשאלה הבאה.', 'game');
+  }
+
+  nextBtn.textContent = isLast ? 'לסיכום התרגיל' : 'השאלה הבאה';
+  nextBtn.onclick = isLast ? showResults : nextQuestion;
+  fb.classList.remove('hidden');
+}
     function nextQuestion(){
       $('#feedback').classList.add('hidden');
       currentQuestionIndex++;
