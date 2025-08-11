@@ -14,7 +14,7 @@
     @keyframes blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
 
     /* תשובות */
-    .answer-item{position:relative;transition:transform .14s,box-shadow .14s,border-color .14s;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;background:rgba(255,255,255,.92);border-radius:1rem;border:2px solid transparent;outline:none}
+    .answer-item{position:relative;transition:transform .14s,box-shadow .14s,border-color .14s;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;background:rgba(255,255,255,.96);border-radius:1rem;border:2px solid transparent;outline:none}
     .answer-item::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:var(--tint,transparent);opacity:.08}
     .answer-item .accent{display:none;position:absolute;right:0;top:0;bottom:0;width:8px;border-radius:0 1rem 1rem 0;opacity:.55;background:var(--tint);pointer-events:none}
     .answer-item[data-idx="0"]{--tint:#f87171}
@@ -283,7 +283,6 @@
     let correctCount=0, totalQuestions=6, questions=[], mistakes=[];
     let startTime=0, totalTime=0, playerName='', selectedAnswer=null;
     let questionCount=6, currentCurriculum='none';
-    let isMuted=false, audioCtx=null, audioUnlocked=false;
     let coachHidden=false;
 
     const rulesByDifficulty={ easy:{addSubMax:20,mulMax:5,divMaxDivisor:5,divMaxQuotient:5},
@@ -330,55 +329,119 @@
       }
     }
 
-    /* ========= Audio ========= */
-    function getAudioCtx(){
-      if(isMuted) return null;
-      const AC=window.AudioContext||window.webkitAudioContext;
-      if(!AC) return null;
-      if(!audioCtx) audioCtx=new AC();
-      if(audioCtx.state==='suspended'&&audioCtx.resume) audioCtx.resume();
+    /* ========= Audio (Safari-safe) ========= */
+    let isMuted = false;
+    let audioCtx = null;
+    let audioUnlocked = false;
+
+    function getAudioCtx() {
+      if (isMuted) return null;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      if (!audioCtx) audioCtx = new AC();
+      if (audioCtx.state !== 'running' && audioCtx.resume) {
+        try { audioCtx.resume(); } catch {}
+      }
       return audioCtx;
     }
-    function unlockAudio(){
-      if(audioUnlocked) return;
-      const ctx=getAudioCtx(); if(!ctx) return;
-      try{
-        const o=ctx.createOscillator(), g=ctx.createGain();
-        o.connect(g); g.connect(ctx.destination);
-        g.gain.setValueAtTime(0.0001, ctx.currentTime);
-        o.start(ctx.currentTime); o.stop(ctx.currentTime+0.01);
-        audioUnlocked=true;
-      }catch{/* ignore */}
+
+    function unlockAudioOnce() {
+      if (audioUnlocked || isMuted) return;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+
+      if (!audioCtx) audioCtx = new AC();
+      try { const p = audioCtx.resume && audioCtx.resume(); if (p && p.catch) p.catch(()=>{}); } catch {}
+
+      try {
+        // טריק בטוח לספארי: ניגון buffer ריק פריים אחד
+        const buffer = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
+        const src = audioCtx.createBufferSource();
+        const gain = audioCtx.createGain();
+        gain.gain.value = 0.0001;
+        src.buffer = buffer;
+        src.connect(gain);
+        gain.connect(audioCtx.destination);
+        src.start(0);
+        setTimeout(() => {
+          try { src.disconnect(); gain.disconnect(); } catch {}
+          audioUnlocked = true;
+        }, 0);
+      } catch {
+        // fallback
+        try {
+          const t = audioCtx.currentTime;
+          const o = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          g.gain.setValueAtTime(0.0001, t);
+          o.connect(g); g.connect(audioCtx.destination);
+          o.start(t); o.stop(t + 0.02);
+          audioUnlocked = true;
+        } catch {}
+      }
     }
-    function tone(freq,dur,t,type='sine',gain=0.22){
-      if(isMuted) return;
-      const ctx=getAudioCtx(); if(!ctx) return;
-      const start=(typeof t==='number')?t:ctx.currentTime;
-      const o=ctx.createOscillator(), g=ctx.createGain();
-      o.type=type; o.frequency.setValueAtTime(freq,start);
-      g.gain.setValueAtTime(gain,start);
-      g.gain.exponentialRampToValueAtTime(0.001,start+dur);
+
+    function ensureUnlocked() {
+      const ctx = getAudioCtx();
+      if (!ctx) return;
+      if (!audioUnlocked) unlockAudioOnce();
+    }
+
+    function tone(freq, dur, t, type = 'sine', gain = 0.24) {
+      if (isMuted) return;
+      ensureUnlocked();
+      const ctx = getAudioCtx(); if (!ctx) return;
+
+      const start = typeof t === 'number' ? t : ctx.currentTime;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+
+      o.type = type;
+      o.frequency.setValueAtTime(freq, start);
+
+      g.gain.setValueAtTime(gain, start);
+      g.gain.exponentialRampToValueAtTime(0.001, start + dur);
+
       o.connect(g); g.connect(ctx.destination);
-      o.start(start); o.stop(start+dur);
+      try { o.start(start); o.stop(start + dur); } catch {}
     }
-    function playSelectTick(){const ctx=getAudioCtx(); if(!ctx) return; const t=ctx.currentTime; tone(440,0.06,t,'triangle',0.10);}
-    function playSuccessSound(){const ctx=getAudioCtx(); if(!ctx) return; const t=ctx.currentTime; tone(523.25,0.12,t,'sine',0.22); tone(659.25,0.12,t+0.10,'sine',0.20); tone(783.99,0.14,t+0.20,'sine',0.18);}
-    function playErrorSound(){const ctx=getAudioCtx(); if(!ctx) return; const t=ctx.currentTime; tone(220,0.10,t,'sawtooth',0.18); tone(180,0.12,t+0.10,'sawtooth',0.16);}
+
+    function playSelectTick() {
+      const ctx = getAudioCtx(); if (!ctx) { ensureUnlocked(); return; }
+      const t = ctx.currentTime;
+      tone(520, 0.08, t, 'triangle', 0.18);
+    }
+
+    function playSuccessSound() {
+      const ctx = getAudioCtx(); if (!ctx) { ensureUnlocked(); return; }
+      const t = ctx.currentTime;
+      tone(523.25, 0.12, t,       'sine', 0.22);
+      tone(659.25, 0.12, t + 0.1, 'sine', 0.20);
+      tone(783.99, 0.14, t + 0.2, 'sine', 0.18);
+    }
+
+    function playErrorSound() {
+      const ctx = getAudioCtx(); if (!ctx) { ensureUnlocked(); return; }
+      const t = ctx.currentTime;
+      tone(220, 0.12, t,       'square', 0.20);
+      tone(180, 0.12, t + 0.1, 'square', 0.18);
+    }
+
     function initAudioToggle(){
-      const btn=$('#audioToggle'); if(!btn) return;
-      try{isMuted=localStorage.getItem('soundMuted')==='true';}catch{}
-      btn.setAttribute('aria-pressed',isMuted?'true':'false');
-      btn.addEventListener('click',()=>{
-        isMuted=!isMuted;
-        btn.setAttribute('aria-pressed',isMuted?'true':'false');
-        try{localStorage.setItem('soundMuted',String(isMuted));}catch{}
-        if(!isMuted) unlockAudio();
+      const btn = document.querySelector('#audioToggle'); if (!btn) return;
+      try { isMuted = localStorage.getItem('soundMuted') === 'true'; } catch {}
+      btn.setAttribute('aria-pressed', isMuted ? 'true' : 'false');
+      btn.addEventListener('click', () => {
+        isMuted = !isMuted;
+        btn.setAttribute('aria-pressed', isMuted ? 'true' : 'false');
+        try { localStorage.setItem('soundMuted', String(isMuted)); } catch {}
+        if (!isMuted) unlockAudioOnce();
       });
     }
-    // קליק על רוב הכפתורים ינגן טיק (אם לא מושתק)
+
+    // טיק על רוב הכפתורים (לא כולל השתקה)
     document.addEventListener('click',e=>{
-      const el=e.target.closest('button,.op-btn');
-      if(!el||el.id==='audioToggle') return;
+      const el=e.target.closest('button,.op-btn'); if(!el||el.id==='audioToggle') return;
       if(el.disabled||el.getAttribute('aria-disabled')==='true') return;
       playSelectTick();
     });
@@ -494,6 +557,7 @@
     }
 
     function confirmAnswer(){
+      unlockAudioOnce();
       const btn=$('#confirmButton');
       if(btn.hasAttribute('disabled')) return;
       if(selectedAnswer===null) return;
@@ -642,7 +706,7 @@
         let clicked=0,total=answer;
         for(let i=0;i<total;i++){
           const s=document.createElement('span'); s.className='text-3xl m-1 opacity-50 cursor-pointer'; s.textContent=i<num1?'🔵':'🟡';
-          s.onclick=function(){ if(this.style.opacity!=='1'){ this.style.opacity='1'; clicked++; info.textContent=clicked===total?('מעולה! ספרת '+total+' פריטים - זו התשובה! 🎉'):('המשך לספור... ('+clicked+'/'+total+')'); } };
+          s.onclick=function(){ unlockAudioOnce(); if(this.style.opacity!=='1'){ this.style.opacity='1'; clicked++; info.textContent=clicked===total?('מעולה! ספרת '+total+' פריטים - זו התשובה! 🎉'):('המשך לספור... ('+clicked+'/'+total+')'); } };
           area.appendChild(s); if(((i+1)%5===0)&&i<total-1) area.appendChild(document.createElement('br'));
         }
         info.textContent='לחץ על הכדורים כדי לספור את '+num1+' + '+num2; return;
@@ -651,7 +715,7 @@
         let removed=0;
         for(let i=0;i<num1;i++){
           const s2=document.createElement('span'); s2.className='text-3xl m-1 cursor-pointer'; s2.textContent=em;
-          s2.onclick=function(){ if(this.style.opacity!=='0.3'&&removed<num2){ this.style.opacity='0.3'; this.style.textDecoration='line-through'; removed++; info.textContent=removed===num2?('מעולה! הסרת '+num2+' פריטים; נשארו '+answer+'. 🎉'):('לחץ על עוד '+(num2-removed)); } };
+          s2.onclick=function(){ unlockAudioOnce(); if(this.style.opacity!=='0.3'&&removed<num2){ this.style.opacity='0.3'; this.style.textDecoration='line-through'; removed++; info.textContent=removed===num2?('מעולה! הסרת '+num2+' פריטים; נשארו '+answer+'. 🎉'):('לחץ על עוד '+(num2-removed)); } };
           area.appendChild(s2); if(((i+1)%5===0)&&i<num1-1) area.appendChild(document.createElement('br'));
         }
         info.textContent='לחץ על '+num2+' פריטים כדי להסיר מתוך '+num1; return;
@@ -662,7 +726,7 @@
           const group=document.createElement('div'); group.className='inline-block border-2 border-dashed border-blue-300 rounded-lg p-3 m-2 bg-blue-50'; group.style.opacity='0.5';
           const label=document.createElement('div'); label.className='text-sm font-bold text-blue-600 mb-2 text-center'; label.textContent='קבוצה '+(g+1); group.appendChild(label);
           for(let i=0;i<num2;i++){ const sp=document.createElement('span'); sp.className='text-2xl m-1'; sp.textContent=em; group.appendChild(sp); }
-          group.onclick=function(){ if(this.style.opacity==='0.5'){ this.style.opacity='1'; shown++; info.textContent=(shown===num1)?('מעולה! '+num1+'×'+num2+' = '+answer+'. 🎉'):('נהדר! לחץ על עוד '+(num1-shown)+' קבוצות'); } };
+          group.onclick=function(){ unlockAudioOnce(); if(this.style.opacity==='0.5'){ this.style.opacity='1'; shown++; info.textContent=(shown===num1)?('מעולה! '+num1+'×'+num2+' = '+answer+'. 🎉'):('נהדר! לחץ על עוד '+(num1-shown)+' קבוצות'); } };
           area.appendChild(group);
         }
         info.textContent='לחץ על הקבוצות כדי לראות '+num1+' קבוצות של '+num2; return;
@@ -673,7 +737,7 @@
           const group2=document.createElement('div'); group2.className='inline-block border-2 border-dashed border-purple-300 rounded-lg p-3 m-2 bg-purple-50'; group2.style.opacity='0.5';
           const label2=document.createElement('div'); label2.className='text-sm font-bold text-purple-600 mb-2 text-center'; label2.textContent='קבוצה '+(g+1); group2.appendChild(label2);
           for(let i=0;i<num2;i++){ const sp2=document.createElement('span'); sp2.className='text-2xl m-1'; sp2.textContent=em; group2.appendChild(sp2); }
-          group2.onclick=function(){ if(this.style.opacity==='0.5'){ this.style.opacity='1'; shown2++; info.textContent=(shown2===answer)?('מעולה! חילקת '+dividend+' ל-'+answer+' קבוצות של '+num2+'. 🎉'):('נהדר! לחץ על עוד '+(answer-shown2)+' קבוצות'); } };
+          group2.onclick=function(){ unlockAudioOnce(); if(this.style.opacity==='0.5'){ this.style.opacity='1'; shown2++; info.textContent=(shown2===answer)?('מעולה! חילקת '+dividend+' ל-'+answer+' קבוצות של '+num2+'. 🎉'):('נהדר! לחץ על עוד '+(answer-shown2)+' קבוצות'); } };
           area.appendChild(group2);
         }
         info.textContent='לחץ על הקבוצות כדי לראות חלוקה ל-'+answer+' קבוצות של '+num2;
@@ -683,14 +747,13 @@
     /* ========= Answer grid (delegation) ========= */
     function bindAnswerGrid(){
       const grid=$('#answersGrid'); if(!grid) return;
-      grid.addEventListener('click',e=>{ const item=e.target.closest('.answer-item'); if(!item||!grid.contains(item)) return; chooseItem(item); });
-      grid.addEventListener('keydown',e=>{ const item=e.target.closest('.answer-item'); if(!item||!grid.contains(item)) return; if(e.key==='Enter'||e.key===' '){ e.preventDefault(); chooseItem(item);} });
+      grid.addEventListener('click',e=>{ const item=e.target.closest('.answer-item'); if(!item||!grid.contains(item)) return; unlockAudioOnce(); chooseItem(item); });
+      grid.addEventListener('keydown',e=>{ const item=e.target.closest('.answer-item'); if(!item||!grid.contains(item)) return; if(e.key==='Enter'||e.key===' '){ e.preventDefault(); unlockAudioOnce(); chooseItem(item);} });
       function chooseItem(item){
         $$('#answersGrid .answer-item').forEach(it=>{ it.classList.remove('selected'); it.setAttribute('aria-selected','false'); });
         item.classList.add('selected'); item.setAttribute('aria-selected','true');
         selectedAnswer=parseInt(item.getAttribute('data-value'),10);
-        enableConfirm();
-        playSelectTick();
+        enableConfirm(); playSelectTick();
       }
     }
 
@@ -711,24 +774,27 @@
 
     /* ========= Init ========= */
     document.addEventListener('DOMContentLoaded',()=>{
-      // פתיחת אודיו במחווה הראשונה מכל מקום
-      document.addEventListener('pointerdown', unlockAudio, { once: true });
+      // פתיחה על המחווה הראשונה – כולל iOS/macOS Safari
+      window.addEventListener('touchstart', unlockAudioOnce, { once: true, passive: true });
+      window.addEventListener('touchend',   unlockAudioOnce, { once: true, passive: true });
+      window.addEventListener('pointerdown', unlockAudioOnce, { once: true, capture: true });
+      window.addEventListener('click',        unlockAudioOnce, { once: true, capture: true });
 
       // ניווט ראשוני
-      $('#startBtn')?.addEventListener('click',e=>{e.preventDefault(); showNameInput();});
-      $('#nameForm')?.addEventListener('submit',e=>{e.preventDefault(); showOperationSelect();});
+      $('#startBtn')?.addEventListener('click',e=>{e.preventDefault(); unlockAudioOnce(); showNameInput();});
+      $('#nameForm')?.addEventListener('submit',e=>{e.preventDefault(); unlockAudioOnce(); showOperationSelect();});
       // תוכנית לימוד
       $('#curriculumSelect')?.addEventListener('change',e=>{ currentCurriculum=e.target.value; applyCurriculumToOperationButtons(); });
       // בחירת תרגיל
-      $$('#opsGrid .op-btn').forEach(b=>b.addEventListener('click',()=>{ selectOperation(b.getAttribute('data-op')); }));
+      $$('#opsGrid .op-btn').forEach(b=>b.addEventListener('click',()=>{ unlockAudioOnce(); selectOperation(b.getAttribute('data-op')); }));
       // רמת קושי
-      $$('#difficultyScreen .diff-btn').forEach(b=>b.addEventListener('click',()=>{ startGame(b.getAttribute('data-diff')); }));
+      $$('#difficultyScreen .diff-btn').forEach(b=>b.addEventListener('click',()=>{ unlockAudioOnce(); startGame(b.getAttribute('data-diff')); }));
       $('#questionCountSelect')?.addEventListener('change',e=>{ questionCount=parseInt(e.target.value,10)||6; });
 
       // תשובות
       bindAnswerGrid();
       // אישור תשובה
-      $('#confirmButton')?.addEventListener('click',e=>{ if(e.currentTarget.hasAttribute('disabled')){ e.preventDefault(); return; } confirmAnswer(); });
+      $('#confirmButton')?.addEventListener('click',e=>{ if(e.currentTarget.hasAttribute('disabled')){ e.preventDefault(); return; } unlockAudioOnce(); confirmAnswer(); });
 
       // תוצאות: מאזינים
       $('#retryBtn')?.addEventListener('click',()=> startGame(currentDifficulty));
@@ -748,7 +814,12 @@
       // אודיו
       initAudioToggle();
 
-      // הצגת שופי במסך פתיחה עם הקופי החדש
+      // אם הטאב חזר לפוקוס בספארי
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') { try { getAudioCtx(); } catch {} }
+      });
+
+      // הצגת שופי במסך פתיחה עם הקופי המבוקש
       showCoach('אני שופי ! איזה כיף כבר מתחילים','default');
 
       // רספונסיביות – עדכון מיקום שופי
