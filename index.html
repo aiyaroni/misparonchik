@@ -284,6 +284,7 @@
     let startTime=0, totalTime=0, playerName='', selectedAnswer=null;
     let questionCount=6, currentCurriculum='none';
     let coachHidden=false;
+    let activeMistake = null; // הטעות הפעילה במסך ההדרכה
 
     const rulesByDifficulty={ easy:{addSubMax:20,mulMax:5,divMaxDivisor:5,divMaxQuotient:5},
       medium:{addSubMax:100,mulMax:10,divMaxDivisor:10,divMaxQuotient:10},
@@ -548,31 +549,48 @@
       placeCoach('game');
     }
 
-    function enableConfirm(){
-      const btn=$('#confirmButton');
-      btn.disabled=false;
-      btn.removeAttribute('disabled');
-      btn.setAttribute('aria-disabled','false');
-    }
-    function disableConfirm(){
-      const btn=$('#confirmButton');
-      btn.disabled=true;
-      btn.setAttribute('disabled','');
-      btn.setAttribute('aria-disabled','true');
-    }
+function enableConfirm(){
+  const btn = $('#confirmButton');
+  btn.disabled = false;
+  btn.removeAttribute('disabled');
+  btn.setAttribute('aria-disabled','false');
+}
 
-    function confirmAnswer(){
-      unlockAudioOnce();
-      const btn=$('#confirmButton');
-      if(btn.hasAttribute('disabled')) return;
-      if(selectedAnswer===null) return;
-      const correct=questions[currentQuestionIndex].answer;
-      const end=Date.now(); totalTime+=(end-startTime)/1000;
-      if(selectedAnswer===correct) { correctCount++; showFeedback(true); }
-      else { mistakes.push({question:questions[currentQuestionIndex],userAnswer:selectedAnswer,correctAnswer:correct}); showFeedback(false); }
-    }
+function disableConfirm(){
+  const btn = $('#confirmButton');
+  btn.disabled = true;
+  btn.setAttribute('disabled','');
+  btn.setAttribute('aria-disabled','true');
+}
 
-    function showFeedback(ok){
+function confirmAnswer(){
+  unlockAudioOnce();
+  const btn = $('#confirmButton');
+  if (!btn || btn.hasAttribute('disabled')) return;
+  if (selectedAnswer === null) return;
+
+  // נועל כדי למנוע לחיצות כפולות
+  disableConfirm();
+
+  const correct = questions[currentQuestionIndex].answer;
+  const end = Date.now();
+  totalTime += (end - startTime) / 1000;
+
+  if (selectedAnswer === correct) {
+    correctCount++;
+    showFeedback(true);
+  } else {
+    mistakes.push({
+      question: questions[currentQuestionIndex],
+      userAnswer: selectedAnswer,
+      correctAnswer: correct,
+      reviewed: false
+    });
+    showFeedback(false);
+  }
+}
+
+function showFeedback(ok){
   const fb = $('#feedback'), icon = $('#feedbackIcon'), text = $('#feedbackText'), nextBtn = $('#nextButton');
   const isLast = currentQuestionIndex === totalQuestions - 1;
 
@@ -602,12 +620,20 @@
   nextBtn.onclick = isLast ? showResults : nextQuestion;
   fb.classList.remove('hidden');
 }
-    function nextQuestion(){
-      $('#feedback').classList.add('hidden');
-      currentQuestionIndex++;
-      if(currentQuestionIndex<totalQuestions){ showQuestion(); $('#confirmButton').focus(); }
-      else { const pb=$('#progressBar'); pb.style.width='100%'; pb.setAttribute('aria-valuenow','100'); showResults(); }
-    }
+
+function nextQuestion(){
+  $('#feedback').classList.add('hidden');
+  currentQuestionIndex++;
+  if (currentQuestionIndex < totalQuestions) {
+    showQuestion();
+    $('#confirmButton').focus();
+  } else {
+    const pb = $('#progressBar');
+    pb.style.width = '100%';
+    pb.setAttribute('aria-valuenow','100');
+    showResults();
+  }
+}
 
     function getResultsTitleCopy(name,pct){
       if (pct===0) return `לא נורא ${name}, שופי בטוח שבפעם הבאה תהיה תוצאה טובה יותר`;
@@ -724,136 +750,148 @@
       ]; }
       return [];
     }
-    function createInteractiveDemo(q){
-      const area=$('#interactiveContent'), info=$('#interactiveInstructions'); area.innerHTML='';
-      const {operation,num1,num2,answer}=q;
-      const em=['🍎','🎈','⭐','🌟','🍊','🎯','🌈','🎪'][Math.floor(Math.random()*8)];
-      if(operation==='addition'){
-        let clicked=0,total=answer;
-        for(let i=0;i<total;i++){
-          const s=document.createElement('span'); s.className='text-3xl m-1 opacity-50 cursor-pointer'; s.textContent=i<num1?'🔵':'🟡';
-          s.onclick=function(){ unlockAudioOnce(); if(this.style.opacity!=='1'){ this.style.opacity='1'; clicked++; info.textContent=clicked===total?('מעולה! ספרת '+total+' פריטים - זו התשובה! 🎉'):('המשך לספור... ('+clicked+'/'+total+')'); } };
-          area.appendChild(s); if(((i+1)%5===0)&&i<total-1) area.appendChild(document.createElement('br'));
+ function createInteractiveDemo(q){
+  const area = $('#interactiveContent'), info = $('#interactiveInstructions');
+  area.innerHTML = '';
+  const {operation,num1,num2,answer} = q;
+  const em = ['🍎','🎈','⭐','🌟','🍊','🎯','🌈','🎪'][Math.floor(Math.random()*8)];
+
+  if(operation==='addition'){
+    let clicked=0,total=answer;
+    for(let i=0;i<total;i++){
+      const s=document.createElement('span');
+      s.className='text-3xl m-1 opacity-50 cursor-pointer';
+      s.textContent=i<num1?'🔵':'🟡';
+      s.onclick=function(){
+        unlockAudioOnce();
+        if(this.style.opacity!=='1'){
+          this.style.opacity='1';
+          clicked++;
+          if(clicked===total){
+            setTimeout(()=>{
+              info.textContent=`מעולה! ספרת ${total} פריטים - זו התשובה! 🎉`;
+              info.className='text-green-600 font-bold text-lg';
+              markActiveMistakeReviewed(); // NEW
+            },500);
+          }else{
+            info.textContent=`המשך לספור... (${clicked}/${total})`;
+          }
         }
-        info.textContent='לחץ על הכדורים כדי לספור את '+num1+' + '+num2; return;
-      }
-      if(operation==='subtraction'){
-        let removed=0;
-        for(let i=0;i<num1;i++){
-          const s2=document.createElement('span'); s2.className='text-3xl m-1 cursor-pointer'; s2.textContent=em;
-          s2.onclick=function(){ unlockAudioOnce(); if(this.style.opacity!=='0.3'&&removed<num2){ this.style.opacity='0.3'; this.style.textDecoration='line-through'; removed++; info.textContent=removed===num2?('מעולה! הסרת '+num2+' פריטים; נשארו '+answer+'. 🎉'):('לחץ על עוד '+(num2-removed)); } };
-          area.appendChild(s2); if(((i+1)%5===0)&&i<num1-1) area.appendChild(document.createElement('br'));
-        }
-        info.textContent='לחץ על '+num2+' פריטים כדי להסיר מתוך '+num1; return;
-      }
-      if(operation==='multiplication'){
-        let shown=0;
-        for(let g=0; g<num1; g++){
-          const group=document.createElement('div'); group.className='inline-block border-2 border-dashed border-blue-300 rounded-lg p-3 m-2 bg-blue-50'; group.style.opacity='0.5';
-          const label=document.createElement('div'); label.className='text-sm font-bold text-blue-600 mb-2 text-center'; label.textContent='קבוצה '+(g+1); group.appendChild(label);
-          for(let i=0;i<num2;i++){ const sp=document.createElement('span'); sp.className='text-2xl m-1'; sp.textContent=em; group.appendChild(sp); }
-          group.onclick=function(){ unlockAudioOnce(); if(this.style.opacity==='0.5'){ this.style.opacity='1'; shown++; info.textContent=(shown===num1)?('מעולה! '+num1+'×'+num2+' = '+answer+'. 🎉'):('נהדר! לחץ על עוד '+(num1-shown)+' קבוצות'); } };
-          area.appendChild(group);
-        }
-        info.textContent='לחץ על הקבוצות כדי לראות '+num1+' קבוצות של '+num2; return;
-      }
-      if(operation==='division'){
-        let shown2=0; const dividend=parseInt(q.questionText.split(' ÷ ')[0],10);
-        for(let g=0; g<answer; g++){
-          const group2=document.createElement('div'); group2.className='inline-block border-2 border-dashed border-purple-300 rounded-lg p-3 m-2 bg-purple-50'; group2.style.opacity='0.5';
-          const label2=document.createElement('div'); label2.className='text-sm font-bold text-purple-600 mb-2 text-center'; label2.textContent='קבוצה '+(g+1); group2.appendChild(label2);
-          for(let i=0;i<num2;i++){ const sp2=document.createElement('span'); sp2.className='text-2xl m-1'; sp2.textContent=em; group2.appendChild(sp2); }
-          group2.onclick=function(){ unlockAudioOnce(); if(this.style.opacity==='0.5'){ this.style.opacity='1'; shown2++; info.textContent=(shown2===answer)?('מעולה! חילקת '+dividend+' ל-'+answer+' קבוצות של '+num2+'. 🎉'):('נהדר! לחץ על עוד '+(answer-shown2)+' קבוצות'); } };
-          area.appendChild(group2);
-        }
-        info.textContent='לחץ על הקבוצות כדי לראות חלוקה ל-'+answer+' קבוצות של '+num2;
-      }
+      };
+      area.appendChild(s);
+      if(((i+1)%5===0)&&i<total-1) area.appendChild(document.createElement('br'));
     }
+    info.textContent=`לחץ על הכדורים כדי לספור את ${num1} + ${num2}`;
+    return;
+  }
 
-    /* ========= Answer grid (delegation) ========= */
-    function bindAnswerGrid(){
-      const grid=$('#answersGrid'); if(!grid) return;
-      grid.addEventListener('click',e=>{ const item=e.target.closest('.answer-item'); if(!item||!grid.contains(item)) return; unlockAudioOnce(); chooseItem(item); });
-      grid.addEventListener('keydown',e=>{ const item=e.target.closest('.answer-item'); if(!item||!grid.contains(item)) return; if(e.key==='Enter'||e.key===' '){ e.preventDefault(); unlockAudioOnce(); chooseItem(item);} });
-      function chooseItem(item){
-        $$('#answersGrid .answer-item').forEach(it=>{ it.classList.remove('selected'); it.setAttribute('aria-selected','false'); });
-        item.classList.add('selected'); item.setAttribute('aria-selected','true');
-        selectedAnswer=parseInt(item.getAttribute('data-value'),10);
-        enableConfirm(); playSelectTick();
-      }
+  if(operation==='subtraction'){
+    let removed=0;
+    for(let i=0;i<num1;i++){
+      const s2=document.createElement('span');
+      s2.className='text-3xl m-1 cursor-pointer';
+      s2.textContent=em;
+      s2.onclick=function(){
+        unlockAudioOnce();
+        if(this.style.opacity!=='0.3'&&removed<num2){
+          this.style.opacity='0.3';
+          this.style.textDecoration='line-through';
+          removed++;
+          if(removed===num2){
+            setTimeout(()=>{
+              info.textContent=`מעולה! הסרת ${num2} פריטים, נשארו ${answer} פריטים! 🎉`;
+              info.className='text-green-600 font-bold text-lg';
+              markActiveMistakeReviewed(); // NEW
+            },500);
+          }else{
+            info.textContent=`לחץ על עוד ${num2-removed} פריטים כדי להסיר אותם`;
+          }
+        }
+      };
+      area.appendChild(s2);
+      if(((i+1)%5===0)&&i<num1-1) area.appendChild(document.createElement('br'));
     }
+    info.textContent=`לחץ על ${num2} פריטים כדי להסיר אותם מתוך ${num1}`;
+    return;
+  }
 
-    /* ========= Confetti ========= */
-    function confettiBurst(container){
-      try{ if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; }catch{}
-      const n=28; for(let i=0;i<n;i++){
-        const dot=document.createElement('span');
-        dot.style.position='absolute'; dot.style.width='8px'; dot.style.height='8px'; dot.style.borderRadius='50%';
-        dot.style.left='50%'; dot.style.top='10%';
-        const colors=['#22c55e','#3b82f6','#f59e0b','#ef4444','#a855f7']; dot.style.background=colors[i%colors.length];
-        const angle=(i/n)*Math.PI*2, dist=80+Math.random()*50, tx=Math.cos(angle)*dist, ty=Math.sin(angle)*dist;
-        const anim=dot.animate([{transform:'translate(-50%,-50%) scale(1)',opacity:1},{transform:'translate('+(tx-50)+'%,'+(ty-50)+'%) scale(.9)',opacity:0}],{duration:900,easing:'cubic-bezier(.2,.8,.2,1)'});
-        anim.onfinish=()=>dot.remove();
-        (container||document.body).appendChild(dot);
+  if(operation==='multiplication'){
+    let shown=0;
+    for(let g=0; g<num1; g++){
+      const group=document.createElement('div');
+      group.className='inline-block border-2 border-dashed border-blue-300 rounded-lg p-3 m-2 bg-blue-50';
+      group.style.opacity='0.5';
+      const label=document.createElement('div');
+      label.className='text-sm font-bold text-blue-600 mb-2 text-center';
+      label.textContent='קבוצה '+(g+1);
+      group.appendChild(label);
+
+      for(let i=0;i<num2;i++){
+        const sp=document.createElement('span');
+        sp.className='text-2xl m-1';
+        sp.textContent=em;
+        group.appendChild(sp);
       }
+
+      group.onclick=function(){
+        unlockAudioOnce();
+        if(this.style.opacity==='0.5'){
+          this.style.opacity='1';
+          shown++;
+          if(shown===num1){
+            setTimeout(()=>{
+              info.textContent=`מעולה! ${num1} קבוצות × ${num2} פריטים = ${answer} פריטים בסך הכל! 🎉`;
+              info.className='text-green-600 font-bold text-lg';
+              markActiveMistakeReviewed(); // NEW
+            },500);
+          }else{
+            info.textContent=`נהדר! לחץ על ${num1-shown} הקבוצות הנותרות`;
+          }
+        }
+      };
+      area.appendChild(group);
     }
+    info.textrompt=`לחץ על הקבוצות כדי לראות ${num1} קבוצות של ${num2}`;
+    return;
+  }
 
-    /* ========= Init ========= */
-    document.addEventListener('DOMContentLoaded',()=>{
-      // פתיחה על המחווה הראשונה – כולל iOS/macOS Safari
-      window.addEventListener('touchstart', unlockAudioOnce, { once: true, passive: true });
-      window.addEventListener('touchend',   unlockAudioOnce, { once: true, passive: true });
-      window.addEventListener('pointerdown', unlockAudioOnce, { once: true, capture: true });
-      window.addEventListener('click',        unlockAudioOnce, { once: true, capture: true });
+  if(operation==='division'){
+    let shown2=0;
+    const dividend=parseInt(q.questionText.split(' ÷ ')[0],10);
+    for(let g=0; g<answer; g++){
+      const group2=document.createElement('div');
+      group2.className='inline-block border-2 border-dashed border-purple-300 rounded-lg p-3 m-2 bg-purple-50';
+      group2.style.opacity='0.5';
+      const label2=document.createElement('div');
+      label2.className='text-sm font-bold text-purple-600 mb-2 text-center';
+      label2.textContent='קבוצה '+(g+1);
+      group2.appendChild(label2);
 
-      // ניווט ראשוני
-      $('#startBtn')?.addEventListener('click',e=>{e.preventDefault(); unlockAudioOnce(); showNameInput();});
-      $('#nameForm')?.addEventListener('submit',e=>{e.preventDefault(); unlockAudioOnce(); showOperationSelect();});
-      // תוכנית לימוד
-      $('#curriculumSelect')?.addEventListener('change',e=>{ currentCurriculum=e.target.value; applyCurriculumToOperationButtons(); });
-      // בחירת תרגיל
-      $$('#opsGrid .op-btn').forEach(b=>b.addEventListener('click',()=>{ unlockAudioOnce(); selectOperation(b.getAttribute('data-op')); }));
-      // רמת קושי
-      $$('#difficultyScreen .diff-btn').forEach(b=>b.addEventListener('click',()=>{ unlockAudioOnce(); startGame(b.getAttribute('data-diff')); }));
-      $('#questionCountSelect')?.addEventListener('change',e=>{ questionCount=parseInt(e.target.value,10)||6; });
+      for(let i=0;i<num2;i++){
+        const sp2=document.createElement('span');
+        sp2.className='text-2xl m-1';
+        sp2.textContent=em;
+        group2.appendChild(sp2);
+      }
 
-      // תשובות
-      bindAnswerGrid();
-      // אישור תשובה
-      $('#confirmButton')?.addEventListener('click',e=>{ if(e.currentTarget.hasAttribute('disabled')){ e.preventDefault(); return; } unlockAudioOnce(); confirmAnswer(); });
-
-      // תוצאות: מאזינים
-      $('#retryBtn')?.addEventListener('click',()=> startGame(currentDifficulty));
-      $('#mistakesButton')?.addEventListener('click',showMistakes);
-      $('#altBtn')?.addEventListener('click',showOperationSelect);
-
-      // טעויות/הדרכה חזרה וריסטארט
-      $('#backToResults')?.addEventListener('click',()=>{ $('#mistakesScreen').classList.add('hidden'); $('#resultsScreen').classList.remove('hidden'); showCoach('חזרה לסיכום.','default'); });
-      $('#restartBtn')?.addEventListener('click',()=>location.reload());
-      $('#restartFromMistakes')?.addEventListener('click',()=>location.reload());
-      $('#restartFromTutorial')?.addEventListener('click',()=>location.reload());
-      $('#backToMistakes')?.addEventListener('click',()=>{ $('#tutorialScreen').classList.add('hidden'); $('#mistakesScreen').classList.remove('hidden'); showCoach('חזרה לרשימת הטעויות.','default'); });
-
-      // שופי – סגירה
-      $('#coachClose')?.addEventListener('click',()=>{ coachHidden=true; hideCoach(); });
-
-      // אודיו
-      initAudioToggle();
-
-      // אם הטאב חזר לפוקוס בספארי
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') { try { getAudioCtx(); } catch {} }
-      });
-
-      // הצגת שופי במסך פתיחה עם הקופי המבוקש
-      showCoach('אני שופי ! איזה כיף כבר מתחילים','default');
-
-      // רספונסיביות – עדכון מיקום שופי
-      window.addEventListener('resize', ()=>{
-        const ctx = (!$('#gameScreen').classList.contains('hidden')) ? 'game' : 'default';
-        placeCoach(ctx);
-      });
-    });
-  </script>
-</body>
-</html>
+      group2.onclick=function(){
+        unlockAudioOnce();
+        if(this.style.opacity==='0.5'){
+          this.style.opacity='1';
+          shown2++;
+          if(shown2===answer){
+            setTimeout(()=>{
+              info.textContent=`מעולה! חילקת ${dividend} פריטים ל-${answer} קבוצות של ${num2} פריטים! 🎉`;
+              info.className='text-green-600 font-bold text-lg';
+              markActiveMistakeReviewed(); // NEW
+            },500);
+          }else{
+            info.textContent=`נהדר! לחץ על ${answer-shown2} הקבוצות הנותרות`;
+          }
+        }
+      };
+      area.appendChild(group2);
+    }
+    info.textContent=`לחץ על הקבוצות כדי לראות איך ${dividend} פריטים מתחלקים ל-${answer} קבוצות של ${num2}`;
+  }
+}
