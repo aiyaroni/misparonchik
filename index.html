@@ -507,6 +507,11 @@
     }
 
     function startGame(diff){
+      // סגירת פופאפ קיים וניקוי מאזין ישן מהסשן הקודם
+      const fbEl = $('#feedback');
+      if (fbEl) fbEl.classList.add('hidden');
+      const nb = $('#nextButton');
+      if (nb) nb.onclick = null;
       currentDifficulty=diff; currentQuestionIndex=0; correctCount=0; totalTime=0; mistakes=[]; selectedAnswer=null;
       const curSel=$('#curriculumSelect'); currentCurriculum=curSel?curSel.value:'none';
       const qSel=$('#questionCountSelect'); questionCount=parseInt(qSel?qSel.value:'6',10)||6;
