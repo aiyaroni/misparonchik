@@ -50,34 +50,36 @@
 
     /* כפתור השתקת אודיו */
     #audioToggle{padding:.5rem .7rem;border-radius:9999px;background:rgba(255,255,255,.95);border:1px solid #e5e7eb;box-shadow:0 6px 20px rgba(0,0,0,.12)}
-
     #audioToggle[aria-pressed="true"] .muted{display:inline}
     #audioToggle[aria-pressed="true"] .unmuted{display:none}
     #audioToggle[aria-pressed="false"] .muted{display:none}
     #audioToggle[aria-pressed="false"] .unmuted{display:inline}
 
-    /* פוטר חתימה – עדין, לא משתלט */
-    .site-footer{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:8px 12px calc(8px + env(safe-area-inset-bottom));}
-    .site-footer .inner{margin:0 auto;background:rgba(255,255,255,.92);backdrop-filter:blur(4px);border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.08);max-width:min(96vw,720px);padding:8px 12px}
-    .site-footer p{margin:0;font-size:.85rem;line-height:1.2;color:#475569;text-align:center}
-    .site-footer a{color:#2563eb;text-decoration:underline}
+    /* חתימה פשוטה */
+    .site-signature{
+      text-align:center;color:#6b7280;font-size:.875rem;line-height:1.6;
+      margin-top:1.25rem;margin-bottom:1.25rem
+    }
+    @media (min-width:640px){
+      .site-signature{font-size:1rem;margin-top:2rem;margin-bottom:2rem}
+    }
+    .site-signature a{color:#4b5563;text-decoration:underline}
+    .site-signature a:hover{color:#111827}
   </style>
 </head>
 <body class="bg-gradient-to-br from-blue-100 via-purple-50 to-green-100 min-h-screen">
   <!-- Welcome Screen -->
-  <div id="welcomeScreen" class="flex flex-col items-center justify-center min-h-screen p-6 relative">
+  <div id="welcomeScreen" class="flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
       <div class="text-6xl mb-4 owl-blink">🦉</div>
       <h1 class="text-4xl font-bold text-purple-600 mb-4">מספרונצ'יק</h1>
       <p class="text-2xl text-gray-700 mb-8">בואו ללמוד חשבון עם שופי הינשוף</p>
       <button type="button" id="startBtn" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-lg">התחל משחק</button>
     </div>
-
-    <!-- Footer (Welcome only) -->
-    <footer id="welcomeFooter" class="site-footer">
-      <div class="inner">
-        <p>© 2025 yaroni studio · תוכן חזק, עובד חכם ומבוסס על בינה · <a href="mailto:hello@yaronistudio.com" dir="ltr" class="ltr">hello@yaronistudio.com</a></p>
-      </div>
+    <!-- חתימה סטטית (Welcome) -->
+    <footer class="site-signature px-4">
+      <div>© 2025 yaroni studio - תוכן חזק, עובד חכם ומבוסס על בינה</div>
+      <a href="mailto:hello@yaronistudio.com" dir="ltr" class="ltr">hello@yaronistudio.com</a>
     </footer>
   </div>
 
@@ -162,7 +164,8 @@
       <div class="text-xl text-gray-700 mb-4">יש לבחור את התשובה הנכונה</div>
     </div>
 
-    <div id="answersGrid" class="grid grid-cols-1 gap-3 max-w-2xl mx-auto px-4 mb-6">
+    <!-- תשובות 2×2 תואמות רוחב כרטיסיית השאלה -->
+    <div id="answersGrid" class="grid grid-cols-2 gap-4 max-w-lg mx-auto px-4 mb-6">
       <div class="answer-item shadow-lg flex items-center justify-center min-h-[88px] p-4" data-value="6" data-idx="0" tabindex="0" role="button" aria-selected="false">
         <span class="accent" aria-hidden="true"></span>
         <div class="text-4xl font-extrabold text-gray-900 tracking-tight ltr tabular-nums">6</div>
@@ -197,7 +200,7 @@
   </div>
 
   <!-- Results Screen -->
-  <div id="resultsScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6 relative">
+  <div id="resultsScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full relative overflow-hidden">
       <div class="text-8xl mb-4">🏆</div>
       <h2 class="text-3xl font-bold text-green-600 mb-4" id="resultsTitle">כל הכבוד!</h2>
@@ -228,12 +231,10 @@
         <button id="altBtn" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-all duration-200 shadow-lg">בא לי תרגול אחר</button>
       </div>
     </div>
-
-    <!-- Footer (Results only) -->
-    <footer id="resultsFooter" class="site-footer">
-      <div class="inner">
-        <p>© 2025 yaroni studio · תוכן חזק, עובד חכם ומבוסס על בינה · <a href="mailto:hello@yaronistudio.com" dir="ltr" class="ltr">hello@yaronistudio.com</a></p>
-      </div>
+    <!-- חתימה סטטית (Results) -->
+    <footer class="site-signature px-4">
+      <div>© 2025 yaroni studio - תוכן חזק, עובד חכם ומבוסס על בינה</div>
+      <a href="mailto:hello@yaronistudio.com" dir="ltr" class="ltr">hello@yaronistudio.com</a>
     </footer>
   </div>
 
@@ -735,7 +736,7 @@
     }
 
     function showTutorial(m){
-      activeMistake = m; // לשיוך "נלמד" לטעות
+      activeMistake = m;
       $('#mistakesScreen').classList.add('hidden'); $('#tutorialScreen').classList.remove('hidden');
       const q=m.question; const title=$('#tutorialTitle'); title.textContent=q.questionText;
       createTutorialSteps(q); createInteractiveDemo(q);
@@ -780,10 +781,8 @@
       ]; }
       return [];
     }
-    function markActiveMistakeReviewed(){
-      if (!activeMistake) return;
-      activeMistake.reviewed = true;
-    }
+    function markActiveMistakeReviewed(){ if (!activeMistake) return; activeMistake.reviewed = true; }
+
     function createInteractiveDemo(q){
       const area = $('#interactiveContent'), info = $('#interactiveInstructions');
       area.innerHTML = '';
