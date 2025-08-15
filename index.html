@@ -520,13 +520,13 @@
       ['nameScreen','resultsScreen','mistakesScreen','tutorialScreen'].forEach(id=>$('#'+id)?.classList.add('hidden'));
       $('#operationScreen').classList.remove('hidden');
       applyCurriculumToOperationButtons();
-      showCoach(`${playerName}, יש לבחור תרגיל כדי להתחיל.`, 'default');
+      showCoach(`${playerName}, יש לבחור את סוג התרגיל כדי להתחיל`, 'default');
     }
     function selectOperation(op){
       currentOperation=op;
       $('#operationScreen').classList.add('hidden');
       $('#difficultyScreen').classList.remove('hidden');
-      showCoach('בחר מספר שאלות ורמת קושי, ואז התחל.','default');
+      showCoach('יש לבחור מספר שאלות ורמת קושי','default');
     }
 
     function startGame(diff){
