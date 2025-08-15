@@ -520,7 +520,7 @@
       ['nameScreen','resultsScreen','mistakesScreen','tutorialScreen'].forEach(id=>$('#'+id)?.classList.add('hidden'));
       $('#operationScreen').classList.remove('hidden');
       applyCurriculumToOperationButtons();
-      showCoach('בחר תרגיל כדי להתחיל, '+playerName+'.','default');
+      showCoach(`${playerName}, יש לבחור תרגיל כדי להתחיל.`, 'default');
     }
     function selectOperation(op){
       currentOperation=op;
