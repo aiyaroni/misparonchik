@@ -54,7 +54,7 @@
     .choice-card .emoji{font-size:2rem}
 
     /* ===== צ’יפים לבחירת מספר השאלות – יישור לימין ===== */
-    .chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:flex-start} /* ברירת מחדל: ימין ב-RTL */
+    .chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:flex-start} /* RTL: start = ימין */
     .chip{min-width:64px; min-height:48px; display:inline-flex; align-items:center; justify-content:center;
       border:2px solid #e5e7eb; background:white; border-radius:1rem; padding:.25rem .75rem;
       font-weight:700; font-size:1.15rem; cursor:pointer; transition:.16s}
@@ -301,12 +301,12 @@
       <button type="button" id="restartBtn" class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-full text-lg font-bold hover:scale-105 transition-all duration-200 shadow-lg">התחל מחדש</button>
     </div>
 
-    <!-- Feedback Modal -->
+    <!-- Feedback Modal (נשאר רק לסיום הסט) -->
     <div id="feedback" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div role="dialog" aria-modal="true" aria-labelledby="feedbackText" class="bg-white rounded-3xl p-8 text-center max-w-md mx-4">
         <div id="feedbackIcon" class="text-8xl mb-4">🎉</div>
         <div id="feedbackText" aria-live="polite" class="text-2xl font-bold mb-6">כל הכבוד!</div>
-        <button id="nextButton" class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-all duration-200 shadow-lg">השאלה הבאה</button>
+        <button id="nextButton" class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:scale-105 transition-all duration-200 shadow-lg">לסיכום התוצאות</button>
       </div>
     </div>
   </div>
@@ -446,7 +446,6 @@
       const el = typeof selector==='string' ? document.querySelector(selector) : selector;
       const target = el || document.body;
       if (target && !target.hasAttribute('tabindex')) target.setAttribute('tabindex','-1');
-      // שני שלבים למובייל (כולל iOS): קודם גלילה, אחר-כך פוקוס
       requestAnimationFrame(()=>{
         window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
         try { target && target.focus({ preventScroll: true }); } catch {}
@@ -661,7 +660,6 @@
       if(!currentCurriculum){ alert('יש לבחור תכנית לימוד'); return; }
       ['curriculumScreen','resultsScreen','mistakesScreen','tutorialScreen','difficultyScreen','gameScreen'].forEach(id=>$('#'+id)?.classList.add('hidden'));
       $('#operationScreen').classList.remove('hidden');
-      // אפס בחירות קודמות
       currentOperation=null; questionCount=null;
       $$('#opsGrid .op-btn').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
       $$('#questionChips .chip').forEach(c=>{ c.classList.remove('selected'); c.setAttribute('aria-pressed','false'); });
@@ -747,7 +745,15 @@
 
       if (selectedAnswer === correct) {
         correctCount++;
-        showFeedback(true);
+        // משוב קצר של שופי בלבד (ללא פופאפ), ואז מעבר אוטומטי
+        playSuccessSound();
+        const isLast = currentQuestionIndex === totalQuestions - 1;
+        if (!isLast) {
+          showCoach('יפה! לשאלה הבאה…', 'game');
+          setTimeout(nextQuestion, 1100);
+        } else {
+          showFeedback(true); // פופאפ רק בסוף
+        }
       } else {
         mistakes.push({
           question: questions[currentQuestionIndex],
@@ -755,10 +761,18 @@
           correctAnswer: correct,
           reviewed: false
         });
-        showFeedback(false);
+        playErrorSound();
+        const isLast = currentQuestionIndex === totalQuestions - 1;
+        if (!isLast) {
+          showCoach('כמעט! ממשיכים לשאלה הבאה…', 'game');
+          setTimeout(nextQuestion, 1100);
+        } else {
+          showFeedback(false); // פופאפ רק בסוף
+        }
       }
     }
 
+    // פופאפ משוב נשאר רק לשאלה האחרונה
     function showFeedback(ok){
       const fb = $('#feedback'), icon = $('#feedbackIcon'), text = $('#feedbackText'), nextBtn = $('#nextButton');
       const isLast = currentQuestionIndex === totalQuestions - 1;
@@ -766,32 +780,26 @@
       if (ok) {
         icon.textContent = '🎉';
         text.className = 'text-2xl font-bold mb-6 text-green-600';
-        if (isLast) {
-          text.innerHTML = '<div class="mb-2">תשובה נכונה!</div><div>איזה יופי סיימת את התרגילים ✨</div>';
-        } else {
-          text.textContent = 'כל הכבוד! תשובה נכונה!';
-        }
-        playSuccessSound();
-        showCoach(isLast ? 'סיימנו את הסט. נעבור לסיכום.' : 'יפה! לשאלה הבאה.', 'game');
+        text.innerHTML = isLast
+          ? '<div class="mb-2">תשובה נכונה!</div><div>איזה יופי סיימת את התרגילים ✨</div>'
+          : 'כל הכבוד! תשובה נכונה!';
+        showCoach('סיימנו את הסט. נעבור לסיכום.', 'game');
       } else {
         icon.textContent = '💪';
         text.className = 'text-2xl font-bold mb-6 text-orange-600';
-        if (isLast) {
-          text.innerHTML = '<div class="mb-2">תשובה שגויה.</div><div>סיימנו את הסט.</div>';
-        } else {
-          text.textContent = 'כמעט! בשאלה הבאה תצליח/י!';
-        }
-        playErrorSound();
-        showCoach(isLast ? 'סיימנו את הסט. נעבור לסיכום.' : 'כמעט! עוברים לשאלה הבאה.', 'game');
+        text.innerHTML = isLast
+          ? '<div class="mb-2">תשובה שגויה.</div><div>סיימנו את הסט.</div>'
+          : 'כמעט! בשאלה הבאה תצליח/י!';
+        showCoach('סיימנו את הסט. נעבור לסיכום.', 'game');
       }
 
-      nextBtn.textContent = isLast ? 'לסיכום התוצאות' : 'השאלה הבאה';
-      nextBtn.onclick = isLast ? showResults : nextQuestion;
+      nextBtn.textContent = 'לסיכום התוצאות';
+      nextBtn.onclick = showResults;
       fb.classList.remove('hidden');
     }
 
     function nextQuestion(){
-      $('#feedback').classList.add('hidden');
+      $('#feedback').classList.add('hidden'); // ליתר ביטחון
       currentQuestionIndex++;
       if (currentQuestionIndex < totalQuestions) {
         showQuestion();
@@ -840,10 +848,25 @@
       updatePerformanceBar(correctCount,incorrect,pct);
       $('#correctAnswers').textContent=String(correctCount);
       $('#averageTime').textContent=String(Math.max(1,Math.round(totalTime/totalQuestions)));
-      $('#mistakesButton').classList.toggle('hidden', mistakes.length===0);
+
+      // כפתור "ללמוד מה..." + טקסט שופי דינמי
+      const mistakesCount = mistakes.length;
+      const mistakesBtn = $('#mistakesButton');
+      mistakesBtn.classList.toggle('hidden', mistakesCount === 0);
+      if (mistakesCount === 1) {
+        mistakesBtn.textContent = 'ללמוד מהטעות';
+      } else if (mistakesCount > 1) {
+        mistakesBtn.textContent = 'ללמוד מהטעויות';
+      }
+
+      // טקסט שופי לפי טעויות
+      let coachMsg = 'סיכום הסט הושלם. אפשר לתרגל מחדש';
+      if (mistakesCount === 1)      coachMsg += ' או ללמוד מהטעות.';
+      else if (mistakesCount > 1)  coachMsg += ' או ללמוד מהטעויות.';
+      else                         coachMsg += '.';
 
       focusTop('#resultsTitle');
-      showCoach('סיכום הסט הושלם. אפשר לתרגל מחדש או ללמוד מהטעויות.','default');
+      showCoach(coachMsg,'default');
       placeCoach('default');
     }
 
@@ -861,15 +884,21 @@
       const incorrect=totalQuestions-correctCount;
       $('#mistakesCorrectBar').style.width=((correctCount/totalQuestions)*100)+'%';
       $('#mistakesIncorrectBar').style.width=((incorrect/totalQuestions)*100)+'%';
+
+      // כותרת יחיד/רבים
+      const mistakesCount = mistakes.length;
+      const titleEl = $('#mistakesTitle');
+      titleEl.textContent = mistakesCount === 1 ? 'למד מהטעות' : 'למד מהטעויות';
+
       const mm=$('#mistakesMessage');
-      if(mistakes.length===0){
+      if(mistakesCount===0){
         mm.textContent='מושלם! ענית נכון על כל '+totalQuestions+' השאלות! 🌟';
         mm.className='subhead text-green-600 mb-4';
         $('#mistakesList').innerHTML='<div class="text-center p-8"><div class="text-6xl mb-4">🎉</div><h3 class="text-2xl font-bold text-green-600">מעולה!</h3><p class="text-lg text-gray-600">לא היו לך טעויות במשחק הזה!</p></div>';
         focusTop('#mistakesTitle');
         return;
       } else if(correctCount>0){
-        mm.textContent='ענית נכון על '+correctCount+' מתוך '+totalQuestions+' - בואו נלמד מה-'+mistakes.length+' שנשארו';
+        mm.textContent='ענית נכון על '+correctCount+' מתוך '+totalQuestions+' - בואו נלמד מה-'+mistakesCount+' שנשארו';
         mm.className='subhead text-blue-600 mb-4';
       } else {
         mm.textContent='בואו נלמד יחד איך לפתור את השאלות האלה';
@@ -944,7 +973,7 @@
       const {operation,num1,num2,answer} = q;
       const em = ['🍎','🎈','⭐','🌟','🍊','🎯','🌈','🎪'][Math.floor(Math.random()*8)];
 
-      const LARGE = 40; // סף מעבר לדמו "חכם" כדי לא לרנדר מאות אייקונים
+      const LARGE = 40;
 
       if(operation==='addition'){
         const total = answer;
