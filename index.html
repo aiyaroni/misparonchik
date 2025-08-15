@@ -13,6 +13,15 @@
     .owl-blink{animation:blink 2s infinite}
     @keyframes blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
 
+    /* ===== כותרות משנה ברורות ועקביות ===== */
+    .subhead{
+      font-weight:800;
+      font-size:clamp(1.375rem, 1.05rem + 1.2vw, 1.75rem); /* ~22px–28px */
+      line-height:1.25;
+      color:#1f2937; /* gray-800 */
+      letter-spacing:-.01em;
+    }
+
     /* תשובות (גריד המשחק) */
     .answer-item{position:relative;transition:transform .14s,box-shadow .14s,border-color .14s;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;background:rgba(255,255,255,.96);border-radius:1rem;border:2px solid transparent;outline:none}
     .answer-item::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:var(--tint,transparent);opacity:.08}
@@ -44,8 +53,8 @@
     .choice-card.selected .accent{display:block; background:var(--tint,#3b82f6)}
     .choice-card .emoji{font-size:2rem}
 
-    /* צ’יפים לבחירת מספר השאלות – קונטור כחול במצב בחירה */
-    .chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
+    /* ===== צ’יפים לבחירת מספר השאלות – יישור לימין ===== */
+    .chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:flex-start} /* ברירת מחדל: ימין ב-RTL */
     .chip{min-width:64px; min-height:48px; display:inline-flex; align-items:center; justify-content:center;
       border:2px solid #e5e7eb; background:white; border-radius:1rem; padding:.25rem .75rem;
       font-weight:700; font-size:1.15rem; cursor:pointer; transition:.16s}
@@ -90,7 +99,7 @@
   <div id="welcomeScreen" class="flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
       <div class="text-6xl mb-4 owl-blink">🦉</div>
-      <h1 class="text-4xl font-bold text-purple-600 mb-4">מספרונצ'יק</h1>
+      <h1 id="welcomeTitle" tabindex="-1" class="text-4xl font-bold text-purple-600 mb-4">מספרונצ'יק</h1>
       <p class="text-2xl text-gray-700 mb-8">בואו ללמוד חשבון עם שופי הינשוף</p>
       <button type="button" id="startBtn" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-lg">התחל משחק</button>
     </div>
@@ -104,7 +113,7 @@
   <div id="nameScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <form id="nameForm" class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
       <div class="text-5xl mb-4">👋</div>
-      <h2 class="text-3xl font-bold text-blue-600 mb-6">איך קוראים לך?</h2>
+      <h2 id="nameTitle" tabindex="-1" class="text-3xl font-bold text-blue-600 mb-6">איך קוראים לך?</h2>
       <input type="text" id="playerName" name="playerName" required placeholder="הכנס את שמך כאן" class="w-full p-4 text-xl border-2 border-gray-300 rounded-xl mb-6 text-center focus:border-blue-500 focus:outline-none">
       <button type="submit" class="bg-gradient-to-r from-blue-500 to-green-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:from-blue-600 hover:to-green-600 transform hover:scale-105 transition-all duration-200 shadow-lg">המשך</button>
     </form>
@@ -114,8 +123,8 @@
   <div id="curriculumScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-3xl w-full">
       <div class="text-5xl mb-4">📚</div>
-      <h2 class="text-3xl md:text-4xl font-extrabold text-green-600 mb-2 leading-tight">יש לבחור תכנית לימוד</h2>
-      <p class="text-lg text-gray-600 mb-6">בחרו את התכנית המתאימה, ואז לחצו על "המשך"</p>
+      <h2 id="curriculumTitle" tabindex="-1" class="text-3xl md:text-4xl font-extrabold text-green-600 mb-2 leading-tight">יש לבחור תכנית לימוד</h2>
+      <p class="subhead mb-6">בחרו את התכנית המתאימה, ואז לחצו על "המשך"</p>
 
       <div id="curriculumGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <button type="button" class="choice-card" data-tint="blue" data-value="none" aria-pressed="false">
@@ -176,10 +185,10 @@
   <div id="operationScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-3xl w-full">
       <div class="text-5xl mb-4">🎯</div>
-      <h2 class="text-3xl md:text-4xl font-extrabold text-green-600 mb-2 leading-tight">עכשיו יש לבחור את סוג התרגילים</h2>
-      <p class="text-lg text-gray-700 mb-6 leading-relaxed">בחרו סוג תרגיל ומספר שאלות</p>
+      <h2 id="operationTitle" tabindex="-1" class="text-3xl md:text-4xl font-extrabold text-green-600 mb-2 leading-tight">עכשיו יש לבחור את סוג התרגילים</h2>
+      <h3 class="subhead mb-6">בחרו סוג תרגיל ומספר שאלות</h3>
 
-      <div id="opsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+      <div id="opsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
         <button type="button" data-op="addition" class="choice-card op-btn" data-tint="green" aria-pressed="false">
           <span class="accent" aria-hidden="true"></span>
           <div class="emoji">➕</div>
@@ -207,8 +216,9 @@
         </button>
       </div>
 
-      <div class="text-right mb-2">
-        <div class="text-xl font-semibold text-gray-800 mb-3">מספר שאלות בסט</div>
+      <!-- יישור עקבי לימין: גם הכותרת וגם הבחירה -->
+      <div class="mb-2">
+        <div class="subhead mb-3 text-right">מספר שאלות בסט</div>
         <div id="questionChips" class="chips">
           <button type="button" class="chip" data-count="6" aria-pressed="false">6</button>
           <button type="button" class="chip" data-count="8" aria-pressed="false">8</button>
@@ -226,7 +236,7 @@
   <div id="difficultyScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full">
       <div class="text-5xl mb-4">⚡</div>
-      <h2 class="text-3xl sm:text-4xl font-bold text-blue-600 mb-6">איזו רמת קושי מתאימה לך היום?</h2>
+      <h2 id="difficultyTitle" tabindex="-1" class="text-3xl sm:text-4xl font-bold text-blue-600 mb-6">איזו רמת קושי מתאימה לך היום?</h2>
 
       <div class="flex flex-col gap-4 mb-2">
         <button type="button" data-diff="easy" class="choice-card diff-btn" data-tint="green" aria-pressed="false">
@@ -262,8 +272,8 @@
 
     <div class="bg-white rounded-3xl shadow-2xl p-6 mb-6 mx-auto max-w-lg text-center">
       <div class="text-5xl mb-4 owl-blink">🦉</div>
-      <div id="questionText" class="text-3xl font-bold text-gray-800 mb-6 ltr">5 + 3 = ?</div>
-      <div class="text-xl text-gray-700 mb-4">יש לבחור את התשובה הנכונה</div>
+      <div id="questionText" tabindex="-1" class="text-3xl font-bold text-gray-800 mb-6 ltr">5 + 3 = ?</div>
+      <div class="subhead text-gray-700 mb-4">יש לבחור את התשובה הנכונה</div>
     </div>
 
     <!-- תשובות 2×2 -->
@@ -305,7 +315,7 @@
   <div id="resultsScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full relative overflow-hidden">
       <div class="text-8xl mb-4">🏆</div>
-      <h2 class="text-3xl font-bold text-green-600 mb-4" id="resultsTitle">כל הכבוד!</h2>
+      <h2 id="resultsTitle" tabindex="-1" class="text-3xl font-bold text-green-600 mb-4">כל הכבוד!</h2>
       <div class="mb-6">
         <div class="flex justify-between items-center mb-2">
           <span class="text-sm font-medium text-gray-600">הביצועים שלך:</span>
@@ -344,7 +354,7 @@
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="text-center mb-8">
         <div class="text-6xl mb-4">📚</div>
-        <h2 class="text-3xl font-bold text-orange-600 mb-4">למד מהטעויות</h2>
+        <h2 id="mistakesTitle" tabindex="-1" class="text-3xl font-bold text-orange-600 mb-4">למד מהטעויות</h2>
         <div class="mb-6 max-w-md mx-auto">
           <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden mb-3">
             <div id="mistakesPerformanceBar" class="h-4 rounded-full transition-all duration-1000 flex" aria-label="Performance summary">
@@ -352,7 +362,7 @@
               <div id="mistakesIncorrectBar" class="bg-gradient-to-r from-orange-400 to-orange-500 transition-all duration-1000" style="width: 0%"></div>
             </div>
           </div>
-          <div id="mistakesMessage" class="text-lg text-gray-700 font-medium mb-4">הנה התרגילים שבהם טעית</div>
+          <div id="mistakesMessage" class="subhead text-gray-700 mb-4">הנה התרגילים שבהם טעית</div>
         </div>
         <p class="text-lg text-gray-600">לחץ על כל תרגיל כדי ללמוד איך לפתור אותו:</p>
       </div>
@@ -374,7 +384,7 @@
       </div>
       <div id="tutorialSteps" class="space-y-8 mb-8"></div>
       <div id="interactiveArea" class="bg-blue-50 rounded-2xl p-6 mb-8 text-center">
-        <h3 class="text-xl font-bold text-blue-600 mb-4">נסה בעצמך!</h3>
+        <h3 class="subhead text-blue-600 mb-4">נסה בעצמך!</h3>
         <div id="interactiveContent" class="flex flex-wrap justify-center gap-2 mb-4"></div>
         <div id="interactiveInstructions" role="status" aria-live="polite" class="text-gray-600">לחץ על הפריטים כדי לראות איך הפתרון עובד</div>
       </div>
@@ -430,6 +440,18 @@
     const $$=sel=>document.querySelectorAll(sel);
     const randInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
     function shuffle(a){const c=a.slice();for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]]}return c}
+
+    /* ========= Focus helper (scroll-to-top + focus heading) ========= */
+    function focusTop(selector){
+      const el = typeof selector==='string' ? document.querySelector(selector) : selector;
+      const target = el || document.body;
+      if (target && !target.hasAttribute('tabindex')) target.setAttribute('tabindex','-1');
+      // שני שלבים למובייל (כולל iOS): קודם גלילה, אחר-כך פוקוס
+      requestAnimationFrame(()=>{
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        try { target && target.focus({ preventScroll: true }); } catch {}
+      });
+    }
 
     /* ========= Coach (Shufi) ========= */
     function showCoach(msg, ctx='default'){
@@ -618,7 +640,8 @@
     function showNameInput(){
       $('#welcomeScreen').classList.add('hidden');
       $('#nameScreen').classList.remove('hidden');
-      hideCoach(); setTimeout(()=>$('#playerName')?.focus(),100);
+      hideCoach();
+      focusTop('#nameTitle');
       showCoach('איך קוראים לך? נתחיל מהיכרות קצרה 😊','default');
     }
 
@@ -630,6 +653,7 @@
       currentCurriculum=null;
       $$('#curriculumGrid .choice-card').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
       const btn=$('#curriculumNext'); btn.disabled=true; btn.setAttribute('aria-disabled','true');
+      focusTop('#curriculumTitle');
       showCoach(`${playerName}, בחר/י תכנית לימוד ואז לחצו "המשך".`, 'default');
     }
 
@@ -643,6 +667,7 @@
       $$('#questionChips .chip').forEach(c=>{ c.classList.remove('selected'); c.setAttribute('aria-pressed','false'); });
       applyCurriculumToOperationButtons();
       updateOperationNextState();
+      focusTop('#operationTitle');
       showCoach('עכשיו בוחרים סוג תרגיל ומספר שאלות. לאחר הבחירה – המשך.', 'default');
     }
 
@@ -651,6 +676,7 @@
       ['operationScreen','resultsScreen','mistakesScreen','tutorialScreen','gameScreen'].forEach(id=>$('#'+id)?.classList.add('hidden'));
       $('#difficultyScreen').classList.remove('hidden');
       $$('#difficultyScreen .diff-btn').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
+      focusTop('#difficultyTitle');
       showCoach('בחר/י רמת קושי כדי להתחיל לתרגל!', 'default');
     }
 
@@ -670,6 +696,7 @@
       const pb=$('#progressBar'); pb.style.width='0%'; pb.setAttribute('aria-valuenow','0');
 
       showQuestion();
+      focusTop('#questionText');
       showCoach('יצאנו לדרך! קרא/י את השאלה, בחר/י תשובה ואז אשר/י.', 'game');
     }
 
@@ -740,7 +767,7 @@
         icon.textContent = '🎉';
         text.className = 'text-2xl font-bold mb-6 text-green-600';
         if (isLast) {
-          text.innerHTML = '<div class="mb-2">תשובה נכונה!</div><div>מעולה! סיימת את הסט!</div>';
+          text.innerHTML = '<div class="mb-2">תשובה נכונה!</div><div>איזה יופי סיימת את התרגילים ✨</div>';
         } else {
           text.textContent = 'כל הכבוד! תשובה נכונה!';
         }
@@ -758,7 +785,7 @@
         showCoach(isLast ? 'סיימנו את הסט. נעבור לסיכום.' : 'כמעט! עוברים לשאלה הבאה.', 'game');
       }
 
-      nextBtn.textContent = isLast ? 'לסיכום התרגיל' : 'השאלה הבאה';
+      nextBtn.textContent = isLast ? 'לסיכום התוצאות' : 'השאלה הבאה';
       nextBtn.onclick = isLast ? showResults : nextQuestion;
       fb.classList.remove('hidden');
     }
@@ -815,6 +842,7 @@
       $('#averageTime').textContent=String(Math.max(1,Math.round(totalTime/totalQuestions)));
       $('#mistakesButton').classList.toggle('hidden', mistakes.length===0);
 
+      focusTop('#resultsTitle');
       showCoach('סיכום הסט הושלם. אפשר לתרגל מחדש או ללמוד מהטעויות.','default');
       placeCoach('default');
     }
@@ -836,15 +864,16 @@
       const mm=$('#mistakesMessage');
       if(mistakes.length===0){
         mm.textContent='מושלם! ענית נכון על כל '+totalQuestions+' השאלות! 🌟';
-        mm.className='text-lg text-green-600 font-medium mb-4';
+        mm.className='subhead text-green-600 mb-4';
         $('#mistakesList').innerHTML='<div class="text-center p-8"><div class="text-6xl mb-4">🎉</div><h3 class="text-2xl font-bold text-green-600">מעולה!</h3><p class="text-lg text-gray-600">לא היו לך טעויות במשחק הזה!</p></div>';
+        focusTop('#mistakesTitle');
         return;
       } else if(correctCount>0){
         mm.textContent='ענית נכון על '+correctCount+' מתוך '+totalQuestions+' - בואו נלמד מה-'+mistakes.length+' שנשארו';
-        mm.className='text-lg text-blue-600 font-medium mb-4';
+        mm.className='subhead text-blue-600 mb-4';
       } else {
         mm.textContent='בואו נלמד יחד איך לפתור את השאלות האלה';
-        mm.className='text-lg text-orange-600 font-medium mb-4';
+        mm.className='subhead text-orange-600 mb-4';
       }
 
       const list=$('#mistakesList'); list.innerHTML='';
@@ -856,6 +885,7 @@
         d.innerHTML='<div class="flex items-center justify-between mb-4"><div class="flex items-center gap-3"><div class="w-4 h-4 bg-orange-500 rounded-full"></div><h3 class="text-xl font-bold text-orange-600">שאלה '+(i+1)+'</h3></div><div class="text-2xl">🤔</div></div><div class="text-2xl font-bold text-gray-800 mb-4 ltr">'+m.question.questionText+'</div><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"><div class="bg-red-100 border-2 border-red-300 rounded-xl p-4"><div class="text-sm text-red-600 font-bold mb-1">התשובה שלך:</div><div class="text-xl font-bold text-red-700 ltr">'+m.userAnswer+'</div></div><div class="bg-green-100 border-2 border-green-300 rounded-xl p-4"><div class="text-sm text-green-600 font-bold mb-1">התשובה הנכונה:</div><div class="text-xl font-bold text-green-700 ltr">'+m.correctAnswer+'</div></div></div><div class="text-center text-blue-600 font-bold">👆 לחץ כאן כדי ללמוד איך לפתור</div>';
         list.appendChild(d);
       });
+      focusTop('#mistakesTitle');
       showCoach('לחץ על שאלה כדי לראות הסבר אינטראקטיבי.','default');
     }
 
@@ -1309,7 +1339,7 @@
       $('#altBtn')?.addEventListener('click',()=>{ $('#resultsScreen').classList.add('hidden'); showOperationSelect(); showCoach('בחר/י תרגיל חדש ומספר שאלות.', 'default'); });
 
       // טעויות/הדרכה: חזרה וריסטארט
-      $('#backToResults')?.addEventListener('click',()=>{ $('#mistakesScreen').classList.add('hidden'); $('#resultsScreen').classList.remove('hidden'); showCoach('חזרה לסיכום.', 'default'); });
+      $('#backToResults')?.addEventListener('click',()=>{ $('#mistakesScreen').classList.add('hidden'); $('#resultsScreen').classList.remove('hidden'); focusTop('#resultsTitle'); showCoach('חזרה לסיכום.', 'default'); });
       $('#restartBtn')?.addEventListener('click',()=>location.reload());
       $('#restartFromMistakes')?.addEventListener('click',()=>location.reload());
       $('#restartFromTutorial')?.addEventListener('click',()=>location.reload());
