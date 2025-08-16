@@ -52,6 +52,8 @@
     .choice-card.selected{border-color:#2563eb; box-shadow:0 12px 30px rgba(0,0,0,.18)}
     .choice-card.selected .accent{display:block; background:var(--tint,#3b82f6)}
     .choice-card .emoji{font-size:2rem}
+    /* הגדלת הטקסט המשני בכרטיסיות */
+    .choice-card .text-sm{font-size:clamp(1rem, .95rem + .2vw, 1.125rem); line-height:1.4; color:#6b7280}
 
     /* ===== צ’יפים לבחירת מספר השאלות – מיושרים למרכז ===== */
     .chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
@@ -765,24 +767,30 @@
 
       if (isLast) {
         // פופ־אפ רק בסוף הסט
-        showFinalFeedback(selectedAnswer === correct);
+        showFinalFeedback();
       } else {
         // אין פופ־אפ באמצע — מעבר אוטומטי אחרי הודעת שופי הקצרה
         setTimeout(nextQuestion, 900);
       }
     }
 
-    function showFinalFeedback(ok){
+    // פופאפ סיכום סופי לפי אחוז כולל
+    function showFinalFeedback(){
       const fb = $('#feedback'), icon = $('#feedbackIcon'), text = $('#feedbackText'), nextBtn = $('#nextButton');
+      const pct = Math.round((correctCount/totalQuestions)*100);
 
-      if (ok) {
-        icon.textContent = '🎉';
+      if (pct === 100) {
+        icon.textContent = '👏';
         text.className = 'text-2xl font-bold mb-6 text-green-600';
-        text.innerHTML = '<div class="mb-2">תשובה נכונה!</div><div>איזה יופי — סיימת את התרגילים ✨</div>';
+        text.textContent = 'ואוו אליפות, סיימנו את הסט';
+      } else if (pct >= 60) {
+        icon.textContent = '🎉';
+        text.className = 'text-2xl font-bold mb-6 text-blue-600';
+        text.textContent = 'עבודה טובה, סיימנו את הסט';
       } else {
         icon.textContent = '💪';
         text.className = 'text-2xl font-bold mb-6 text-orange-600';
-        text.innerHTML = '<div class="mb-2">תשובה שגויה.</div><div>סיימנו את הסט.</div>';
+        text.textContent = 'סיימנו את הסט';
       }
 
       nextBtn.textContent = 'לסיכום התוצאות';
@@ -1102,7 +1110,7 @@
                   markActiveMistakeReviewed();
                 },400);
               }else{
-                info.textContent=`נהדר! לחץ/י על ${groups-shמעון2} הקבוצות הנותרות`;
+                info.textContent=`נהדר! לחץ/י על ${groups-shown2} הקבוצות הנותרות`;
               }
             }
           };
