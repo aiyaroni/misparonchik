@@ -18,7 +18,7 @@
       display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
       margin: .5rem auto 1rem;
       font-weight:800;
-      font-size: calc(1rem + 2px); /* +2px */
+      font-size: calc(1rem + 2px); /* +2px לפי הבקשה */
       color:#111827; /* אפור פחם כהה */
       text-decoration:underline;
       cursor:pointer;
@@ -111,6 +111,20 @@
     @media (min-width:640px){ .site-signature{font-size:1rem;margin-top:2rem;margin-bottom:2rem} }
     .site-signature a{color:#4b5563;text-decoration:underline}
     .site-signature a:hover{color:#111827}
+
+    /* ===== Curriculum: Show more / less ===== */
+    #curriculumWrapper{position:relative}
+    .curriculum-collapsed{max-height:min(45vh, 360px); overflow:hidden;}
+    #curriculumFade{
+      position:absolute; inset-inline:0; bottom:0; height:64px;
+      background:linear-gradient(to top, rgba(255,255,255,1), rgba(255,255,255,0));
+      pointer-events:none;
+    }
+
+    /* Reduced Motion: עצירת מצמוץ ינשוף */
+    @media (prefers-reduced-motion: reduce){
+      .owl-blink{ animation:none }
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-blue-100 via-purple-50 to-green-100 min-h-screen">
@@ -150,7 +164,7 @@
     </form>
   </div>
 
-  <!-- User Picker Modal (הוסף flex לצורך מרכז) -->
+  <!-- User Picker Modal -->
   <div id="userPickerModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
     <div role="dialog" aria-modal="true" class="bg-white rounded-2xl max-w-md w-full p-6">
       <h3 class="text-2xl font-bold text-gray-800 mb-3">בחרו משתמש</h3>
@@ -162,65 +176,73 @@
     </div>
   </div>
 
-  <!-- Curriculum Selection Screen -->
+  <!-- Curriculum Selection Screen (מעודכן עם "הצג עוד/פחות" + דהייה) -->
   <div id="curriculumScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-3xl w-full">
       <div class="text-5xl mb-4">📚</div>
       <h2 id="curriculumTitle" tabindex="-1" class="text-3xl md:text-4xl font-extrabold text-green-600 mb-2 leading-tight">יש לבחור תכנית לימוד</h2>
       <p class="subhead mb-6">בחרו את התכנית המתאימה, ואז לחצו על "המשך"</p>
 
-      <div id="curriculumGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        <button type="button" class="choice-card" data-tint="blue" data-value="none" aria-pressed="false">
-          <span class="accent" aria-hidden="true"></span>
-          <div class="emoji">🎯</div>
-          <div class="text-xl font-bold text-gray-800">ללא תוכנית</div>
-          <div class="text-base text-gray-500">בחירה חופשית</div>
-        </button>
+      <!-- עטיפה מאפשרת דהייה תחתונה -->
+      <div id="curriculumWrapper" class="relative mb-6">
+        <div id="curriculumGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 curriculum-collapsed">
+          <button type="button" class="choice-card" data-tint="blue" data-value="none" aria-pressed="false">
+            <span class="accent" aria-hidden="true"></span>
+            <div class="emoji">🎯</div>
+            <div class="text-xl font-bold text-gray-800">ללא תוכנית</div>
+            <div class="text-base text-gray-500">בחירה חופשית</div>
+          </button>
 
-        <button type="button" class="choice-card" data-tint="green" data-value="il_g1_s1" aria-pressed="false">
-          <span class="accent" aria-hidden="true"></span>
-          <div class="emoji">🌱</div>
-          <div class="text-xl font-bold text-gray-800">כיתה א׳, מחצית א׳</div>
-          <div class="text-base text-gray-500">עד 10</div>
-        </button>
+          <button type="button" class="choice-card" data-tint="green" data-value="il_g1_s1" aria-pressed="false">
+            <span class="accent" aria-hidden="true"></span>
+            <div class="emoji">🌱</div>
+            <div class="text-xl font-bold text-gray-800">כיתה א׳, מחצית א׳</div>
+            <div class="text-base text-gray-500">עד 10</div>
+          </button>
 
-        <button type="button" class="choice-card" data-tint="green" data-value="il_g1_s2" aria-pressed="false">
-          <span class="accent" aria-hidden="true"></span>
-          <div class="emoji">🌿</div>
-          <div class="text-xl font-bold text-gray-800">כיתה א׳, מחצית ב׳</div>
-          <div class="text-base text-gray-500">עד 20</div>
-        </button>
+          <button type="button" class="choice-card" data-tint="green" data-value="il_g1_s2" aria-pressed="false">
+            <span class="accent" aria-hidden="true"></span>
+            <div class="emoji">🌿</div>
+            <div class="text-xl font-bold text-gray-800">כיתה א׳, מחצית ב׳</div>
+            <div class="text-base text-gray-500">עד 20</div>
+          </button>
 
-        <button type="button" class="choice-card" data-tint="green" data-value="il_g1_adv" aria-pressed="false">
-          <span class="accent" aria-hidden="true"></span>
-          <div class="emoji">✨</div>
-          <div class="text-xl font-bold text-gray-800">כיתה א׳, אתגר</div>
-          <div class="text-base text-gray-500">עד 30</div>
-        </button>
+          <button type="button" class="choice-card" data-tint="green" data-value="il_g1_adv" aria-pressed="false">
+            <span class="accent" aria-hidden="true"></span>
+            <div class="emoji">✨</div>
+            <div class="text-xl font-bold text-gray-800">כיתה א׳, אתגר</div>
+            <div class="text-base text-gray-500">עד 30</div>
+          </button>
 
-        <button type="button" class="choice-card" data-tint="blue" data-value="il_g2" aria-pressed="false">
-          <span class="accent" aria-hidden="true"></span>
-          <div class="emoji">🧩</div>
-          <div class="text-xl font-bold text-gray-800">כיתה ב׳</div>
-          <div class="text-base text-gray-500">עד 100</div>
-        </button>
+          <button type="button" class="choice-card" data-tint="blue" data-value="il_g2" aria-pressed="false">
+            <span class="accent" aria-hidden="true"></span>
+            <div class="emoji">🧩</div>
+            <div class="text-xl font-bold text-gray-800">כיתה ב׳</div>
+            <div class="text-base text-gray-500">עד 100</div>
+          </button>
 
-        <button type="button" class="choice-card" data-tint="purple" data-value="il_g3" aria-pressed="false">
-          <span class="accent" aria-hidden="true"></span>
-          <div class="emoji">✖️</div>
-          <div class="text-xl font-bold text-gray-800">כיתה ג׳</div>
-          <div class="text-base text-gray-500">עד 100; כפל/חילוק 10×10</div>
-        </button>
+          <button type="button" class="choice-card" data-tint="purple" data-value="il_g3" aria-pressed="false">
+            <span class="accent" aria-hidden="true"></span>
+            <div class="emoji">✖️</div>
+            <div class="text-xl font-bold text-gray-800">כיתה ג׳</div>
+            <div class="text-base text-gray-500">עד 100; כפל/חילוק 10×10</div>
+          </button>
 
-        <button type="button" class="choice-card" data-tint="orange" data-value="il_g4" aria-pressed="false">
-          <span class="accent" aria-hidden="true"></span>
-          <div class="emoji">🚀</div>
-          <div class="text-xl font-bold text-gray-800">כיתה ד׳</div>
-          <div class="text-base text-gray-500">עד 1000; כפל/חילוק 12×12</div>
-        </button>
+          <button type="button" class="choice-card" data-tint="orange" data-value="il_g4" aria-pressed="false">
+            <span class="accent" aria-hidden="true"></span>
+            <div class="emoji">🚀</div>
+            <div class="text-xl font-bold text-gray-800">כיתה ד׳</div>
+            <div class="text-base text-gray-500">עד 1000; כפל/חילוק 12×12</div>
+          </button>
+        </div>
+        <div id="curriculumFade" class="hidden"></div>
       </div>
 
-      <button id="curriculumNext" class="confirm-button bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-full text-xl font-bold shadow-lg disabled:opacity-50" disabled aria-disabled="true">המשך</button>
+      <!-- "הצג עוד" לצד "המשך" -->
+      <div class="flex items-center justify-center gap-3 flex-wrap">
+        <button id="curriculumMore" type="button" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 font-bold hidden" aria-expanded="false">הצג עוד</button>
+        <button id="curriculumNext" class="confirm-button bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-full text-xl font-bold shadow-lg disabled:opacity-50" disabled aria-disabled="true">המשך</button>
+      </div>
     </div>
   </div>
 
@@ -259,7 +281,6 @@
         </button>
       </div>
 
-      <!-- יישור למרכז: הכותרת והבחירה -->
       <div class="mb-2">
         <div class="subhead mb-3 text-center">מספר שאלות בסט</div>
         <div id="questionChips" class="chips">
@@ -498,6 +519,7 @@
     /* ========= Store (local profiles) ========= */
     const STORE_KEY='mspr_profiles_v1';
     let store=null;
+    let memOnly=false; // fallback אם localStorage חסום
 
     function uuid(){
       return 'xxxxxxxyxxxx'.replace(/[xy]/g, c=>{
@@ -509,13 +531,17 @@
     function storeInit(){
       try{
         store = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
-      }catch{ store=null }
+      }catch{ store=null; memOnly=true; }
       if(!store){
         store = { version:1, installedAt:Date.now(), activeId:null, profiles:{} };
-        localStorage.setItem(STORE_KEY, JSON.stringify(store));
+        try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
+        catch{ memOnly=true; }
       }
     }
-    function saveStore(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }catch{} }
+    function saveStore(){ 
+      if(memOnly) return;
+      try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }catch{ memOnly=true; }
+    }
     function profilesArr(){ return Object.entries(store.profiles).map(([id,p])=>({id,...p})); }
     function getActiveProfile(){ return store.activeId ? store.profiles[store.activeId]||null : null; }
     function setActiveProfile(id){
@@ -722,7 +748,7 @@
 
     function initAudioToggle(){
       const btn = document.querySelector('#audioToggle'); if (!btn) return;
-      try { isMuted = localStorage.getItem('soundMuted') === 'true'; } catch {}
+      try { isMuted = localStorage.getItem('soundMuted') === 'true'; } catch { isMuted = false; }
       btn.setAttribute('aria-pressed', isMuted ? 'true' : 'false');
       btn.addEventListener('click', () => {
         isMuted = !isMuted;
@@ -740,6 +766,13 @@
       unlockAudioOnce();
       if(el.disabled||el.getAttribute('aria-disabled')==='true') return;
       if (wasLocked) setTimeout(playSelectTick, 0); else playSelectTick();
+    });
+
+    // טיק גם במקלדת על Enter/Space
+    document.addEventListener('keydown', e=>{
+      if((e.key==='Enter'||e.key===' ') && document.activeElement?.closest('button,.op-btn,.choice-card,.chip,.link-cta')){
+        playSelectTick();
+      }
     });
 
     /* ========= Curriculum gating ========= */
@@ -760,6 +793,31 @@
       updateOperationNextState();
     }
 
+    /* ========= Curriculum overflow + "show more" ========= */
+    let isCurriculumExpanded = false;
+
+    function refreshCurriculumOverflow(){
+      const grid = document.querySelector('#curriculumGrid');
+      const more = document.querySelector('#curriculumMore');
+      const fade = document.querySelector('#curriculumFade');
+      if(!grid || !more || !fade) return;
+
+      const overflow = grid.scrollHeight > grid.clientHeight + 2;
+      more.classList.toggle('hidden', !overflow && !isCurriculumExpanded);
+      fade.classList.toggle('hidden', isCurriculumExpanded || !overflow);
+    }
+
+    function setCurriculumExpanded(expanded){
+      isCurriculumExpanded = !!expanded;
+      const grid = document.querySelector('#curriculumGrid');
+      const more = document.querySelector('#curriculumMore');
+      if(!grid || !more) return;
+      grid.classList.toggle('curriculum-collapsed', !isCurriculumExpanded);
+      more.textContent = isCurriculumExpanded ? 'הצג פחות' : 'הצג עוד';
+      more.setAttribute('aria-expanded', isCurriculumExpanded ? 'true' : 'false');
+      refreshCurriculumOverflow();
+    }
+
     /* ========= Build questions ========= */
     function getEffectiveRules(diff){
       const base=Object.assign({},rulesByDifficulty[diff]); const cur=curricula[currentCurriculum]||{};
@@ -769,7 +827,7 @@
     function getOpsList(selectedOp,cur){ if(selectedOp!=='mixed') return [selectedOp]; const allowed=cur&&cur.operations?cur.operations:null; return (allowed&&allowed.length)?allowed:['addition','subtraction','multiplication','division']; }
     function buildOpPool(op,rules,targetSize,diff){
       const pool=[]; let tries=0, max=6000;
-      const mk=(text,ans,op,a,b,sym)=>({questionText:text,answer:ans,operation:op,num1:a,num2:b,symbol:sym});
+      const mk=(text,ans,op,a,b,sym)=>({ id:`${op}:${a}${sym}${b}`, questionText:text, answer:ans, operation:op, num1:a, num2:b, symbol:sym });
       if(op==='addition'){ while(pool.length<targetSize&&tries++<max){ const flu=(diff==='easy')&&Math.random()<.5; const cap= flu? Math.min(10,rules.addSubMax) : rules.addSubMax; const a=randInt(0,cap), b=randInt(0,cap), ans=a+b; if(ans<=cap) pool.push(mk(`${a} + ${b} = ?`,ans,op,a,b,'+')); } }
       if(op==='subtraction'){ while(pool.length<targetSize&&tries++<max){ const flu=(diff==='easy')&&Math.random()<.5; const cap= flu? Math.min(10,rules.addSubMax) : rules.addSubMax; const a=randInt(0,cap), b=randInt(0,a), ans=a-b; if(ans>=0) pool.push(mk(`${a} - ${b} = ?`,ans,op,a,b,'-')); } }
       if(op==='multiplication'){ while(pool.length<targetSize&&tries++<max){ const a=randInt(1,rules.mulMax), b=randInt(1,rules.mulMax); pool.push(mk(`${a} × ${b} = ?`,a*b,op,a,b,'×')); } }
@@ -779,11 +837,18 @@
     function generatePracticeSet(operation,diff,count){
       const rules=getEffectiveRules(diff); const cur=curricula[currentCurriculum]; const ops=getOpsList(operation,cur);
       let pool=[]; ops.forEach(o=>pool=pool.concat(buildOpPool(o,rules,count*4,diff)));
-      const map={}; pool.forEach(q=>{ if(!map[q.questionText]) map[q.questionText]=q; });
+      const map={}; pool.forEach(q=>{ if(!map[q.id]) map[q.id]=q; });
       return shuffle(Object.values(map)).slice(0,count);
     }
     function generateAnswerOptions(correct){
-      const opts=[correct]; while(opts.length<4){ const wrong=correct+Math.floor(Math.random()*7)-3; if(wrong>0 && wrong!==correct && !opts.includes(wrong)) opts.push(wrong); } return shuffle(opts);
+      const opts=new Set([correct]);
+      const span=Math.max(5, Math.ceil(correct*0.25));
+      while(opts.size<4){
+        const delta=randInt(-span, span);
+        const wrong=correct+delta;
+        if(wrong>0 && wrong!==correct) opts.add(wrong);
+      }
+      return shuffle([...opts]);
     }
 
     /* ========= Flow Screens ========= */
@@ -809,6 +874,21 @@
       showCoach('איך קוראים לך? אפשר גם להחליף משתמש או להיכנס לאזור האישי.', 'default');
     }
 
+    function trapDialog(modalSel){
+      const modal=$(modalSel); if(!modal) return;
+      const getF=()=>modal.querySelectorAll('button,[href],[tabindex]:not([tabindex="-1"])');
+      function onKey(e){
+        if(e.key==='Escape'){ modal.classList.add('hidden'); modal.removeEventListener('keydown',onKey); return; }
+        if(e.key!=='Tab') return;
+        const f=[...getF()]; if(!f.length) return;
+        const first=f[0], last=f[f.length-1];
+        if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+        else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+      }
+      modal.addEventListener('keydown',onKey);
+      requestAnimationFrame(()=>{ const f=getF()[0]; f && f.focus(); });
+    }
+
     function showUserPicker(){
       const list=$('#userList'); list.innerHTML='';
       const arr=profilesArr();
@@ -832,6 +912,7 @@
         list.appendChild(btn);
       });
       $('#userPickerModal').classList.remove('hidden');
+      trapDialog('#userPickerModal'); // מלכודת פוקוס
     }
 
     function showCurriculumSelect(){
@@ -843,6 +924,11 @@
       currentCurriculum=null;
       $$('#curriculumGrid .choice-card').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
       const btn=$('#curriculumNext'); btn.disabled=true; btn.setAttribute('aria-disabled','true');
+
+      // פתיחה במצב "סגור" + מדידה אם יש גלילה
+      setCurriculumExpanded(false);
+      requestAnimationFrame(refreshCurriculumOverflow);
+
       focusTop('#curriculumTitle');
       showCoach(`${playerName}, בחר/י תכנית לימוד ואז לחצו "המשך".`, 'default');
     }
@@ -982,6 +1068,7 @@
       nextBtn.textContent = 'לסיכום התוצאות';
       nextBtn.onclick = () => { $('#feedback').classList.add('hidden'); showResults(); };
       fb.classList.remove('hidden');
+      trapDialog('#feedback'); // מלכודת פוקוס
     }
 
     function nextQuestion(){
@@ -1081,7 +1168,7 @@
 
       const list=$('#mistakesList'); list.innerHTML='';
       questions.forEach((q,i)=>{
-        const m=mistakes.find(x=>x.question.questionText===q.questionText); if(!m) return;
+        const m=mistakes.find(x=>x.question.id===q.id); if(!m) return;
         const d=document.createElement('div');
         d.className='bg-orange-50 border-2 border-orange-200 rounded-2xl p-6 cursor-pointer hover:bg-orange-100 transition-colors';
         d.onclick=()=>showTutorial(m);
@@ -1130,12 +1217,16 @@
         {title:'ספירה',description:'נספור את כל הפריטים.'},
         {title:'התוצאה',description:'יש '+answer+' פריטים בסך הכול.'}
       ];
-      if(operation==='division'){ const dividend=parseInt(q.questionText.split(' ÷ ')[0],10); const divisor=q.num2; return[
-        {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+dividend+' ÷ '+divisor+'.'},
-        {title:'הצגת כל הפריטים',description:'נתחיל עם '+dividend+' פריטים.'},
-        {title:'חלוקה לקבוצות',description:'נחלק לקבוצות של '+divisor+'.'},
-        {title:'התוצאה',description:'קיבלנו '+answer+' קבוצות.'}
-      ]; }
+      if(operation==='division'){
+        const dividend = num1 * num2; // quotient * divisor
+        const divisor = num2;
+        return[
+          {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+dividend+' ÷ '+divisor+'.'},
+          {title:'הצגת כל הפריטים',description:'נתחיל עם '+dividend+' פריטים.'},
+          {title:'חלוקה לקבוצות',description:'נחלק לקבוצות של '+divisor+'.'},
+          {title:'התוצאה',description:'קיבלנו '+answer+' קבוצות.'}
+        ];
+      }
       return [];
     }
     function markActiveMistakeReviewed(){ if (!activeMistake) return; activeMistake.reviewed = true; }
@@ -1264,7 +1355,7 @@
       }
 
       if(operation==='division'){
-        const dividend=parseInt(q.questionText.split(' ÷ ')[0],10);
+        const dividend=num1*num2;
         const groups=answer, size=num2;
         if(dividend > 60){
           divisionCounterDemo(dividend, size, groups);
@@ -1618,6 +1709,13 @@
       });
       $('#curriculumNext')?.addEventListener('click',()=> showOperationSelect());
 
+      // כפתור "הצג עוד/פחות"
+      $('#curriculumMore')?.addEventListener('click', ()=>{
+        setCurriculumExpanded(!isCurriculumExpanded);
+      });
+      // מדידה מחדש על שינוי גודל חלון
+      window.addEventListener('resize', refreshCurriculumOverflow);
+
       // סוג תרגיל – כרטיסיות
       selectChoice('#opsGrid','.op-btn',(btn)=>{
         currentOperation = btn.getAttribute('data-op');
@@ -1670,12 +1768,6 @@
 
       // הצגת שופי במסך פתיחה
       showCoach('אני שופי ואני אהיה איתך בזמן התרגול', 'default');
-
-      // רספונסיביות – עדכון מיקום שופי
-      window.addEventListener('resize', ()=>{
-        const ctx = (!$('#gameScreen').classList.contains('hidden')) ? 'game' : 'default';
-        placeCoach(ctx);
-      });
     });
   </script>
 </body>
