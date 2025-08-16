@@ -92,7 +92,7 @@
     #profileBtn{padding:.5rem .7rem;border-radius:9999px;background:rgba(255,255,255,.95);border:1px solid #e5e7eb;box-shadow:0 6px 20px rgba(0,0,0,.12)}
 
     /* חתימה */
-    .site-signature{ text-align:center;color:#6b7280;font-size:.875rem;line-height:1.6; margin-top:1.25rem;margin-bottom:1.25rem }
+    .site-signature{ text-align:center;color:#6b7280;font-size:.875рем;line-height:1.6; margin-top:1.25rem;margin-bottom:1.25rem }
     @media (min-width:640px){ .site-signature{font-size:1rem;margin-top:2rem;margin-bottom:2rem} }
     .site-signature a{color:#4b5563;text-decoration:underline}
     .site-signature a:hover{color:#111827}
@@ -135,11 +135,11 @@
     </form>
   </div>
 
-  <!-- User Picker Modal -->
-  <div id="userPickerModal" class="hidden fixed inset-0 z-50 bg-black/50 items-center justify-center p-4">
-    <div role="dialog" aria-modal="true" class="bg-white rounded-2xl max-w-md w-full p-6">
-      <h3 class="text-2xl font-bold text-gray-800 mb-3">בחרו משתמש</h3>
-      <div id="userList" class="space-y-2 max-h-[50vh] overflow-auto mb-4"></div>
+  <!-- User Picker Modal (centered with FLEX) -->
+  <div id="userPickerModal" class="hidden fixed inset-0 z-50 bg-black/50 p-4 items-center justify-center">
+    <div role="dialog" aria-modal="true" aria-labelledby="userPickerTitle" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <h3 id="userPickerTitle" class="text-2xl font-bold text-gray-800 mb-3">בחרו משתמש</h3>
+      <div id="userList" class="space-y-2 max-h-[50vh] overflow-auto mb-4" tabindex="0"></div>
       <div class="flex gap-2 justify-between">
         <button id="userPickerCancel" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 font-bold">סגור</button>
         <button id="newUserBtn" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700">משתמש חדש</button>
@@ -244,7 +244,6 @@
         </button>
       </div>
 
-      <!-- יישור למרכז: גם הכותרת וגם הבחירה -->
       <div class="mb-2">
         <div class="subhead mb-3 text-center">מספר שאלות בסט</div>
         <div id="questionChips" class="chips">
@@ -449,7 +448,7 @@
         </div>
         <div class="p-4 rounded-2xl border-2 border-purple-200 bg-purple-50">
           <div class="text-sm text-purple-700">זמן ממוצע לשאלה</div>
-          <div id="kpiAvg" class="text-3xl font-extrabold text-gray-900 ltr">0s</div>
+          <div id="kpiAvg" class="text-3xl font-extrabוד text-gray-900 ltr">0s</div>
         </div>
       </div>
 
@@ -577,6 +576,7 @@
     const $$=sel=>document.querySelectorAll(sel);
     const randInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
     function shuffle(a){const c=a.slice();for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]]}return c}
+    const isVisible=(el)=>el && !el.classList.contains('hidden');
 
     /* ========= Focus helper ========= */
     function focusTop(selector){
@@ -795,24 +795,65 @@
       showCoach('איך קוראים לך? אפשר גם להחליף משתמש או להיכנס לאזור האישי.', 'default');
     }
 
+    /* ===== User picker modal helpers ===== */
+    function openModal(modal){
+      if(!modal) return;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex'); // חשוב למרכוז
+      document.body.style.overflow='hidden';
+      // פוקוס התחלתי
+      const focusable = modal.querySelector('#userList button, #newUserBtn, #userPickerCancel');
+      (focusable||modal).focus();
+      // סגירה ב-ESC
+      modal._escHandler = (e)=>{ if(e.key==='Escape'){ closeModal(modal); } };
+      document.addEventListener('keydown', modal._escHandler);
+      // סגירה בלחיצה על רקע
+      modal._bgHandler = (e)=>{ if(e.target===modal){ closeModal(modal); } };
+      modal.addEventListener('mousedown', modal._bgHandler);
+    }
+    function closeModal(modal){
+      if(!modal) return;
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+      document.body.style.overflow='';
+      if(modal._escHandler){ document.removeEventListener('keydown', modal._escHandler); modal._escHandler=null; }
+      if(modal._bgHandler){ modal.removeEventListener('mousedown', modal._bgHandler); modal._bgHandler=null; }
+    }
+
+    function afterUserPicked(){
+      // אם מסך האזור האישי גלוי – רנדר מחדש
+      if (isVisible($('#profileScreen'))) renderProfile();
+      // אם מסך השם גלוי – עדכן שדה ושורת “נעים לראותך”
+      if (isVisible($('#nameScreen'))) {
+        const prof=getActiveProfile();
+        if(prof){
+          $('#playerName').value = prof.name;
+          const subtitle = $('#nameSubtitle');
+          subtitle.textContent = `נעים לראותך שוב, ${prof.name}!`;
+          subtitle.classList.remove('hidden');
+        }
+      }
+    }
+
     function showUserPicker(){
       const list=$('#userList'); list.innerHTML='';
       const arr=profilesArr();
       if(arr.length<=1){
-        // רק משתמש אחד – פשוט מאפשר ליצור חדש
-        $('#userPickerModal').classList.add('hidden');
+        // אין אלטרנטיבות – חזרה להזנת שם
         $('#playerName').focus();
         return;
       }
-      arr.forEach(p=>{
-        const btn=document.createElement('button');
-        btn.className='w-full text-right p-3 border-2 border-gray-200 rounded-xl hover:bg-gray-50 flex items-center justify-between';
-        const activeMark = (store.activeId===p.id)?' (פעיל)':'';
-        btn.innerHTML=`<span class="font-bold text-gray-800">${p.name}</span><span class="text-sm text-gray-500 ltr">${new Date(p.lastSeen||Date.now()).toLocaleDateString('he-IL')}</span>`;
-        btn.onclick=()=>{ setActiveProfile(p.id); $('#playerName').value=p.name; $('#userPickerModal').classList.add('hidden'); };
-        list.appendChild(btn);
-      });
-      $('#userPickerModal').classList.remove('hidden');
+      arr
+        .sort((a,b)=> (b.lastSeen||0)-(a.lastSeen||0))
+        .forEach(p=>{
+          const btn=document.createElement('button');
+          btn.className='w-full text-right p-3 border-2 border-gray-200 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between';
+          btn.setAttribute('type','button');
+          btn.innerHTML=`<span class="font-bold text-gray-800">${p.name}${store.activeId===p.id?' <span class="text-sm text-blue-600">(פעיל)</span>':''}</span><span class="text-sm text-gray-500 ltr">${new Date(p.lastSeen||Date.now()).toLocaleDateString('he-IL')}</span>`;
+          btn.onclick=()=>{ setActiveProfile(p.id); closeModal($('#userPickerModal')); afterUserPicked(); };
+          list.appendChild(btn);
+        });
+      openModal($('#userPickerModal'));
     }
 
     function showCurriculumSelect(){
@@ -1524,9 +1565,10 @@
           const row=document.createElement('div');
           row.className='p-3 border-2 border-gray-200 rounded-xl bg-white flex items-center justify-between gap-3';
           const date = new Date(item.ts).toLocaleString('he-IL', {dateStyle:'short', timeStyle:'short'});
+          const labels = {addition:'חיבור', subtraction:'חיסור', multiplication:'כפל', division:'חילוק', mixed:'הכל'};
           row.innerHTML = `<div>
               <div class="text-sm text-gray-500">${date}</div>
-              <div class="text-gray-800">${(curricula[item.curriculum]?.name)||'ללא תוכנית'} · ${item.op==='mixed'?'הכל':labels[item.op]?.replace(/^[^ ]+ /,'')}</div>
+              <div class="text-gray-800">${(curricula[item.curriculum]?.name)||'ללא תוכנית'} · ${labels[item.op]||'—'}</div>
               <div class="text-sm text-gray-500">רמה: ${item.diff} · שאלות: ${item.count}</div>
             </div>
             <div class="text-right">
@@ -1553,10 +1595,14 @@
       $('#nameForm')?.addEventListener('submit',e=>{e.preventDefault(); unlockAudioOnce(); showCurriculumSelect();});
       $('#switchUserLink')?.addEventListener('click',()=> showUserPicker());
       $('#openProfileLink')?.addEventListener('click',()=> showProfile());
-      $('#userPickerCancel')?.addEventListener('click',()=> $('#userPickerModal').classList.add('hidden'));
+
+      // מודל משתמשים
+      $('#userPickerCancel')?.addEventListener('click',()=> closeModal($('#userPickerModal')));
       $('#newUserBtn')?.addEventListener('click',()=>{
-        $('#userPickerModal').classList.add('hidden');
+        closeModal($('#userPickerModal'));
+        store.activeId=null; saveStore();
         $('#playerName').value=''; $('#playerName').focus();
+        const subtitle = $('#nameSubtitle'); subtitle.classList.add('hidden'); subtitle.textContent='';
       });
 
       // כפתור אזור אישי קבוע + מסך תוצאות
@@ -1619,6 +1665,7 @@
       $('#restartBtn')?.addEventListener('click',()=>location.reload());
       $('#restartFromMistakes')?.addEventListener('click',()=>location.reload());
       $('#restartFromTutorial')?.addEventListener('click',()=>location.reload());
+      $('#backToMistakes')?.addEventListener('click',()=>{ $('#tutorialScreen').classList.add('hidden'); showMistakes(); });
 
       // שופי – סגירה
       $('#coachClose')?.addEventListener('click',()=>{ coachHidden=true; hideCoach(); });
