@@ -12,7 +12,19 @@
     .tabular-nums{font-variant-numeric:tabular-nums}
     .owl-blink{animation:blink 2s infinite}
     @keyframes blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
-    .link{ text-decoration:underline; cursor:pointer }
+
+    /* ===== קישור־כפתור בפופאפ שם ===== */
+    .link-cta{
+      display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
+      margin: .5rem auto 1rem;
+      font-weight:800;
+      font-size: calc(1rem + 2px); /* +2px */
+      color:#111827; /* אפור פחם כהה */
+      text-decoration:underline;
+      cursor:pointer;
+      background:transparent; border:none; padding:.25rem .5rem; border-radius:.5rem;
+    }
+    .link-cta:focus{outline:2px solid #93c5fd; outline-offset:2px}
 
     /* ===== כותרות משנה ===== */
     .subhead{
@@ -40,7 +52,7 @@
 
     /* כרטיסיות בחירה (תכנית לימוד / סוג תרגיל) */
     .choice-card{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;
-      background:rgba(255,255,255,.96); border:2px solid transparent; border-radius:1.25rem; padding:1.25rem;
+      background:rgba(255,255,255,.96); border:2px solid transparent; border-radius:1.25rem; padding:1.15rem;
       box-shadow:0 10px 26px rgba(0,0,0,.12); transition:.18s; cursor:pointer; outline:none; user-select:none}
     .choice-card .accent{display:none;position:absolute;right:0;top:0;bottom:0;width:8px;border-radius:0 1.25rem 1.25rem 0;opacity:.55;pointer-events:none}
     .choice-card[data-tint="green"]{--tint:#22c55e}
@@ -53,12 +65,15 @@
     .choice-card.selected{border-color:#2563eb; box-shadow:0 12px 30px rgba(0,0,0,.18)}
     .choice-card.selected .accent{display:block; background:var(--tint,#3b82f6)}
     .choice-card .emoji{font-size:2rem}
+    /* הקטנה עדינה לכרטיסיות סוג התרגיל */
+    .op-btn .emoji{font-size:1.8rem}
+    .op-btn .text-xl{font-size:1.1rem}
 
-    /* ===== צ’יפים לבחירת מספר השאלות – מיושרים למרכז ===== */
+    /* ===== צ’יפים לבחירת מספר שאלות – קצת יותר גדולים ===== */
     .chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
-    .chip{min-width:64px; min-height:48px; display:inline-flex; align-items:center; justify-content:center;
-      border:2px solid #e5e7eb; background:white; border-radius:1rem; padding:.25rem .75rem;
-      font-weight:700; font-size:1.15rem; cursor:pointer; transition:.16s}
+    .chip{min-width:68px; min-height:52px; display:inline-flex; align-items:center; justify-content:center;
+      border:2px solid #e5e7eb; background:white; border-radius:1rem; padding:.3rem .8rem;
+      font-weight:800; font-size:1.25rem; cursor:pointer; transition:.16s}
     .chip:hover{transform:translateY(-2px)}
     .chip.selected{border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.20)}
 
@@ -81,18 +96,18 @@
       body.with-coach-pad{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
     }
 
-    /* כפתור השתקת אודיו */
-    #audioToggle{padding:.5rem .7rem;border-radius:9999px;background:rgba(255,255,255,.95);border:1px solid #e5e7eb;box-shadow:0 6px 20px rgba(0,0,0,.12)}
+    /* כפתור השתקת אודיו + אזור אישי קבוע */
+    #audioToggle,#profileBtn{padding:.5rem .7rem;border-radius:9999px;background:rgba(255,255,255,.95);border:1px solid #e5e7eb;box-shadow:0 6px 20px rgba(0,0,0,.12)}
     #audioToggle[aria-pressed="true"] .muted{display:inline}
     #audioToggle[aria-pressed="true"] .unmuted{display:none}
     #audioToggle[aria-pressed="false"] .muted{display:none}
     #audioToggle[aria-pressed="false"] .unmuted{display:inline}
 
-    /* כפתור אזור אישי קבוע */
-    #profileBtn{padding:.5rem .7rem;border-radius:9999px;background:rgba(255,255,255,.95);border:1px solid #e5e7eb;box-shadow:0 6px 20px rgba(0,0,0,.12)}
+    /* כפתור 'החלף משתמש' מושבת באזור האישי */
+    .btn-disabled{opacity:.5; cursor:not-allowed}
 
     /* חתימה */
-    .site-signature{ text-align:center;color:#6b7280;font-size:.875рем;line-height:1.6; margin-top:1.25rem;margin-bottom:1.25rem }
+    .site-signature{ text-align:center;color:#6b7280;font-size:.875rem;line-height:1.6; margin-top:1.25rem;margin-bottom:1.25rem }
     @media (min-width:640px){ .site-signature{font-size:1rem;margin-top:2rem;margin-bottom:2rem} }
     .site-signature a{color:#4b5563;text-decoration:underline}
     .site-signature a:hover{color:#111827}
@@ -127,19 +142,19 @@
       <h2 id="nameTitle" tabindex="-1" class="text-3xl font-bold text-blue-600 mb-2">איך קוראים לך?</h2>
       <p id="nameSubtitle" class="text-gray-600 mb-4 hidden"></p>
       <input type="text" id="playerName" name="playerName" required placeholder="הכנס את שמך כאן" class="w-full p-4 text-xl border-2 border-gray-300 rounded-xl mb-3 text-center focus:border-blue-500 focus:outline-none">
-      <div class="flex items-center justify-between text-sm text-blue-700 mb-6">
-        <button type="button" id="switchUserLink" class="link hidden">החלף משתמש</button>
-        <button type="button" id="openProfileLink" class="link ml-auto">לאזור האישי</button>
+      <!-- כפתור יחיד: החלף משתמש / אזור אישי -->
+      <div class="text-center mb-6">
+        <button type="button" id="profileOrSwitchBtn" class="link-cta">החלף משתמש / אזור אישי</button>
       </div>
       <button type="submit" class="bg-gradient-to-r from-blue-500 to-green-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:from-blue-600 hover:to-green-600 transform hover:scale-105 transition-all duration-200 shadow-lg">המשך</button>
     </form>
   </div>
 
-  <!-- User Picker Modal (centered with FLEX) -->
-  <div id="userPickerModal" class="hidden fixed inset-0 z-50 bg-black/50 p-4 items-center justify-center">
-    <div role="dialog" aria-modal="true" aria-labelledby="userPickerTitle" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
-      <h3 id="userPickerTitle" class="text-2xl font-bold text-gray-800 mb-3">בחרו משתמש</h3>
-      <div id="userList" class="space-y-2 max-h-[50vh] overflow-auto mb-4" tabindex="0"></div>
+  <!-- User Picker Modal (הוסף flex לצורך מרכז) -->
+  <div id="userPickerModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+    <div role="dialog" aria-modal="true" class="bg-white rounded-2xl max-w-md w-full p-6">
+      <h3 class="text-2xl font-bold text-gray-800 mb-3">בחרו משתמש</h3>
+      <div id="userList" class="space-y-2 max-h-[50vh] overflow-auto mb-4"></div>
       <div class="flex gap-2 justify-between">
         <button id="userPickerCancel" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 font-bold">סגור</button>
         <button id="newUserBtn" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700">משתמש חדש</button>
@@ -244,6 +259,7 @@
         </button>
       </div>
 
+      <!-- יישור למרכז: הכותרת והבחירה -->
       <div class="mb-2">
         <div class="subhead mb-3 text-center">מספר שאלות בסט</div>
         <div id="questionChips" class="chips">
@@ -448,7 +464,7 @@
         </div>
         <div class="p-4 rounded-2xl border-2 border-purple-200 bg-purple-50">
           <div class="text-sm text-purple-700">זמן ממוצע לשאלה</div>
-          <div id="kpiAvg" class="text-3xl font-extrabוד text-gray-900 ltr">0s</div>
+          <div id="kpiAvg" class="text-3xl font-extrabold text-gray-900 ltr">0s</div>
         </div>
       </div>
 
@@ -576,7 +592,6 @@
     const $$=sel=>document.querySelectorAll(sel);
     const randInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
     function shuffle(a){const c=a.slice();for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]]}return c}
-    const isVisible=(el)=>el && !el.classList.contains('hidden');
 
     /* ========= Focus helper ========= */
     function focusTop(selector){
@@ -719,7 +734,7 @@
 
     // טיק על רוב הכפתורים (לא כולל השתקה) — גם הקליק הראשון ישמע
     document.addEventListener('click', e=>{
-      const el=e.target.closest('button,.op-btn,.choice-card,.chip,.link');
+      const el=e.target.closest('button,.op-btn,.choice-card,.chip,.link-cta');
       if(!el||el.id==='audioToggle') return;
       const wasLocked = !audioUnlocked;
       unlockAudioOnce();
@@ -780,7 +795,6 @@
 
       const prof = getActiveProfile();
       const haveAny = profilesArr().length>0;
-      $('#switchUserLink').classList.toggle('hidden', !haveAny);
       const subtitle = $('#nameSubtitle');
 
       if(prof){
@@ -795,65 +809,29 @@
       showCoach('איך קוראים לך? אפשר גם להחליף משתמש או להיכנס לאזור האישי.', 'default');
     }
 
-    /* ===== User picker modal helpers ===== */
-    function openModal(modal){
-      if(!modal) return;
-      modal.classList.remove('hidden');
-      modal.classList.add('flex'); // חשוב למרכוז
-      document.body.style.overflow='hidden';
-      // פוקוס התחלתי
-      const focusable = modal.querySelector('#userList button, #newUserBtn, #userPickerCancel');
-      (focusable||modal).focus();
-      // סגירה ב-ESC
-      modal._escHandler = (e)=>{ if(e.key==='Escape'){ closeModal(modal); } };
-      document.addEventListener('keydown', modal._escHandler);
-      // סגירה בלחיצה על רקע
-      modal._bgHandler = (e)=>{ if(e.target===modal){ closeModal(modal); } };
-      modal.addEventListener('mousedown', modal._bgHandler);
-    }
-    function closeModal(modal){
-      if(!modal) return;
-      modal.classList.remove('flex');
-      modal.classList.add('hidden');
-      document.body.style.overflow='';
-      if(modal._escHandler){ document.removeEventListener('keydown', modal._escHandler); modal._escHandler=null; }
-      if(modal._bgHandler){ modal.removeEventListener('mousedown', modal._bgHandler); modal._bgHandler=null; }
-    }
-
-    function afterUserPicked(){
-      // אם מסך האזור האישי גלוי – רנדר מחדש
-      if (isVisible($('#profileScreen'))) renderProfile();
-      // אם מסך השם גלוי – עדכן שדה ושורת “נעים לראותך”
-      if (isVisible($('#nameScreen'))) {
-        const prof=getActiveProfile();
-        if(prof){
-          $('#playerName').value = prof.name;
-          const subtitle = $('#nameSubtitle');
-          subtitle.textContent = `נעים לראותך שוב, ${prof.name}!`;
-          subtitle.classList.remove('hidden');
-        }
-      }
-    }
-
     function showUserPicker(){
       const list=$('#userList'); list.innerHTML='';
       const arr=profilesArr();
       if(arr.length<=1){
-        // אין אלטרנטיבות – חזרה להזנת שם
-        $('#playerName').focus();
+        // אין עבור מי להחליף – פתח אזור אישי
+        $('#userPickerModal').classList.add('hidden');
+        showProfile();
         return;
       }
-      arr
-        .sort((a,b)=> (b.lastSeen||0)-(a.lastSeen||0))
-        .forEach(p=>{
-          const btn=document.createElement('button');
-          btn.className='w-full text-right p-3 border-2 border-gray-200 rounded-xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-between';
-          btn.setAttribute('type','button');
-          btn.innerHTML=`<span class="font-bold text-gray-800">${p.name}${store.activeId===p.id?' <span class="text-sm text-blue-600">(פעיל)</span>':''}</span><span class="text-sm text-gray-500 ltr">${new Date(p.lastSeen||Date.now()).toLocaleDateString('he-IL')}</span>`;
-          btn.onclick=()=>{ setActiveProfile(p.id); closeModal($('#userPickerModal')); afterUserPicked(); };
-          list.appendChild(btn);
-        });
-      openModal($('#userPickerModal'));
+      arr.forEach(p=>{
+        const btn=document.createElement('button');
+        btn.className='w-full text-right p-3 border-2 border-gray-200 rounded-xl hover:bg-gray-50 flex items-center justify-between';
+        btn.innerHTML=`<span class="font-bold text-gray-800">${p.name}</span><span class="text-sm text-gray-500 ltr">${new Date(p.lastSeen||Date.now()).toLocaleDateString('he-IL')}</span>`;
+        btn.onclick=()=>{
+          setActiveProfile(p.id);
+          $('#playerName').value=p.name;
+          $('#userPickerModal').classList.add('hidden');
+          // אם האזור האישי פתוח – רענון תצוגה
+          if(!$('#profileScreen').classList.contains('hidden')) renderProfile();
+        };
+        list.appendChild(btn);
+      });
+      $('#userPickerModal').classList.remove('hidden');
     }
 
     function showCurriculumSelect(){
@@ -1034,7 +1012,9 @@
 
       const incorrect=totalQuestions-correctCount;
       const pct=Math.round((correctCount/totalQuestions)*100);
-      $('#resultsTitle').textContent=getResultsTitleCopy(playerName,pct);
+      const prof = getActiveProfile();
+      const displayName = prof ? prof.name : playerName;
+      $('#resultsTitle').textContent=getResultsTitleCopy(displayName,pct);
 
       const msg=$('#performanceMessage'), icon=rs.querySelector('.text-8xl');
       if(correctCount===totalQuestions){
@@ -1516,9 +1496,20 @@
       showCoach('ברוך/ה הבא/ה לאזור האישי. אפשר להחליף משתמש או להתחיל משחק.', 'default');
     }
 
+    function setSwitchBtnDisabled(disabled){
+      const btn = $('#profileSwitchBtn');
+      if(!btn) return;
+      btn.disabled = disabled;
+      btn.classList.toggle('btn-disabled', disabled);
+    }
+
     function renderProfile(){
       const prof = getActiveProfile();
       const header = $('#profileHeader');
+      const totalUsers = profilesArr().length;
+
+      setSwitchBtnDisabled(totalUsers<=1);
+
       if(!prof){
         header.textContent = 'אין משתמש פעיל. ניתן ליצור משתמש חדש או להחליף למשתמש קיים.';
         $('#kpiSets').textContent='0';
@@ -1565,10 +1556,9 @@
           const row=document.createElement('div');
           row.className='p-3 border-2 border-gray-200 rounded-xl bg-white flex items-center justify-between gap-3';
           const date = new Date(item.ts).toLocaleString('he-IL', {dateStyle:'short', timeStyle:'short'});
-          const labels = {addition:'חיבור', subtraction:'חיסור', multiplication:'כפל', division:'חילוק', mixed:'הכל'};
           row.innerHTML = `<div>
               <div class="text-sm text-gray-500">${date}</div>
-              <div class="text-gray-800">${(curricula[item.curriculum]?.name)||'ללא תוכנית'} · ${labels[item.op]||'—'}</div>
+              <div class="text-gray-800">${(curricula[item.curriculum]?.name)||'ללא תוכנית'} · ${item.op==='mixed'?'הכל':labels[item.op]?.replace(/^[^ ]+ /,'')}</div>
               <div class="text-sm text-gray-500">רמה: ${item.diff} · שאלות: ${item.count}</div>
             </div>
             <div class="text-right">
@@ -1593,16 +1583,17 @@
       // ניווט ראשוני
       $('#startBtn')?.addEventListener('click',e=>{e.preventDefault(); unlockAudioOnce(); showNameInput();});
       $('#nameForm')?.addEventListener('submit',e=>{e.preventDefault(); unlockAudioOnce(); showCurriculumSelect();});
-      $('#switchUserLink')?.addEventListener('click',()=> showUserPicker());
-      $('#openProfileLink')?.addEventListener('click',()=> showProfile());
 
-      // מודל משתמשים
-      $('#userPickerCancel')?.addEventListener('click',()=> closeModal($('#userPickerModal')));
+      // כפתור: "החלף משתמש / אזור אישי"
+      $('#profileOrSwitchBtn')?.addEventListener('click',()=>{
+        const arr=profilesArr();
+        if(arr.length>1) showUserPicker(); else showProfile();
+      });
+
+      $('#userPickerCancel')?.addEventListener('click',()=> $('#userPickerModal').classList.add('hidden'));
       $('#newUserBtn')?.addEventListener('click',()=>{
-        closeModal($('#userPickerModal'));
-        store.activeId=null; saveStore();
+        $('#userPickerModal').classList.add('hidden');
         $('#playerName').value=''; $('#playerName').focus();
-        const subtitle = $('#nameSubtitle'); subtitle.classList.add('hidden'); subtitle.textContent='';
       });
 
       // כפתור אזור אישי קבוע + מסך תוצאות
@@ -1610,7 +1601,7 @@
       $('#profileFromResultsBtn')?.addEventListener('click',()=> showProfile());
 
       // אזור אישי – כפתורים
-      $('#profileSwitchBtn')?.addEventListener('click',()=> showUserPicker());
+      $('#profileSwitchBtn')?.addEventListener('click',()=> { if(profilesArr().length>1) showUserPicker(); });
       $('#profileNewBtn')?.addEventListener('click',()=>{
         store.activeId=null; saveStore(); showNameInput();
       });
@@ -1665,7 +1656,6 @@
       $('#restartBtn')?.addEventListener('click',()=>location.reload());
       $('#restartFromMistakes')?.addEventListener('click',()=>location.reload());
       $('#restartFromTutorial')?.addEventListener('click',()=>location.reload());
-      $('#backToMistakes')?.addEventListener('click',()=>{ $('#tutorialScreen').classList.add('hidden'); showMistakes(); });
 
       // שופי – סגירה
       $('#coachClose')?.addEventListener('click',()=>{ coachHidden=true; hideCoach(); });
