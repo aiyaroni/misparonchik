@@ -16,7 +16,7 @@
     /* ===== קישור־כפתור בפופאפ שם ===== */
     .link-cta{
       display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
-      margin: .5rem auto 1rem;
+      margin:.5rem auto 1rem;
       font-weight:800;
       font-size: calc(1rem + 2px); /* +2px לפי הבקשה */
       color:#111827; /* אפור פחם כהה */
@@ -125,6 +125,20 @@
     @media (prefers-reduced-motion: reduce){
       .owl-blink{ animation:none }
     }
+
+    /* ===== Mobile-only layout fixes (Coach + Personal Area button) ===== */
+    @media (max-width:640px){
+      /* יותר מרווח כשה-Coach פתוח שלא יסתיר כפתורים */
+      body.with-coach-pad{
+        padding-bottom: calc(120px + env(safe-area-inset-bottom));
+      }
+      /* כפתור האזור האישי יורד לתחתית ימין מעל שופי */
+      #profileBtn{
+        top: auto !important;
+        bottom: calc(120px + env(safe-area-inset-bottom) + 12px) !important;
+        right: 12px !important;
+      }
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-blue-100 via-purple-50 to-green-100 min-h-screen">
@@ -176,7 +190,7 @@
     </div>
   </div>
 
-  <!-- Curriculum Selection Screen (מעודכן עם "הצג עוד/פחות" + דהייה) -->
+  <!-- Curriculum Selection Screen -->
   <div id="curriculumScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-3xl w-full">
       <div class="text-5xl mb-4">📚</div>
@@ -545,6 +559,7 @@
     function profilesArr(){ return Object.entries(store.profiles).map(([id,p])=>({id,...p})); }
     function getActiveProfile(){ return store.activeId ? store.profiles[store.activeId]||null : null; }
     function setActiveProfile(id){
+      if(!store.proiles && !store.profiles) return; // guard
       if(!store.profiles[id]) return;
       store.activeId = id;
       store.profiles[id].lastSeen = Date.now();
@@ -803,7 +818,9 @@
       if(!grid || !more || !fade) return;
 
       const overflow = grid.scrollHeight > grid.clientHeight + 2;
+      // כפתור "הצג עוד" מוצג רק אם יש גלילה או אם פתוח כרגע
       more.classList.toggle('hidden', !overflow && !isCurriculumExpanded);
+      // דהייה רק כשהרשימה סגורה ויש גלילה
       fade.classList.toggle('hidden', isCurriculumExpanded || !overflow);
     }
 
@@ -853,13 +870,18 @@
 
     /* ========= Flow Screens ========= */
     function showNameInput(){
-      $('#welcomeScreen').classList.add('hidden');
+      // הסתרה גורפת של כל המסכים
+      ['welcomeScreen','nameScreen','curriculumScreen','operationScreen','difficultyScreen','gameScreen',
+       'resultsScreen','mistakesScreen','tutorialScreen','profileScreen']
+       .forEach(id=>$('#'+id)?.classList.add('hidden'));
+
+      // הצגת מסך השם בלבד
       $('#nameScreen').classList.remove('hidden');
-      hideCoach();
+
+      hideCoach(); // כאן לא מציגים את שופי (פחות הפרעה)
       focusTop('#nameTitle');
 
       const prof = getActiveProfile();
-      const haveAny = profilesArr().length>0;
       const subtitle = $('#nameSubtitle');
 
       if(prof){
@@ -871,7 +893,9 @@
         subtitle.classList.add('hidden');
       }
 
-      showCoach('איך קוראים לך? אפשר גם להחליף משתמש או להיכנס לאזור האישי.', 'default');
+      // גלילה לראש + עדכון פריסת שופי (ליתר ביטחון)
+      window.scrollTo({top:0,left:0,behavior:'auto'});
+      try{ placeCoach('default'); }catch{}
     }
 
     function trapDialog(modalSel){
@@ -931,6 +955,7 @@
 
       focusTop('#curriculumTitle');
       showCoach(`${playerName}, בחר/י תכנית לימוד ואז לחצו "המשך".`, 'default');
+      try{ placeCoach('default'); }catch{}
     }
 
     function showOperationSelect(){
@@ -944,6 +969,7 @@
       updateOperationNextState();
       focusTop('#operationTitle');
       showCoach('עכשיו בוחרים סוג תרגיל ומספר שאלות. לאחר הבחירה – המשך.', 'default');
+      try{ placeCoach('default'); }catch{}
     }
 
     function showDifficultySelect(){
@@ -953,6 +979,7 @@
       $$('#difficultyScreen .diff-btn').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
       focusTop('#difficultyTitle');
       showCoach('בחר/י רמת קושי כדי להתחיל לתרגל!', 'default');
+      try{ placeCoach('default'); }catch{}
     }
 
     function startGame(diff){
@@ -975,6 +1002,7 @@
       showQuestion();
       focusTop('#questionText');
       showCoach('יצאנו לדרך! קרא/י את השאלה, בחר/י תשובה ואז אשר/י.', 'game');
+      try{ placeCoach('default'); }catch{}
     }
 
     /* ========= Game ========= */
@@ -1135,7 +1163,7 @@
 
       focusTop('#resultsTitle');
       showCoach(coachText,'default');
-      placeCoach('default');
+      try{ placeCoach('default'); }catch{}
     }
 
     function updatePerformanceBar(correct,incorrect,pct){
@@ -1177,6 +1205,7 @@
       });
       focusTop('#mistakesTitle');
       showCoach('לחץ על שאלה כדי לראות הסבר אינטראקטיבי.','default');
+      try{ placeCoach('default'); }catch{}
     }
 
     function showTutorial(m){
@@ -1186,6 +1215,7 @@
       createTutorialSteps(q); createInteractiveDemo(q);
       requestAnimationFrame(()=>{ title.focus({preventScroll:true}); window.scrollTo({top:0,behavior:'auto'}); });
       showCoach('הנה הסבר צעד־אחר־צעד. נסה/י את האזור האינטראקטיבי.','default');
+      try{ placeCoach('default'); }catch{}
     }
 
     function createTutorialSteps(q){
@@ -1426,7 +1456,7 @@
           info.className='text-green-600 font-bold text-lg';
           markActiveMistakeReviewed();
         }else{
-          const dir = current<target ? 'המשיך/י לעלות' : 'המשיך/י לרדת';
+          const dir = current<target ? 'המשיך/י לעלות' : 'המשך/י לרדת';
           info.textContent=`${dir} עד ${target}`;
           info.className='text-gray-600';
         }
@@ -1585,6 +1615,7 @@
       renderProfile();
       focusTop('#profileScreen .text-indigo-600');
       showCoach('ברוך/ה הבא/ה לאזור האישי. אפשר להחליף משתמש או להתחיל משחק.', 'default');
+      try{ placeCoach('default'); }catch{}
     }
 
     function setSwitchBtnDisabled(disabled){
@@ -1671,6 +1702,11 @@
       window.addEventListener('pointerdown', unlockAudioOnce, { once: true, capture: true });
       window.addEventListener('click',        unlockAudioOnce, { once: true, capture: true });
 
+      initAudioToggle();
+
+      // עדכן פריסת ה-Coach בכל שינוי גודל
+      window.addEventListener('resize', ()=>{ try{ placeCoach('default'); }catch{} });
+
       // ניווט ראשוני
       $('#startBtn')?.addEventListener('click',e=>{e.preventDefault(); unlockAudioOnce(); showNameInput();});
       $('#nameForm')?.addEventListener('submit',e=>{e.preventDefault(); unlockAudioOnce(); showCurriculumSelect();});
@@ -1699,75 +1735,71 @@
       $('#profileStartBtn')?.addEventListener('click',()=>{
         const prof=getActiveProfile();
         if(!prof){ showNameInput(); return; }
-        playerName=prof.name; showCurriculumSelect();
+        // מזניקים ישר לבחירת תכנית עם שם קיים
+        $('#playerName').value = prof.name;
+        showCurriculumSelect();
       });
 
-      // תכנית לימוד – בחירה כרטיסיות
-      selectChoice('#curriculumGrid','.choice-card',(btn)=>{
+      // בחירת תכנית לימוד
+      selectChoice('#curriculumGrid','.choice-card',btn=>{
+        $$('#curriculumGrid .choice-card').forEach(b=>b.classList.remove('selected'));
+        btn.classList.add('selected');
         currentCurriculum = btn.getAttribute('data-value');
         const next=$('#curriculumNext'); next.disabled=false; next.setAttribute('aria-disabled','false');
       });
       $('#curriculumNext')?.addEventListener('click',()=> showOperationSelect());
 
-      // כפתור "הצג עוד/פחות"
-      $('#curriculumMore')?.addEventListener('click', ()=>{
-        setCurriculumExpanded(!isCurriculumExpanded);
-      });
-      // מדידה מחדש על שינוי גודל חלון
+      // "הצג עוד/פחות" + מדידה מחדש
+      $('#curriculumMore')?.addEventListener('click', ()=>{ setCurriculumExpanded(!isCurriculumExpanded); });
       window.addEventListener('resize', refreshCurriculumOverflow);
 
-      // סוג תרגיל – כרטיסיות
-      selectChoice('#opsGrid','.op-btn',(btn)=>{
-        currentOperation = btn.getAttribute('data-op');
+      // בחירת סוג תרגיל + כמות
+      selectChoice('#opsGrid','.op-btn',btn=>{
+        currentOperation=btn.getAttribute('data-op');
         updateOperationNextState();
       });
-
-      // מס׳ שאלות – צ׳יפים
-      selectChoice('#questionChips','.chip',(btn)=>{
-        questionCount = parseInt(btn.getAttribute('data-count'),10);
+      selectChoice('#questionChips','.chip',btn=>{
+        questionCount=parseInt(btn.getAttribute('data-count'),10);
         updateOperationNextState();
       });
-
-      // המשך לרמות קושי
       $('#operationNext')?.addEventListener('click',()=> showDifficultySelect());
 
-      // רמת קושי – כרטיסיות (התחלת משחק)
-      selectChoice('#difficultyScreen','.diff-btn',(btn)=>{
-        startGame(btn.getAttribute('data-diff'));
+      // בחירת קושי => התחלת משחק
+      selectChoice('#difficultyScreen','.diff-btn',btn=>{
+        $$('#difficultyScreen .diff-btn').forEach(b=>b.classList.remove('selected'));
+        btn.classList.add('selected');
+        const diff=btn.getAttribute('data-diff')||'easy';
+        startGame(diff);
       });
 
-      // תשובות
+      // משחק: תשובות + אישור + התחלה מחדש
       bindAnswerGrid();
+      $('#confirmButton')?.addEventListener('click', confirmAnswer);
+      $('#restartBtn')?.addEventListener('click', ()=> showNameInput());
 
-      // אישור תשובה
-      $('#confirmButton')?.addEventListener('click',e=>{
-        if(e.currentTarget.hasAttribute('disabled')){ e.preventDefault(); return; }
-        unlockAudioOnce(); confirmAnswer();
+      // מסך תוצאות: כפתורים
+      $('#retryBtn')?.addEventListener('click', ()=>{
+        if(!currentOperation || !questionCount || !currentDifficulty){ showOperationSelect(); return; }
+        startGame(currentDifficulty); // תרגול מחדש עם אותן הגדרות
       });
+      $('#mistakesButton')?.addEventListener('click', ()=> showMistakes());
+      $('#altBtn')?.addEventListener('click', ()=> showOperationSelect());
 
-      // טעויות/הדרכה: חזרה וריסטארט
-      $('#mistakesButton')?.addEventListener('click',showMistakes);
-      $('#altBtn')?.addEventListener('click',()=>{ $('#resultsScreen').classList.add('hidden'); showOperationSelect(); showCoach('בחר/י תרגיל חדש ומספר שאלות.', 'default'); });
-      $('#backToResults')?.addEventListener('click',()=>{ $('#mistakesScreen').classList.add('hidden'); $('#resultsScreen').classList.remove('hidden'); focusTop('#resultsTitle'); showCoach('חזרה לסיכום.', 'default'); });
+      // טעויות
+      $('#backToResults')?.addEventListener('click', ()=> showResults());
+      $('#restartFromMistakes')?.addEventListener('click', ()=> showNameInput());
 
-      // ריסטארט
-      $('#restartBtn')?.addEventListener('click',()=>location.reload());
-      $('#restartFromMistakes')?.addEventListener('click',()=>location.reload());
-      $('#restartFromTutorial')?.addEventListener('click',()=>location.reload());
+      // מדריך (טוריאל)
+      $('#backToMistakes')?.addEventListener('click', ()=> showMistakes());
+      $('#restartFromTutorial')?.addEventListener('click', ()=> showNameInput());
 
-      // שופי – סגירה
-      $('#coachClose')?.addEventListener('click',()=>{ coachHidden=true; hideCoach(); });
+      // Coach close
+      $('#coachClose')?.addEventListener('click', ()=>{ coachHidden=true; hideCoach(); });
 
-      // אודיו – כפתור השתקה
-      initAudioToggle();
-
-      // אם הטאב חזר לפוקוס בספארי
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') { try { getAudioCtx(); } catch {} }
-      });
-
-      // הצגת שופי במסך פתיחה
-      showCoach('אני שופי ואני אהיה איתך בזמן התרגול', 'default');
+      // פתיחה
+      focusTop('#welcomeTitle');
+      showCoach('ברוכים הבאים! לחצו "התחל משחק".', 'default');
+      try{ placeCoach('default'); }catch{}
     });
   </script>
 </body>
