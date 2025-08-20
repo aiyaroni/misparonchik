@@ -275,6 +275,7 @@
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full">
       <div class="text-5xl mb-4">⚡</div>
       <h2 id="difficultyTitle" tabindex="-1" class="no-focus-outline text-3xl sm:text-4xl font-bold text-blue-600 mb-6">איזו רמת קושי מתאימה לך היום?</h2>
+
       <div class="flex flex-col gap-4 mb-2">
         <button type="button" data-diff="easy" class="choice-card diff-btn" data-tint="green" aria-pressed="false">
           <span class="accent" aria-hidden="true"></span>
@@ -412,7 +413,7 @@
     </div>
   </div>
 
-  <!-- Tutorial (per mistake) -->
+  <!-- Tutorial -->
   <div id="tutorialScreen" class="hidden min-h-screen p-6">
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="text-center mb-8">
@@ -666,6 +667,21 @@
       refreshCurriculumOverflow();
     }
 
+    /* ========= Selection helper ========= */
+    function selectChoice(containerSel,itemSel,onChange){
+      const cont=$(containerSel); if(!cont) return;
+      cont.addEventListener('click', e=>{
+        const btn=e.target.closest(itemSel); if(!btn||!cont.contains(btn)) return;
+        $$(containerSel+' '+itemSel).forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
+        btn.classList.add('selected'); btn.setAttribute('aria-pressed','true');
+        onChange && onChange(btn);
+      });
+      cont.addEventListener('keydown', e=>{
+        const btn=e.target.closest(itemSel); if(!btn||!cont.contains(btn)) return;
+        if(e.key==='Enter'||e.key===' '){ e.preventDefault(); btn.click(); }
+      });
+    }
+
     /* ========= Question generation ========= */
     function getEffectiveRules(diff){
       const base=Object.assign({},rulesByDifficulty[diff]);
@@ -740,15 +756,37 @@
       trapDialog('#userPickerModal');
     }
 
+    // ✅ FIX: משתמש פעיל קודם, ורק אם אין — נבקש שם מהמסך
     function showCurriculumSelect(){
-      const inp=$('#playerName'); const name=(inp?.value||'').trim(); if(!name){ alert('אנא הכנס את שמך'); inp?.focus(); return; }
-      playerName=name; ensureProfileByName(name);
+      let name = '';
+      const prof = getActiveProfile();
+      if (prof && prof.name) {
+        name = prof.name.trim();
+      } else {
+        const inp = $('#playerName');
+        const typed = (inp?.value || '').trim();
+        if (!typed) {
+          alert('אנא הכנס את שמך');
+          inp?.focus();
+          return;
+        }
+        name = typed;
+      }
+
+      playerName = name;
+      ensureProfileByName(name);
+
       showScreen('curriculumScreen');
+
       currentCurriculum=null;
       $$('#curriculumGrid .choice-card').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
       const btn=$('#curriculumNext'); btn.disabled=true; btn.setAttribute('aria-disabled','true');
-      setCurriculumExpanded(false); requestAnimationFrame(refreshCurriculumOverflow);
-      focusTop('#curriculumTitle'); updateStatus('');
+
+      setCurriculumExpanded(false);
+      requestAnimationFrame(refreshCurriculumOverflow);
+
+      focusTop('#curriculumTitle');
+      updateStatus('');
     }
 
     function showOperationSelect(){
@@ -1008,13 +1046,12 @@
 
     function markActiveMistakeReviewed(){ if(!activeMistake) return; activeMistake.reviewed=true; }
 
-    /* === Numeric-only interactive demos (no balls/boxes) === */
+    /* === Numeric-only interactive demos === */
     function stepSetByMagnitude(maxVal){
-      if(maxVal<=20) return [5,1];        // כולל +1 ו+5
-      if(maxVal<=100) return [10,5,1];    // עד 100
-      return [100,50,20,10,5,1];          // מעל 100
+      if(maxVal<=20) return [5,1];
+      if(maxVal<=100) return [10,5,1];
+      return [100,50,20,10,5,1];
     }
-
     function makeStepButton(label,onClick){
       const b=document.createElement('button');
       b.className='chip';
@@ -1022,106 +1059,50 @@
       b.onclick=()=>{ unlockAudioOnce(); onClick(); };
       return b;
     }
-
-    // Addition/Subtraction: general numeric stepper toward target
     function numericStepper({start,target,allowNegative=false}){
       const area=$('#interactiveContent'), info=$('#interactiveInstructions');
-      area.innerHTML='';
-      let cur=start;
-
+      area.innerHTML=''; let cur=start;
       const bigBox=document.createElement('div');
       bigBox.className='inline-flex items-center justify-center text-4xl font-extrabold text-gray-900 rounded-2xl border-2 border-blue-300 bg-white px-8 py-5 mb-2 ltr tabular-nums';
       bigBox.textContent=cur; area.appendChild(bigBox);
-
-      const hint=document.createElement('div');
-      hint.className='text-sm text-gray-600 mb-2'; hint.textContent=`מטרה: ${target}`; area.appendChild(hint);
-
+      const hint=document.createElement('div'); hint.className='text-sm text-gray-600 mb-2'; hint.textContent=`מטרה: ${target}`; area.appendChild(hint);
       const steps=stepSetByMagnitude(Math.max(Math.abs(start),Math.abs(target)));
       const row=document.createElement('div'); row.className='flex flex-wrap gap-3 justify-center';
-      steps.forEach(s=>{
-        row.appendChild(makeStepButton('+'+s,()=>{ cur+=s; update(); }));
-      });
-      if(allowNegative){
-        steps.forEach(s=>{
-          row.appendChild(makeStepButton('−'+s,()=>{ cur-=s; update(); }));
-        });
-      }
+      steps.forEach(s=> row.appendChild(makeStepButton('+'+s,()=>{ cur+=s; update(); })));
+      if(allowNegative){ steps.forEach(s=> row.appendChild(makeStepButton('−'+s,()=>{ cur-=s; update(); }))); }
       area.appendChild(row);
-
-      const reset=document.createElement('button');
-      reset.className='chip mt-2'; reset.textContent='איפוס';
-      reset.onclick=()=>{ cur=start; update(); };
-      area.appendChild(reset);
-
+      const reset=document.createElement('button'); reset.className='chip mt-2'; reset.textContent='איפוס'; reset.onclick=()=>{ cur=start; update(); }; area.appendChild(reset);
       function update(){
         bigBox.textContent=cur;
-        if(cur===target){
-          info.textContent='בול! הגעת לתוצאה המבוקשת 🎉';
-          info.className='text-green-600 font-bold text-lg';
-          markActiveMistakeReviewed();
-        }else{
-          const dir = cur<target ? 'העלה' : 'הורד';
-          info.textContent=`${dir} את המספר עד ${target}`;
-          info.className='text-gray-600';
-        }
+        if(cur===target){ info.textContent='בול! הגעת לתוצאה המבוקשת 🎉'; info.className='text-green-600 font-bold text-lg'; markActiveMistakeReviewed(); }
+        else{ const dir=cur<target?'העלה':'הורד'; info.textContent=`${dir} את המספר עד ${target}`; info.className='text-gray-600'; }
       }
       update();
     }
-
-    // Multiplication: add groups numerically (no items rendering)
     function groupsNumericDemo(groupsNeeded, groupSize){
-      const area=$('#interactiveContent'), info=$('#interactiveInstructions');
-      area.innerHTML='';
-      let groups=0;
-
-      const totalBox=document.createElement('div');
-      totalBox.className='text-2xl font-extrabold text-gray-900 ltr tabular-nums';
-      const groupsBox=document.createElement('div');
-      groupsBox.className='text-xl font-bold text-blue-700';
-
-      const top=document.createElement('div');
-      top.className='flex flex-col items-center gap-1';
-      top.appendChild(groupsBox); top.appendChild(totalBox);
-      area.appendChild(top);
-
+      const area=$('#interactiveContent'), info=$('#interactiveInstructions'); area.innerHTML=''; let groups=0;
+      const totalBox=document.createElement('div'); totalBox.className='text-2xl font-extrabold text-gray-900 ltr tabular-nums';
+      const groupsBox=document.createElement('div'); groupsBox.className='text-xl font-bold text-blue-700';
+      const top=document.createElement('div'); top.className='flex flex-col items-center gap-1'; top.appendChild(groupsBox); top.appendChild(totalBox); area.appendChild(top);
       const steps=stepSetByMagnitude(groupsNeeded);
       const row=document.createElement('div'); row.className='flex flex-wrap gap-3 justify-center my-3';
       steps.forEach(s=> row.appendChild(makeStepButton('+'+s+' קבוצות',()=>{ groups=Math.min(groupsNeeded, groups+s); update(); })));
-      row.appendChild(makeStepButton('איפוס',()=>{ groups=0; update(); }));
-      area.appendChild(row);
-
+      row.appendChild(makeStepButton('איפוס',()=>{ groups=0; update(); })); area.appendChild(row);
       function update(){
         groupsBox.textContent=`קבוצות: ${groups}/${groupsNeeded} (כל קבוצה ${groupSize})`;
         totalBox.textContent=`סה״כ פריטים: ${groups*groupSize}`;
-        if(groups>=groupsNeeded){
-          info.textContent=`מעולה! ${groupsNeeded}×${groupSize} = ${groupsNeeded*groupSize} 🎉`;
-          info.className='text-green-600 font-bold text-lg';
-          markActiveMistakeReviewed();
-        }else{
-          info.textContent=`הוסיפו קבוצות עד ${groupsNeeded}`;
-          info.className='text-gray-600';
-        }
+        if(groups>=groupsNeeded){ info.textContent=`מעולה! ${groupsNeeded}×${groupSize} = ${groupsNeeded*groupSize} 🎉`; info.className='text-green-600 font-bold text-lg'; markActiveMistakeReviewed(); }
+        else{ info.textContent=`הוסיפו קבוצות עד ${groupsNeeded}`; info.className='text-gray-600'; }
       }
       update();
     }
-
-    // Division: add groups numerically until dividend is exhausted
     function divisionNumericDemo(dividend, groupSize, groupsNeeded){
-      const area=$('#interactiveContent'), info=$('#interactiveInstructions');
-      area.innerHTML='';
+      const area=$('#interactiveContent'), info=$('#interactiveInstructions'); area.innerHTML='';
       let groups=0, remaining=dividend;
-
-      const remBox=document.createElement('div');
-      remBox.className='text-xl font-bold text-purple-700';
-      const groupsBox=document.createElement('div');
-      groupsBox.className='text-xl font-bold text-purple-700';
-      const bigRes=document.createElement('div');
-      bigRes.className='text-2xl font-extrabold text-gray-900 ltr tabular-nums mt-1 text-center';
-
-      const top=document.createElement('div');
-      top.className='grid grid-cols-1 sm:grid-cols-2 gap-3 items-start justify-center mb-2';
-      top.appendChild(remBox); top.appendChild(groupsBox); area.appendChild(top); area.appendChild(bigRes);
-
+      const remBox=document.createElement('div'); remBox.className='text-xl font-bold text-purple-700';
+      const groupsBox=document.createElement('div'); groupsBox.className='text-xl font-bold text-purple-700';
+      const bigRes=document.createElement('div'); bigRes.className='text-2xl font-extrabold text-gray-900 ltr tabular-nums mt-1 text-center';
+      const top=document.createElement('div'); top.className='grid grid-cols-1 sm:grid-cols-2 gap-3 items-start justify-center mb-2'; top.appendChild(remBox); top.appendChild(groupsBox); area.appendChild(top); area.appendChild(bigRes);
       const steps=stepSetByMagnitude(groupsNeeded);
       const row=document.createElement('div'); row.className='flex flex-wrap gap-3 justify-center my-3';
       steps.forEach(s=> row.appendChild(makeStepButton('+'+s+' קבוצות',()=>{
@@ -1130,79 +1111,32 @@
         remaining=Math.max(0, remaining - canAdd*groupSize);
         update();
       })));
-      row.appendChild(makeStepButton('איפוס',()=>{ groups=0; remaining=dividend; update(); }));
-      area.appendChild(row);
-
+      row.appendChild(makeStepButton('איפוס',()=>{ groups=0; remaining=dividend; update(); })); area.appendChild(row);
       function update(){
         remBox.textContent=`נשאר לחלק: ${remaining}`;
         groupsBox.textContent=`קבוצות: ${groups}/${groupsNeeded} (כל קבוצה ${groupSize})`;
         bigRes.textContent=`חולקו: ${groups*groupSize} מתוך ${dividend}`;
-        if(groups>=groupsNeeded || remaining<=0){
-          groups=groupsNeeded; remaining=0;
-          info.textContent=`מעולה! ${dividend} ÷ ${groupSize} = ${groupsNeeded} 🎉`;
-          info.className='text-green-600 font-bold text-lg';
-          markActiveMistakeReviewed();
-        }else{
-          info.textContent=`צרו קבוצות עד שתחלקו את כל ה־${dividend}`;
-          info.className='text-gray-600';
-        }
+        if(groups>=groupsNeeded || remaining<=0){ groups=groupsNeeded; remaining=0; info.textContent=`מעולה! ${dividend} ÷ ${groupSize} = ${groupsNeeded} 🎉`; info.className='text-green-600 font-bold text-lg'; markActiveMistakeReviewed(); }
+        else{ info.textContent=`צרו קבוצות עד שתחלקו את כל ה־${dividend}`; info.className='text-gray-600'; }
       }
       update();
     }
-
-    // Create numeric interactive demo according to operation
     function createInteractiveDemoNumeric(q){
-      const area=$('#interactiveContent'), info=$('#interactiveInstructions');
-      area.innerHTML=''; info.className='text-gray-600';
-
+      const area=$('#interactiveContent'), info=$('#interactiveInstructions'); area.innerHTML=''; info.className='text-gray-600';
       const {operation,num1,num2,answer}=q;
-
-      if(operation==='addition'){
-        // לבנות את המספר בעזרת צעדים — מתחילים מ-0 ועד לתשובה
-        numericStepper({start:0, target:answer, allowNegative:true});
-        info.textContent=`בנו את ${answer} בעזרת כפתורי מספרים (אפשר גם לחזור אחורה אם עברתם).`;
-        return;
-      }
-
-      if(operation==='subtraction'){
-        // מתחילים מהמספר הראשון ומגיעים לתוצאה בעזרת חיסור/הוספה
-        numericStepper({start:num1, target:answer, allowNegative:true});
-        info.textContent=`התחילו מ־${num1} והשתמשו בחיסור (ואם צריך בהוספה) כדי להגיע ל־${answer}.`;
-        return;
-      }
-
-      if(operation==='multiplication'){
-        groupsNumericDemo(num1, num2);
-        info.textContent=`הוסיפו קבוצות בגודל ${num2} עד שתגיעו ל־${num1} קבוצות.`;
-        return;
-      }
-
-      if(operation==='division'){
-        const dividend=num1*num2, size=num2, groupsNeeded=answer;
-        divisionNumericDemo(dividend, size, groupsNeeded);
-        info.textContent=`צרו קבוצות של ${size} עד שתחלקו את כל ה־${dividend}.`;
-        return;
-      }
+      if(operation==='addition'){ numericStepper({start:0, target:answer, allowNegative:true}); info.textContent=`בנו את ${answer} בעזרת כפתורי מספרים (אפשר גם לחזור אחורה אם עברתם).`; return; }
+      if(operation==='subtraction'){ numericStepper({start:num1, target:answer, allowNegative:true}); info.textContent=`התחילו מ־${num1} והשתמשו בחיסור (ואם צריך בהוספה) כדי להגיע ל־${answer}.`; return; }
+      if(operation==='multiplication'){ groupsNumericDemo(num1, num2); info.textContent=`הוסיפו קבוצות בגודל ${num2} עד שתגיעו ל־${num1} קבוצות.`; return; }
+      if(operation==='division'){ const dividend=num1*num2, size=num2, groupsNeeded=answer; divisionNumericDemo(dividend, size, groupsNeeded); info.textContent=`צרו קבוצות של ${size} עד שתחלקו את כל ה־${dividend}.`; return; }
     }
 
     /* ========= Why-tip ========= */
     function getWhyTip(m){
-      const {operation,num1,num2,answer}=m.question; const ua=m.userAnswer;
-      if(operation==='addition'){
-        if(ua===num1-num2) return 'נראה שחיסרת במקום לחבר.';
-        return 'השתמש/י בצעדים גדולים (+10/‏+5) ואז לדייק עם +1.';
-      }
-      if(operation==='subtraction'){
-        if(ua===num1+num2) return 'נראה שחיברת במקום לחסר.';
-        return 'התחל/י מ־'+num1+' וחסר/י בצעדים גדולים (−10/‏−5) ואז דייק/י עם −1.';
-      }
-      if(operation==='multiplication'){
-        if(ua===num1+num2) return 'כפל הוא קבוצות שוות, לא חיבור חד־פעמי.';
-        return 'הוסיפו קבוצות (לא פריטים) עד שמספר הקבוצות שווה ל־'+num1+'.';
-      }
-      if(operation==='division'){
-        return 'צרו קבוצות שוות והפסיקו כשאין מה לחלק — מספר הקבוצות הוא התשובה.';
-      }
+      const {operation,num1,num2}=m.question; const ua=m.userAnswer;
+      if(operation==='addition'){ if(ua===num1-num2) return 'נראה שחיסרת במקום לחבר.'; return 'השתמש/י בצעדים גדולים (+10/‏+5) ואז לדייק עם +1.'; }
+      if(operation==='subtraction'){ if(ua===num1+num2) return 'נראה שחיברת במקום לחסר.'; return 'התחל/י מ־'+num1+' וחסר/י בצעדים גדולים (−10/‏−5) ואז דייק/י עם −1.'; }
+      if(operation==='multiplication'){ if(ua===num1+num2) return 'כפל הוא קבוצות שוות, לא חיבור חד־פעמי.'; return 'הוסיפו קבוצות (לא פריטים) עד שמספר הקבוצות שווה ל־'+num1+'.'; }
+      if(operation==='division'){ return 'צרו קבוצות שוות והפסיקו כשאין מה לחלק — מספר הקבוצות הוא התשובה.'; }
       return '';
     }
 
@@ -1240,20 +1174,7 @@
       }
     }
 
-    /* ========= Selection helpers ========= */
-    function selectChoice(containerSel,itemSel,onChange){
-      const cont=$(containerSel); if(!cont) return;
-      cont.addEventListener('click',e=>{
-        const btn=e.target.closest(itemSel); if(!btn||!cont.contains(btn)) return;
-        $$(containerSel+' '+itemSel).forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
-        btn.classList.add('selected'); btn.setAttribute('aria-pressed','true');
-        onChange && onChange(btn);
-      });
-      cont.addEventListener('keydown',e=>{
-        const btn=e.target.closest(itemSel); if(!btn||!cont.contains(btn)) return;
-        if(e.key==='Enter'||e.key===' '){ e.preventDefault(); btn.click(); }
-      });
-    }
+    /* ========= Operation next btn ========= */
     function updateOperationNextState(){
       const nextBtn=$('#operationNext'); const enabled=!!currentOperation && !!questionCount;
       nextBtn.disabled=!enabled; nextBtn.setAttribute('aria-disabled', enabled?'false':'true');
@@ -1316,59 +1237,50 @@
       }
     }
 
-    /* ========= Wiring ========= */
-    function selectChoice(containerSel,itemSel,onChange){ /* already defined above; kept for clarity */ }
-
+    /* ========= Bind everything ========= */
     function bindNavigationAndActions(){
-      // First user gesture unlocks audio
       window.addEventListener('touchstart', unlockAudioOnce, { once:true, passive:true });
       window.addEventListener('touchend',   unlockAudioOnce, { once:true, passive:true });
       window.addEventListener('pointerdown',unlockAudioOnce, { once:true, capture:true });
       window.addEventListener('click',      unlockAudioOnce, { once:true, capture:true });
 
-      // Welcome → Name
       $('#startBtn')?.addEventListener('click', e=>{ e.preventDefault(); unlockAudioOnce(); showNameInput(); });
-
-      // Name form
       $('#nameForm')?.addEventListener('submit', e=>{ e.preventDefault(); unlockAudioOnce(); showCurriculumSelect(); });
 
-      // Switch / Profile from name
       $('#profileOrSwitchBtn')?.addEventListener('click',()=>{ const arr=profilesArr(); if(arr.length>1) showUserPicker(); else showProfile(); });
 
-      // Modal
       $('#userPickerCancel')?.addEventListener('click',()=> $('#userPickerModal').classList.add('hidden'));
       $('#newUserBtn')?.addEventListener('click',()=>{ $('#userPickerModal').classList.add('hidden'); $('#playerName').value=''; $('#playerName').focus(); });
 
-      // Global profile buttons
       $('#profileBtn')?.addEventListener('click',()=> showProfile());
       $('#profileFromResultsBtn')?.addEventListener('click',()=> showProfile());
-      $('#profileSwitchBtn')?.addEventListener('click',()=>{ if(profilesArr().length>1) showUserPicker(); });
-      $('#profileNewBtn')?.addEventListener('click',()=>{ store.activeId=null; saveStore(); showNameInput(); });
+
+      // ✅ FIX: "התחל משחק" באיזור האישי יתחיל זרימה חדשה עם המשתמש הפעיל, בלי דרישת שם
       $('#profileStartBtn')?.addEventListener('click',()=>{
-        const prof=getActiveProfile(); if(!prof){ showNameInput(); return; }
-        playerName=prof.name; showCurriculumSelect();
+        const prof=getActiveProfile();
+        if(!prof){ showNameInput(); return; }
+        playerName=prof.name;
+        showCurriculumSelect(); // יזהה את המשתמש הפעיל וימשיך לבחירת תכנית
       });
 
-      // Curriculum selection
+      $('#profileSwitchBtn')?.addEventListener('click',()=>{ if(profilesArr().length>1) showUserPicker(); });
+      $('#profileNewBtn')?.addEventListener('click',()=>{ store.activeId=null; saveStore(); showNameInput(); });
+
       selectChoice('#curriculumGrid','.choice-card',(btn)=>{ currentCurriculum=btn.getAttribute('data-value'); const next=$('#curriculumNext'); next.disabled=false; next.setAttribute('aria-disabled','false'); });
       $('#curriculumNext')?.addEventListener('click',()=> showOperationSelect());
       $('#curriculumMore')?.addEventListener('click',()=> setCurriculumExpanded(!isCurriculumExpanded));
       window.addEventListener('resize', refreshCurriculumOverflow);
 
-      // Operation selection
       selectChoice('#opsGrid','.op-btn',(btn)=>{ currentOperation=btn.getAttribute('data-op'); updateOperationNextState(); });
       selectChoice('#questionChips','.chip',(chip)=>{ questionCount=parseInt(chip.getAttribute('data-count'),10); updateOperationNextState(); });
       $('#operationNext')?.addEventListener('click',()=> showDifficultySelect());
 
-      // Difficulty → start
       selectChoice('#difficultyScreen','.diff-btn',(btn)=>{ startGame(btn.getAttribute('data-diff')); });
 
-      // Game
       bindAnswerGrid();
       $('#confirmButton')?.addEventListener('click',confirmAnswer);
       $('#restartBtn')?.addEventListener('click',()=> showNameInput());
 
-      // Results
       $('#retryBtn')?.addEventListener('click',()=>{
         if(!currentOperation || !questionCount || !currentDifficulty){ showOperationSelect(); }
         else{ startGame(currentDifficulty); }
@@ -1376,7 +1288,6 @@
       $('#mistakesButton')?.addEventListener('click',()=> showMistakes());
       $('#altBtn')?.addEventListener('click',()=> showOperationSelect());
 
-      // Mistakes & Tutorial
       $('#backToResults')?.addEventListener('click',()=> showResults());
       $('#restartFromMistakes')?.addEventListener('click',()=> showNameInput());
       $('#backToMistakes')?.addEventListener('click',()=> showMistakes());
