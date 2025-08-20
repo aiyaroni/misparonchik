@@ -13,13 +13,16 @@
     .owl-blink{animation:blink 2s infinite}
     @keyframes blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
 
+    /* הסרת מסגרת פוקוס רק לכותרות שאנו ממקדים אליהן תכנותית */
+    .no-focus-outline:focus{outline:none !important; box-shadow:none !important}
+
     /* ===== קישור־כפתור בפופאפ שם ===== */
     .link-cta{
       display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
       margin:.5rem auto 1rem;
       font-weight:800;
-      font-size: calc(1rem + 2px); /* +2px לפי הבקשה */
-      color:#111827; /* אפור פחם כהה */
+      font-size: calc(1rem + 2px);
+      color:#111827;
       text-decoration:underline;
       cursor:pointer;
       background:transparent; border:none; padding:.25rem .5rem; border-radius:.5rem;
@@ -77,26 +80,11 @@
     .chip:hover{transform:translateY(-2px)}
     .chip.selected{border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.20)}
 
-    /* וידג׳ט שופי – דסקטופ: בועה צפה */
-    #coach{position:fixed;right:16px;bottom:24px;z-index:40;display:none}
-    #coach .coach-inner{display:flex;align-items:flex-start;gap:.75rem;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.18);padding:.75rem 1rem;border:1px solid #e5e7eb;max-width:min(90vw,360px)}
-    #coachClose{position:absolute;top:6px;right:8px;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;background:transparent;border:none;cursor:pointer;color:#4b5563}
-    #coachClose:hover{background:rgba(0,0,0,.06);color:#111827}
-
-    /* מובייל: בר תחתון דביק */
-    @media (max-width:640px){
-      #coach{
-        position:fixed;left:0;right:0;bottom:0;z-index:40;display:none;
-        padding:0 12px calc(12px + env(safe-area-inset-bottom));
-      }
-      #coach .coach-inner{
-        width:100%;max-width:none;border-radius:16px 16px 0 0;
-        box-shadow:0 -8px 20px rgba(0,0,0,.12);
-      }
-      body.with-coach-pad{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+    /* כפתור השתקת אודיו + אזור אישי – ביחד בעמודה שמאלית עם רווח קבוע */
+    #floatingControls{
+      position:fixed; left:16px; top:16px; z-index:50;
+      display:flex; flex-direction:column; gap:10px;
     }
-
-    /* כפתור השתקת אודיו + אזור אישי קבוע */
     #audioToggle,#profileBtn{padding:.5rem .7rem;border-radius:9999px;background:rgba(255,255,255,.95);border:1px solid #e5e7eb;box-shadow:0 6px 20px rgba(0,0,0,.12)}
     #audioToggle[aria-pressed="true"] .muted{display:inline}
     #audioToggle[aria-pressed="true"] .unmuted{display:none}
@@ -125,35 +113,24 @@
     @media (prefers-reduced-motion: reduce){
       .owl-blink{ animation:none }
     }
-
-    /* ===== Mobile-only layout fixes (Coach + Personal Area button) ===== */
-    @media (max-width:640px){
-      /* יותר מרווח כשה-Coach פתוח שלא יסתיר כפתורים */
-      body.with-coach-pad{
-        padding-bottom: calc(120px + env(safe-area-inset-bottom));
-      }
-      /* כפתור האזור האישי יורד לתחתית ימין מעל שופי */
-      #profileBtn{
-        top: auto !important;
-        bottom: calc(120px + env(safe-area-inset-bottom) + 12px) !important;
-        right: 12px !important;
-      }
-    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-blue-100 via-purple-50 to-green-100 min-h-screen">
-  <!-- Floating buttons -->
-  <button id="audioToggle" class="fixed left-4 top-4 z-50" type="button" aria-label="החלפת מצב צליל" aria-pressed="false" title="הצליל פעיל">
-    <span class="unmuted" aria-hidden="true">🔊</span>
-    <span class="muted" aria-hidden="true">🔇</span>
-  </button>
-  <button id="profileBtn" class="fixed right-4 top-4 z-50" type="button" aria-label="אזור אישי" title="אזור אישי">👤</button>
+
+  <!-- Floating controls: Mute + Profile (שניהם בצד שמאל למעלה, אחד מתחת לשני) -->
+  <div id="floatingControls" aria-label="בקרות מהירות">
+    <button id="audioToggle" type="button" aria-label="החלפת מצב צליל" aria-pressed="false" title="הצליל פעיל">
+      <span class="unmuted" aria-hidden="true">🔊</span>
+      <span class="muted" aria-hidden="true">🔇</span>
+    </button>
+    <button id="profileBtn" type="button" aria-label="אזור אישי" title="אזור אישי">👤</button>
+  </div>
 
   <!-- Welcome Screen -->
   <div id="welcomeScreen" class="flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
       <div class="text-6xl mb-4 owl-blink">🦉</div>
-      <h1 id="welcomeTitle" tabindex="-1" class="text-4xl font-bold text-purple-600 mb-4">מספרונצ'יק</h1>
+      <h1 id="welcomeTitle" tabindex="-1" class="no-focus-outline text-4xl font-bold text-purple-600 mb-4">מספרונצ'יק</h1>
       <p class="text-2xl text-gray-700 mb-8">בואו ללמוד חשבון עם שופי הינשוף</p>
       <button type="button" id="startBtn" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-lg">התחל משחק</button>
     </div>
@@ -167,10 +144,9 @@
   <div id="nameScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <form id="nameForm" class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
       <div class="text-5xl mb-4">👋</div>
-      <h2 id="nameTitle" tabindex="-1" class="text-3xl font-bold text-blue-600 mb-2">איך קוראים לך?</h2>
+      <h2 id="nameTitle" tabindex="-1" class="no-focus-outline text-3xl font-bold text-blue-600 mb-2">איך קוראים לך?</h2>
       <p id="nameSubtitle" class="text-gray-600 mb-4 hidden"></p>
       <input type="text" id="playerName" name="playerName" required placeholder="הכנס את שמך כאן" class="w-full p-4 text-xl border-2 border-gray-300 rounded-xl mb-3 text-center focus:border-blue-500 focus:outline-none">
-      <!-- כפתור יחיד: החלף משתמש / אזור אישי -->
       <div class="text-center mb-6">
         <button type="button" id="profileOrSwitchBtn" class="link-cta">החלף משתמש / אזור אישי</button>
       </div>
@@ -194,10 +170,9 @@
   <div id="curriculumScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-3xl w-full">
       <div class="text-5xl mb-4">📚</div>
-      <h2 id="curriculumTitle" tabindex="-1" class="text-3xl md:text-4xl font-extrabold text-green-600 mb-2 leading-tight">יש לבחור תכנית לימוד</h2>
+      <h2 id="curriculumTitle" tabindex="-1" class="no-focus-outline text-3xl md:text-4xl font-extrabold text-green-600 mb-2 leading-tight">יש לבחור תכנית לימוד</h2>
       <p class="subhead mb-6">בחרו את התכנית המתאימה, ואז לחצו על "המשך"</p>
 
-      <!-- עטיפה מאפשרת דהייה תחתונה -->
       <div id="curriculumWrapper" class="relative mb-6">
         <div id="curriculumGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 curriculum-collapsed">
           <button type="button" class="choice-card" data-tint="blue" data-value="none" aria-pressed="false">
@@ -252,7 +227,6 @@
         <div id="curriculumFade" class="hidden"></div>
       </div>
 
-      <!-- "הצג עוד" לצד "המשך" -->
       <div class="flex items-center justify-center gap-3 flex-wrap">
         <button id="curriculumMore" type="button" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 font-bold hidden" aria-expanded="false">הצג עוד</button>
         <button id="curriculumNext" class="confirm-button bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-full text-xl font-bold shadow-lg disabled:opacity-50" disabled aria-disabled="true">המשך</button>
@@ -264,7 +238,7 @@
   <div id="operationScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-3xl w-full">
       <div class="text-5xl mb-4">🎯</div>
-      <h2 id="operationTitle" tabindex="-1" class="text-3xl md:text-4xl font-extrabold text-green-600 mb-2 leading-tight">עכשיו יש לבחור את סוג התרגילים</h2>
+      <h2 id="operationTitle" tabindex="-1" class="no-focus-outline text-3xl md:text-4xl font-extrabold text-green-600 mb-2 leading-tight">עכשיו יש לבחור את סוג התרגילים</h2>
       <h3 class="subhead mb-6">בחרו סוג תרגיל ומספר שאלות</h3>
 
       <div id="opsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
@@ -314,7 +288,7 @@
   <div id="difficultyScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full">
       <div class="text-5xl mb-4">⚡</div>
-      <h2 id="difficultyTitle" tabindex="-1" class="text-3xl sm:text-4xl font-bold text-blue-600 mb-6">איזו רמת קושי מתאימה לך היום?</h2>
+      <h2 id="difficultyTitle" tabindex="-1" class="no-focus-outline text-3xl sm:text-4xl font-bold text-blue-600 mb-6">איזו רמת קושי מתאימה לך היום?</h2>
 
       <div class="flex flex-col gap-4 mb-2">
         <button type="button" data-diff="easy" class="choice-card diff-btn" data-tint="green" aria-pressed="false">
@@ -346,11 +320,13 @@
       <div class="w-full bg-gray-200 rounded-full h-4" aria-hidden="true">
         <div id="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" class="bg-gradient-to-r from-green-400 to-blue-500 h-4 rounded-full" style="width: 0%"></div>
       </div>
+      <!-- סטטוס לטובת קוראי מסך בלבד (הסרנו את ווידג׳ט שופי) -->
+      <div id="statusMsg" class="sr-only" aria-live="polite"></div>
     </div>
 
     <div class="bg-white rounded-3xl shadow-2xl p-6 mb-6 mx-auto max-w-lg text-center">
       <div class="text-5xl mb-4 owl-blink">🦉</div>
-      <div id="questionText" tabindex="-1" class="text-3xl font-bold text-gray-800 mb-6 ltr">5 + 3 = ?</div>
+      <div id="questionText" tabindex="-1" class="no-focus-outline text-3xl font-bold text-gray-800 mb-6 ltr">5 + 3 = ?</div>
       <div class="subhead text-gray-700 mb-4">יש לבחור את התשובה הנכונה</div>
     </div>
 
@@ -380,7 +356,7 @@
     </div>
 
     <!-- Feedback Modal (רק לסוף הסט) -->
-    <div id="feedback" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div id="feedback" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div role="dialog" aria-modal="true" aria-labelledby="feedbackText" class="bg-white rounded-3xl p-8 text-center max-w-md mx-4">
         <div id="feedbackIcon" class="text-8xl mb-4">🎉</div>
         <div id="feedbackText" aria-live="polite" class="text-2xl font-bold mb-6">כל הכבוד!</div>
@@ -393,7 +369,7 @@
   <div id="resultsScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full relative overflow-hidden">
       <div class="text-8xl mb-4">🏆</div>
-      <h2 id="resultsTitle" tabindex="-1" class="text-3xl font-bold text-green-600 mb-4">כל הכבוד!</h2>
+      <h2 id="resultsTitle" tabindex="-1" class="no-focus-outline text-3xl font-bold text-green-600 mb-4">כל הכבוד!</h2>
       <div class="mb-6">
         <div class="flex justify-between items-center mb-2">
           <span class="text-sm font-medium text-gray-600">הביצועים שלך:</span>
@@ -433,7 +409,7 @@
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="text-center mb-8">
         <div class="text-6xl mb-4">📚</div>
-        <h2 id="mistakesTitle" tabindex="-1" class="text-3xl font-bold text-orange-600 mb-4">למד מהטעויות</h2>
+        <h2 id="mistakesTitle" tabindex="-1" class="no-focus-outline text-3xl font-bold text-orange-600 mb-4">למד מהטעויות</h2>
         <div class="mb-6 max-w-md mx-auto">
           <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden mb-3">
             <div id="mistakesPerformanceBar" class="h-4 rounded-full transition-all duration-1000 flex" aria-label="Performance summary">
@@ -458,7 +434,7 @@
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="text-center mb-8">
         <div class="text-6xl mb-4">🎓</div>
-        <h2 id="tutorialTitle" tabindex="-1" class="text-3xl font-bold text-blue-600 mb-4 ltr">7 ÷ 5 = ?</h2>
+        <h2 id="tutorialTitle" tabindex="-1" class="no-focus-outline text-3xl font-bold text-blue-600 mb-4 ltr">7 ÷ 5 = ?</h2>
         <p class="text-lg text-gray-600">בואו נלמד יחד איך לפתור את השאלה הזו!</p>
       </div>
       <div id="tutorialSteps" class="space-y-8 mb-8"></div>
@@ -512,22 +488,12 @@
     </div>
   </div>
 
-  <!-- Shufi Coach Widget -->
-  <div id="coach" aria-live="polite">
-    <div class="coach-inner relative">
-      <div class="text-3xl mr-1" aria-hidden="true">🦉</div>
-      <p id="coachMsg" class="text-base sm:text-lg text-gray-800 leading-snug">היי! אני שופי. בהצלחה!</p>
-      <button id="coachClose" aria-label="סגור">×</button>
-    </div>
-  </div>
-
   <script>
     /* ========= State ========= */
     let currentOperation=null, currentDifficulty='easy', currentQuestionIndex=0;
     let correctCount=0, totalQuestions=6, questions=[], mistakes=[];
     let startTime=0, totalTime=0, playerName='', selectedAnswer=null;
     let questionCount=null, currentCurriculum=null;
-    let coachHidden=false;
     let activeMistake=null;
 
     /* ========= Store (local profiles) ========= */
@@ -559,7 +525,6 @@
     function profilesArr(){ return Object.entries(store.profiles).map(([id,p])=>({id,...p})); }
     function getActiveProfile(){ return store.activeId ? store.profiles[store.activeId]||null : null; }
     function setActiveProfile(id){
-      if(!store.proiles && !store.profiles) return; // guard
       if(!store.profiles[id]) return;
       store.activeId = id;
       store.profiles[id].lastSeen = Date.now();
@@ -645,25 +610,14 @@
       });
     }
 
-    /* ========= Coach (Shufi) ========= */
-    function showCoach(msg, ctx='default'){
-      if (coachHidden) return;
-      const el = $('#coach'); const txt = $('#coachMsg');
-      if (!el || !txt) return;
-      txt.textContent = msg || 'בהצלחה!';
-      el.style.display = 'block';
-      placeCoach(ctx);
+    /* ========= UI status (החליף את ווידג׳ט שופי) ========= */
+    function updateStatus(msg){
+      const el = $('#statusMsg');
+      if(el) el.textContent = msg || '';
     }
-    function hideCoach(){
-      const el=$('#coach'); if(el) el.style.display='none';
-      document.body.classList.remove('with-coach-pad');
-    }
-    function placeCoach(ctx){
-      const el=$('#coach'); if(!el) return;
-      const isMobile = window.matchMedia('(max-width: 640px)').matches;
-      if (isMobile){ document.body.classList.add('with-coach-pad'); }
-      else { document.body.classList.remove('with-coach-pad'); el.style.right='16px'; el.style.bottom='24px'; }
-    }
+    function showCoach(msg){ updateStatus(msg); } // תאימות לאחור
+    function hideCoach(){ /* no-op */ }
+    function placeCoach(){ /* no-op */ }
 
     /* ========= Audio (Safari-safe) ========= */
     let isMuted = false;
@@ -773,7 +727,7 @@
       });
     }
 
-    // טיק על רוב הכפתורים (לא כולל השתקה) — גם הקליק הראשון ישמע
+    // טיק על רוב הכפתורים — גם הקליק הראשון ישמע
     document.addEventListener('click', e=>{
       const el=e.target.closest('button,.op-btn,.choice-card,.chip,.link-cta');
       if(!el||el.id==='audioToggle') return;
@@ -789,6 +743,14 @@
         playSelectTick();
       }
     });
+
+    /* ========= Screen switcher ========= */
+    const SCREENS = ['welcomeScreen','nameScreen','curriculumScreen','operationScreen','difficultyScreen','gameScreen','resultsScreen','mistakesScreen','tutorialScreen','profileScreen'];
+    function showScreen(id){
+      SCREENS.forEach(s=>{ const el=$('#'+s); if(el) el.classList.add('hidden'); });
+      const tgt = $('#'+id); if(tgt) tgt.classList.remove('hidden');
+      window.scrollTo({top:0,left:0,behavior:'auto'});
+    }
 
     /* ========= Curriculum gating ========= */
     function applyCurriculumToOperationButtons(){
@@ -818,9 +780,7 @@
       if(!grid || !more || !fade) return;
 
       const overflow = grid.scrollHeight > grid.clientHeight + 2;
-      // כפתור "הצג עוד" מוצג רק אם יש גלילה או אם פתוח כרגע
       more.classList.toggle('hidden', !overflow && !isCurriculumExpanded);
-      // דהייה רק כשהרשימה סגורה ויש גלילה
       fade.classList.toggle('hidden', isCurriculumExpanded || !overflow);
     }
 
@@ -870,20 +830,10 @@
 
     /* ========= Flow Screens ========= */
     function showNameInput(){
-      // הסתרה גורפת של כל המסכים
-      ['welcomeScreen','nameScreen','curriculumScreen','operationScreen','difficultyScreen','gameScreen',
-       'resultsScreen','mistakesScreen','tutorialScreen','profileScreen']
-       .forEach(id=>$('#'+id)?.classList.add('hidden'));
-
-      // הצגת מסך השם בלבד
-      $('#nameScreen').classList.remove('hidden');
-
-      hideCoach(); // כאן לא מציגים את שופי (פחות הפרעה)
-      focusTop('#nameTitle');
-
       const prof = getActiveProfile();
-      const subtitle = $('#nameSubtitle');
+      showScreen('nameScreen');
 
+      const subtitle = $('#nameSubtitle');
       if(prof){
         $('#playerName').value = prof.name;
         subtitle.textContent = `נעים לראותך שוב, ${prof.name}!`;
@@ -893,9 +843,8 @@
         subtitle.classList.add('hidden');
       }
 
-      // גלילה לראש + עדכון פריסת שופי (ליתר ביטחון)
-      window.scrollTo({top:0,left:0,behavior:'auto'});
-      try{ placeCoach('default'); }catch{}
+      focusTop('#nameTitle');
+      updateStatus('');
     }
 
     function trapDialog(modalSel){
@@ -917,7 +866,6 @@
       const list=$('#userList'); list.innerHTML='';
       const arr=profilesArr();
       if(arr.length<=1){
-        // אין עבור מי להחליף – פתח אזור אישי
         $('#userPickerModal').classList.add('hidden');
         showProfile();
         return;
@@ -930,56 +878,49 @@
           setActiveProfile(p.id);
           $('#playerName').value=p.name;
           $('#userPickerModal').classList.add('hidden');
-          // אם האזור האישי פתוח – רענון תצוגה
           if(!$('#profileScreen').classList.contains('hidden')) renderProfile();
         };
         list.appendChild(btn);
       });
       $('#userPickerModal').classList.remove('hidden');
-      trapDialog('#userPickerModal'); // מלכודת פוקוס
+      trapDialog('#userPickerModal');
     }
 
     function showCurriculumSelect(){
       const inp=$('#playerName'); const name=(inp?.value||'').trim(); if(!name){ alert('אנא הכנס את שמך'); inp?.focus(); return; }
       playerName=name;
-      ensureProfileByName(name); // יוצר/בוחר פרופיל
-      ['nameScreen','resultsScreen','mistakesScreen','tutorialScreen','operationScreen','difficultyScreen','gameScreen','profileScreen'].forEach(id=>$('#'+id)?.classList.add('hidden'));
-      $('#curriculumScreen').classList.remove('hidden');
+      ensureProfileByName(name);
+      showScreen('curriculumScreen');
+
       currentCurriculum=null;
       $$('#curriculumGrid .choice-card').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
       const btn=$('#curriculumNext'); btn.disabled=true; btn.setAttribute('aria-disabled','true');
 
-      // פתיחה במצב "סגור" + מדידה אם יש גלילה
       setCurriculumExpanded(false);
       requestAnimationFrame(refreshCurriculumOverflow);
 
       focusTop('#curriculumTitle');
-      showCoach(`${playerName}, בחר/י תכנית לימוד ואז לחצו "המשך".`, 'default');
-      try{ placeCoach('default'); }catch{}
+      updateStatus('');
     }
 
     function showOperationSelect(){
       if(!currentCurriculum){ alert('יש לבחור תכנית לימוד'); return; }
-      ['curriculumScreen','resultsScreen','mistakesScreen','tutorialScreen','difficultyScreen','gameScreen','profileScreen'].forEach(id=>$('#'+id)?.classList.add('hidden'));
-      $('#operationScreen').classList.remove('hidden');
+      showScreen('operationScreen');
       currentOperation=null; questionCount=null;
       $$('#opsGrid .op-btn').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
       $$('#questionChips .chip').forEach(c=>{ c.classList.remove('selected'); c.setAttribute('aria-pressed','false'); });
       applyCurriculumToOperationButtons();
       updateOperationNextState();
       focusTop('#operationTitle');
-      showCoach('עכשיו בוחרים סוג תרגיל ומספר שאלות. לאחר הבחירה – המשך.', 'default');
-      try{ placeCoach('default'); }catch{}
+      updateStatus('');
     }
 
     function showDifficultySelect(){
       if(!currentOperation || !questionCount){ alert('בחר/י סוג תרגיל ומספר שאלות'); return; }
-      ['operationScreen','resultsScreen','mistakesScreen','tutorialScreen','gameScreen','profileScreen'].forEach(id=>$('#'+id)?.classList.add('hidden'));
-      $('#difficultyScreen').classList.remove('hidden');
+      showScreen('difficultyScreen');
       $$('#difficultyScreen .diff-btn').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
       focusTop('#difficultyTitle');
-      showCoach('בחר/י רמת קושי כדי להתחיל לתרגל!', 'default');
-      try{ placeCoach('default'); }catch{}
+      updateStatus('');
     }
 
     function startGame(diff){
@@ -991,8 +932,8 @@
       if(!questions.length){ alert('שגיאה: לא ניתן ליצור תרגילים עבור ההגדרות שנבחרו'); return; }
 
       totalQuestions=questions.length; $('#totalQuestions').textContent=totalQuestions; $('#resultsTotal').textContent=totalQuestions;
-      ['difficultyScreen','resultsScreen','mistakesScreen','tutorialScreen','profileScreen'].forEach(id=>$('#'+id)?.classList.add('hidden'));
-      $('#gameScreen').classList.remove('hidden');
+      showScreen('gameScreen');
+
       const prof = getActiveProfile();
       playerName = prof ? prof.name : playerName;
       $('#gamePlayerName').textContent=playerName;
@@ -1001,8 +942,7 @@
 
       showQuestion();
       focusTop('#questionText');
-      showCoach('יצאנו לדרך! קרא/י את השאלה, בחר/י תשובה ואז אשר/י.', 'game');
-      try{ placeCoach('default'); }catch{}
+      showCoach('יצאנו לדרך! בחר/י תשובה ואז אשר/י.');
     }
 
     /* ========= Game ========= */
@@ -1055,7 +995,7 @@
       if (selectedAnswer === correct) {
         correctCount++;
         playSuccessSound();
-        showCoach(isLast ? 'מעולה! סיימנו את הסט — עוברים לסיכום.' : 'כל הכבוד! לשאלה הבאה…', 'game');
+        showCoach(isLast ? 'מעולה! סיימנו את הסט — עוברים לסיכום.' : 'כל הכבוד! לשאלה הבאה…');
       } else {
         mistakes.push({
           question: questions[currentQuestionIndex],
@@ -1064,7 +1004,7 @@
           reviewed: false
         });
         playErrorSound();
-        showCoach(isLast ? 'סיימנו את הסט — עוברים לסיכום.' : 'כמעט! ממשיכים לשאלה הבאה…', 'game');
+        showCoach(isLast ? 'סיימנו את הסט — עוברים לסיכום.' : 'כמעט! ממשיכים לשאלה הבאה…');
       }
 
       if (isLast) {
@@ -1096,7 +1036,7 @@
       nextBtn.textContent = 'לסיכום התוצאות';
       nextBtn.onclick = () => { $('#feedback').classList.add('hidden'); showResults(); };
       fb.classList.remove('hidden');
-      trapDialog('#feedback'); // מלכודת פוקוס
+      trapDialog('#feedback');
     }
 
     function nextQuestion(){
@@ -1122,8 +1062,7 @@
     }
 
     function showResults(){
-      ['gameScreen','mistakesScreen','tutorialScreen','profileScreen'].forEach(id=>$('#'+id)?.classList.add('hidden'));
-      const rs=$('#resultsScreen'); rs.classList.remove('hidden');
+      showScreen('resultsScreen');
 
       const incorrect=totalQuestions-correctCount;
       const pct=Math.round((correctCount/totalQuestions)*100);
@@ -1131,12 +1070,12 @@
       const displayName = prof ? prof.name : playerName;
       $('#resultsTitle').textContent=getResultsTitleCopy(displayName,pct);
 
-      const msg=$('#performanceMessage'), icon=rs.querySelector('.text-8xl');
+      const msg=$('#performanceMessage'), icon=$('#resultsScreen .text-8xl');
       if(correctCount===totalQuestions){
         msg.textContent='מושלם! ענית נכון על כל השאלות! 🌟';
         msg.className='mb-4 font-medium text-lg text-green-600';
         icon.textContent='🏆';
-        confettiBurst(rs.querySelector('.bg-white')||rs);
+        confettiBurst($('#resultsScreen .bg-white')||$('#resultsScreen'));
       } else if(pct<50){
         msg.textContent='נחזק את החולשות ואחר כך נתרגל שוב.';
         msg.className='mb-4 font-medium text-lg text-orange-600';
@@ -1152,18 +1091,15 @@
       $('#averageTime').textContent=String(Math.max(1,Math.round(totalTime/totalQuestions)));
       $('#mistakesButton').classList.toggle('hidden', mistakes.length===0);
 
-      // לוג לקובץ פרופיל
       logSessionToProfile();
 
-      // ניסוח שופי לפי #טעויות
-      let coachText = 'סיכום הסט הושלם. ';
-      if (mistakes.length === 0) coachText += 'אפשר לתרגל מחדש.';
-      else if (mistakes.length === 1) coachText += 'אפשר לתרגל מחדש או ללמוד מהטעות.';
-      else coachText += 'אפשר לתרגל מחדש או ללמוד מהטעויות.';
+      let coachText = 'סיכום הסט הושלם.';
+      if (mistakes.length === 0) coachText += ' אפשר לתרגל מחדש.';
+      else if (mistakes.length === 1) coachText += ' אפשר לתרגל מחדש או ללמוד מהטעות.';
+      else coachText += ' אפשר לתרגל מחדש או ללמוד מהטעויות.';
+      updateStatus(coachText);
 
       focusTop('#resultsTitle');
-      showCoach(coachText,'default');
-      try{ placeCoach('default'); }catch{}
     }
 
     function updatePerformanceBar(correct,incorrect,pct){
@@ -1176,7 +1112,7 @@
 
     /* ========= Mistakes & Tutorial ========= */
     function showMistakes(){
-      $('#resultsScreen').classList.add('hidden'); $('#tutorialScreen').classList.add('hidden'); $('#mistakesScreen').classList.remove('hidden');
+      showScreen('mistakesScreen');
       const incorrect=totalQuestions-correctCount;
       $('#mistakesCorrectBar').style.width=((correctCount/totalQuestions)*100)+'%';
       $('#mistakesIncorrectBar').style.width=((incorrect/totalQuestions)*100)+'%';
@@ -1184,7 +1120,7 @@
       if(mistakes.length===0){
         mm.textContent='מושלם! ענית נכון על כל '+totalQuestions+' השאלות! 🌟';
         mm.className='subhead text-green-600 mb-4';
-        $('#mistakesList').innerHTML='<div class="text-center p-8"><div class="text-6xl mb-4">🎉</div><h3 class="text-2xl font-bold text-green-600">מעולה!</h3><p class="text-lg text-gray-600">לא היו לך טעויות במשחק הזה!</p></div>';
+        $('#mistakesList').innerHTML='<div class="text-center p-8"><div class="text-6ל mb-4">🎉</div><h3 class="text-2xl font-bold text-green-600">מעולה!</h3><p class="text-lg text-gray-600">לא היו לך טעויות במשחק הזה!</p></div>';
         focusTop('#mistakesTitle'); return;
       } else if(correctCount>0){
         mm.textContent='ענית נכון על '+correctCount+' מתוך '+totalQuestions+' - בואו נלמד מה-'+mistakes.length+' שנשארו';
@@ -1197,25 +1133,45 @@
       const list=$('#mistakesList'); list.innerHTML='';
       questions.forEach((q,i)=>{
         const m=mistakes.find(x=>x.question.id===q.id); if(!m) return;
+        const why = getWhyTip(m);
         const d=document.createElement('div');
         d.className='bg-orange-50 border-2 border-orange-200 rounded-2xl p-6 cursor-pointer hover:bg-orange-100 transition-colors';
         d.onclick=()=>showTutorial(m);
-        d.innerHTML='<div class="flex items-center justify-between mb-4"><div class="flex items-center gap-3"><div class="w-4 h-4 bg-orange-500 rounded-full"></div><h3 class="text-xl font-bold text-orange-600">שאלה '+(i+1)+'</h3></div><div class="text-2xl">🤔</div></div><div class="text-2xl font-bold text-gray-800 mb-4 ltr">'+m.question.questionText+'</div><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"><div class="bg-red-100 border-2 border-red-300 rounded-xl p-4"><div class="text-sm text-red-600 font-bold mb-1">התשובה שלך:</div><div class="text-xl font-bold text-red-700 ltr">'+m.userAnswer+'</div></div><div class="bg-green-100 border-2 border-green-300 rounded-xl p-4"><div class="text-sm text-green-600 font-bold mb-1">התשובה הנכונה:</div><div class="text-xl font-bold text-green-700 ltr">'+m.correctAnswer+'</div></div></div><div class="text-center text-blue-600 font-bold">👆 לחץ כאן כדי ללמוד איך לפתור</div>';
+        d.innerHTML=`
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-4 h-4 bg-orange-500 rounded-full"></div>
+              <h3 class="text-xl font-bold text-orange-600">שאלה ${(i+1)}</h3>
+            </div>
+            <div class="text-2xl">🤔</div>
+          </div>
+          <div class="text-2xl font-bold text-gray-800 mb-4 ltr">${m.question.questionText}</div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+            <div class="bg-red-100 border-2 border-red-300 rounded-xl p-4">
+              <div class="text-sm text-red-600 font-bold mb-1">התשובה שלך:</div>
+              <div class="text-xl font-bold text-red-700 ltr">${m.userAnswer}</div>
+            </div>
+            <div class="bg-green-100 border-2 border-green-300 rounded-xl p-4">
+              <div class="text-sm text-green-600 font-bold mb-1">התשובה הנכונה:</div>
+              <div class="text-xl font-bold text-green-700 ltr">${m.correctAnswer}</div>
+            </div>
+          </div>
+          <div class="text-sm text-gray-600 mb-2">${why?('למה זה קרה? ' + why):''}</div>
+          <div class="text-center text-blue-600 font-bold">👆 לחץ כאן כדי ללמוד איך לפתור</div>
+        `;
         list.appendChild(d);
       });
       focusTop('#mistakesTitle');
-      showCoach('לחץ על שאלה כדי לראות הסבר אינטראקטיבי.','default');
-      try{ placeCoach('default'); }catch{}
+      updateStatus('לחץ על שאלה כדי לראות הסבר אינטראקטיבי.');
     }
 
     function showTutorial(m){
       activeMistake = m;
-      $('#mistakesScreen').classList.add('hidden'); $('#tutorialScreen').classList.remove('hidden');
+      showScreen('tutorialScreen');
       const q=m.question; const title=$('#tutorialTitle'); title.textContent=q.questionText;
       createTutorialSteps(q); createInteractiveDemo(q);
       requestAnimationFrame(()=>{ title.focus({preventScroll:true}); window.scrollTo({top:0,behavior:'auto'}); });
-      showCoach('הנה הסבר צעד־אחר־צעד. נסה/י את האזור האינטראקטיבי.','default');
-      try{ placeCoach('default'); }catch{}
+      updateStatus('הנה הסבר צעד־אחר־צעד. נסה/י את האזור האינטראקטיבי.');
     }
 
     function createTutorialSteps(q){
@@ -1267,11 +1223,12 @@
       area.innerHTML = '';
       const {operation,num1,num2,answer} = q;
       const em = ['🍎','🎈','⭐','🌟','🍊','🎯','🌈','🎪'][Math.floor(Math.random()*8)];
-      const LARGE = 40;
+      const LARGE_ADD_SUB = 40;
+      const LARGE_MUL_DIV = 60;
 
       if(operation==='addition'){
         const total = answer;
-        if(total > LARGE){
+        if(total > LARGE_ADD_SUB){
           numberLineDemo(num1, 10, total, true);
           info.textContent = `נסו לקפוץ ב־+10 ואז להשלים ב־+1 עד ${total}`;
           return;
@@ -1304,7 +1261,7 @@
       }
 
       if(operation==='subtraction'){
-        if(num1 > LARGE){
+        if(num1 > LARGE_ADD_SUB){
           numberLineDemo(num1, 10, answer, false);
           info.textContent = `התחילו מ־${num1}, קפצו ב־−10 ואז ב־−1 עד ${answer}`;
           return;
@@ -1340,7 +1297,7 @@
 
       if(operation==='multiplication'){
         const groups=num1, items=num2;
-        if(groups*items > 60){
+        if(groups*items > LARGE_MUL_DIV){
           groupsCounterDemo(groups, items, groups*items);
           info.textContent=`הוסיפו קבוצות עד שתגיעו ל־${groups} קבוצות של ${items}.`;
           return;
@@ -1387,7 +1344,7 @@
       if(operation==='division'){
         const dividend=num1*num2;
         const groups=answer, size=num2;
-        if(dividend > 60){
+        if(dividend > LARGE_MUL_DIV){
           divisionCounterDemo(dividend, size, groups);
           info.textContent=`צרו קבוצות של ${size} עד שמחלקים את כל ה־${dividend}.`;
           return;
@@ -1456,7 +1413,7 @@
           info.className='text-green-600 font-bold text-lg';
           markActiveMistakeReviewed();
         }else{
-          const dir = current<target ? 'המשיך/י לעלות' : 'המשך/י לרדת';
+          const dir = current<target ? 'המשיך/י לעלות' : 'המשיך/י לרדת';
           info.textContent=`${dir} עד ${target}`;
           info.className='text-gray-600';
         }
@@ -1610,12 +1567,10 @@
 
     /* ========= Profile screen rendering ========= */
     function showProfile(){
-      ['welcomeScreen','nameScreen','curriculumScreen','operationScreen','difficultyScreen','gameScreen','resultsScreen','mistakesScreen','tutorialScreen'].forEach(id=>$('#'+id)?.classList.add('hidden'));
-      $('#profileScreen').classList.remove('hidden');
+      showScreen('profileScreen');
       renderProfile();
       focusTop('#profileScreen .text-indigo-600');
-      showCoach('ברוך/ה הבא/ה לאזור האישי. אפשר להחליף משתמש או להתחיל משחק.', 'default');
-      try{ placeCoach('default'); }catch{}
+      updateStatus('');
     }
 
     function setSwitchBtnDisabled(disabled){
@@ -1651,7 +1606,6 @@
       $('#kpiAccuracy').textContent = acc+'%';
       $('#kpiAvg').textContent = (avg||0)+'s';
 
-      // by operation
       const ops = ['addition','subtraction','multiplication','division','mixed'];
       const labels = {addition:'➕ חיבור', subtraction:'➖ חיסור', multiplication:'✖️ כפל', division:'➗ חילוק', mixed:'🎲 הכל'};
       const grid = $('#byOpGrid'); grid.innerHTML='';
@@ -1667,7 +1621,6 @@
         grid.appendChild(card);
       });
 
-      // history
       const h = prof.history||[];
       const list = $('#historyList'); list.innerHTML='';
       if(h.length===0){
@@ -1692,26 +1645,63 @@
       }
     }
 
-    /* ========= Init ========= */
-    document.addEventListener('DOMContentLoaded',()=>{
-      storeInit();
+    /* ========= Why-tip (רמז קצר לפני ההסבר) ========= */
+    function getWhyTip(m){
+      const {operation,num1,num2,answer} = m.question;
+      const ua = m.userAnswer;
 
+      const ADD_SUB_LARGE = 40;
+      const MUL_DIV_LARGE = 60;
+
+      if (operation === 'addition'){
+        if (ua === num1 - num2) return 'נראה שחיסרת במקום לחבר.';
+        const total = num1 + num2;
+        if (total > ADD_SUB_LARGE){
+          return `קפיצות קדימה: +10 ואז השלים/י ב־+1 עד ${total}.`;
+        }
+        return `ספר/י קדימה ${num2} צעדים מ־${num1} (כדורים).`;
+      }
+
+      if (operation === 'subtraction'){
+        if (ua === num1 + num2) return 'נראה שחיברת במקום לחסר.';
+        if (num1 > ADD_SUB_LARGE){
+          return `קפיצות אחורה: −10 ואז ב־−1 עד ${answer}.`;
+        }
+        return `ספר/י אחורה ${num2} צעדים מ־${num1} (כדורים).`;
+      }
+
+      if (operation === 'multiplication'){
+        if (ua === num1 + num2) return 'ערבוב עם חיבור: כפל = קבוצות שוות, לא חיבור חד־פעמי.';
+        if (num1 * num2 > MUL_DIV_LARGE){
+          return `בנו מונה קבוצות: הוסיפו קבוצות של ${num2} עד ${num1} קבוצות.`;
+        }
+        return `חשבו כ־${num1} קבוצות, כל אחת בגודל ${num2} (כדורים).`;
+      }
+
+      if (operation === 'division'){
+        const dividend = num1 * num2;
+        if (dividend > MUL_DIV_LARGE){
+          return `מונה קבוצות: הפחיתו ${num2} כל פעם עד לאפס — ספרו את הקבוצות.`;
+        }
+        return `חלק/י ל־${num2} בקבוצות שוות; כמה קבוצות יוצאות? (כדורים).`;
+      }
+
+      return '';
+    }
+
+    /* ========= Init ========= */
+    function wireCoreEvents(){
       // פתיחה על המחווה הראשונה – כולל iOS/macOS Safari
       window.addEventListener('touchstart', unlockAudioOnce, { once: true, passive: true });
       window.addEventListener('touchend',   unlockAudioOnce, { once: true, passive: true });
       window.addEventListener('pointerdown', unlockAudioOnce, { once: true, capture: true });
       window.addEventListener('click',        unlockAudioOnce, { once: true, capture: true });
 
-      initAudioToggle();
-
-      // עדכן פריסת ה-Coach בכל שינוי גודל
-      window.addEventListener('resize', ()=>{ try{ placeCoach('default'); }catch{} });
-
       // ניווט ראשוני
       $('#startBtn')?.addEventListener('click',e=>{e.preventDefault(); unlockAudioOnce(); showNameInput();});
       $('#nameForm')?.addEventListener('submit',e=>{e.preventDefault(); unlockAudioOnce(); showCurriculumSelect();});
 
-      // כפתור: "החלף משתמש / אזור אישי"
+      // "החלף משתמש / אזור אישי"
       $('#profileOrSwitchBtn')?.addEventListener('click',()=>{
         const arr=profilesArr();
         if(arr.length>1) showUserPicker(); else showProfile();
@@ -1723,7 +1713,7 @@
         $('#playerName').value=''; $('#playerName').focus();
       });
 
-      // כפתור אזור אישי קבוע + מסך תוצאות
+      // כפתוראזור אישי (קבוע) + ממסך תוצאות
       $('#profileBtn')?.addEventListener('click',()=> showProfile());
       $('#profileFromResultsBtn')?.addEventListener('click',()=> showProfile());
 
@@ -1735,71 +1725,65 @@
       $('#profileStartBtn')?.addEventListener('click',()=>{
         const prof=getActiveProfile();
         if(!prof){ showNameInput(); return; }
-        // מזניקים ישר לבחירת תכנית עם שם קיים
-        $('#playerName').value = prof.name;
+        playerName=prof.name;
         showCurriculumSelect();
       });
 
-      // בחירת תכנית לימוד
-      selectChoice('#curriculumGrid','.choice-card',btn=>{
-        $$('#curriculumGrid .choice-card').forEach(b=>b.classList.remove('selected'));
-        btn.classList.add('selected');
+      // Curriculum בחירה וחיווט
+      selectChoice('#curriculumGrid','.choice-card',(btn)=>{
         currentCurriculum = btn.getAttribute('data-value');
-        const next=$('#curriculumNext'); next.disabled=false; next.setAttribute('aria-disabled','false');
+        const next=$('#curriculumNext');
+        next.disabled=false; next.setAttribute('aria-disabled','false');
       });
       $('#curriculumNext')?.addEventListener('click',()=> showOperationSelect());
-
-      // "הצג עוד/פחות" + מדידה מחדש
-      $('#curriculumMore')?.addEventListener('click', ()=>{ setCurriculumExpanded(!isCurriculumExpanded); });
+      $('#curriculumMore')?.addEventListener('click',()=> setCurriculumExpanded(!isCurriculumExpanded));
       window.addEventListener('resize', refreshCurriculumOverflow);
 
-      // בחירת סוג תרגיל + כמות
-      selectChoice('#opsGrid','.op-btn',btn=>{
-        currentOperation=btn.getAttribute('data-op');
+      // Operation בחירה וחיווט
+      selectChoice('#opsGrid','.op-btn',(btn)=>{
+        currentOperation = btn.getAttribute('data-op');
         updateOperationNextState();
       });
-      selectChoice('#questionChips','.chip',btn=>{
-        questionCount=parseInt(btn.getAttribute('data-count'),10);
+      selectChoice('#questionChips','.chip',(chip)=>{
+        questionCount = parseInt(chip.getAttribute('data-count'),10);
         updateOperationNextState();
       });
       $('#operationNext')?.addEventListener('click',()=> showDifficultySelect());
 
-      // בחירת קושי => התחלת משחק
-      selectChoice('#difficultyScreen','.diff-btn',btn=>{
-        $$('#difficultyScreen .diff-btn').forEach(b=>b.classList.remove('selected'));
-        btn.classList.add('selected');
-        const diff=btn.getAttribute('data-diff')||'easy';
-        startGame(diff);
+      // Difficulty → התחל משחק
+      selectChoice('#difficultyScreen','.diff-btn',(btn)=>{
+        startGame(btn.getAttribute('data-diff'));
       });
 
-      // משחק: תשובות + אישור + התחלה מחדש
+      // משחק: בחירת תשובות + אשר תשובה + התחל מחדש
       bindAnswerGrid();
-      $('#confirmButton')?.addEventListener('click', confirmAnswer);
-      $('#restartBtn')?.addEventListener('click', ()=> showNameInput());
+      $('#confirmButton')?.addEventListener('click',confirmAnswer);
+      $('#restartBtn')?.addEventListener('click',()=> showNameInput());
 
-      // מסך תוצאות: כפתורים
-      $('#retryBtn')?.addEventListener('click', ()=>{
-        if(!currentOperation || !questionCount || !currentDifficulty){ showOperationSelect(); return; }
-        startGame(currentDifficulty); // תרגול מחדש עם אותן הגדרות
+      // תוצאות: תרגל מחדש / טעויות / תרגול אחר
+      $('#retryBtn')?.addEventListener('click',()=>{
+        if(!currentOperation || !questionCount || !currentDifficulty){
+          showOperationSelect();
+        }else{
+          startGame(currentDifficulty);
+        }
       });
-      $('#mistakesButton')?.addEventListener('click', ()=> showMistakes());
-      $('#altBtn')?.addEventListener('click', ()=> showOperationSelect());
+      $('#mistakesButton')?.addEventListener('click',()=> showMistakes());
+      $('#altBtn')?.addEventListener('click',()=> showOperationSelect());
 
-      // טעויות
-      $('#backToResults')?.addEventListener('click', ()=> showResults());
-      $('#restartFromMistakes')?.addEventListener('click', ()=> showNameInput());
+      // טעויות: חזרה/התחל מחדש
+      $('#backToResults')?.addEventListener('click',()=> showResults());
+      $('#restartFromMistakes')?.addEventListener('click',()=> showNameInput());
 
-      // מדריך (טוריאל)
-      $('#backToMistakes')?.addEventListener('click', ()=> showMistakes());
-      $('#restartFromTutorial')?.addEventListener('click', ()=> showNameInput());
+      // טיוטוריאל: חזרה / התחל מחדש
+      $('#backToMistakes')?.addEventListener('click',()=> showMistakes());
+      $('#restartFromTutorial')?.addEventListener('click',()=> showNameInput());
+    }
 
-      // Coach close
-      $('#coachClose')?.addEventListener('click', ()=>{ coachHidden=true; hideCoach(); });
-
-      // פתיחה
-      focusTop('#welcomeTitle');
-      showCoach('ברוכים הבאים! לחצו "התחל משחק".', 'default');
-      try{ placeCoach('default'); }catch{}
+    document.addEventListener('DOMContentLoaded',()=>{
+      storeInit();
+      initAudioToggle();
+      wireCoreEvents();
     });
   </script>
 </body>
