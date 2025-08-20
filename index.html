@@ -157,7 +157,7 @@
   <!-- User Picker Modal -->
   <div id="userPickerModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
     <div role="dialog" aria-modal="true" class="bg-white rounded-2xl max-w-md w-full p-6">
-      <h3 class="text-2xl font-bold text-gray-800 mb-3">בחרו משתמש</h3>
+      <h3 class="text-2ל font-bold text-gray-800 mb-3">בחרו משתמש</h3>
       <div id="userList" class="space-y-2 max-h-[50vh] overflow-auto mb-4"></div>
       <div class="flex gap-2 justify-between">
         <button id="userPickerCancel" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 font-bold">סגור</button>
@@ -312,7 +312,7 @@
 
   <!-- Game Screen -->
   <div id="gameScreen" class="hidden min-h-screen p-4">
-    <div class="bg-white rounded-2xl shadow-lg p-4 mb-6 mx-auto max-w-4xl">
+    <div class="bg-white rounded-2ל shadow-lg p-4 mb-6 mx-auto max-w-4xl">
       <div class="flex justify-between items-center mb-4">
         <div class="text-2xl font-bold text-purple-600">שאלה <span id="currentQuestion" class="ltr">1</span> מתוך <span id="totalQuestions" class="ltr">6</span></div>
         <div class="text-xl text-gray-600">שלום <span id="gamePlayerName"></span>! 👋</div>
@@ -441,7 +441,7 @@
       <div id="interactiveArea" class="bg-blue-50 rounded-2xl p-6 mb-8 text-center">
         <h3 class="subhead text-blue-600 mb-4">נסה בעצמך!</h3>
         <div id="interactiveContent" class="flex flex-wrap justify-center gap-2 mb-4"></div>
-        <div id="interactiveInstructions" role="status" aria-live="polite" class="text-gray-600">לחץ על הפריטים כדי לראות איך הפתרון עובד</div>
+        <div id="interactiveInstructions" role="status" aria-live="polite" class="text-gray-600">לחץ על הכפתורים כדי להוסיף או להחסיר כדורים ולהגיע לתוצאה</div>
       </div>
       <div class="flex justify-center gap-4 flex-wrap">
         <button id="backToMistakes" class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-full text-lg font-bold hover:scale-105 transition-all duration-200 shadow-lg">חזור לרשימת הטעויות</button>
@@ -615,14 +615,15 @@
       const el = $('#statusMsg');
       if(el) el.textContent = msg || '';
     }
-    function showCoach(msg){ updateStatus(msg); } // תאימות לאחור
+    function showCoach(msg){ updateStatus(msg); }
     function hideCoach(){ /* no-op */ }
     function placeCoach(){ /* no-op */ }
 
-    /* ========= Audio (Safari-safe) ========= */
+    /* ========= Audio (Safari-safe, QA'ed) ========= */
     let isMuted = false;
     let audioCtx = null;
     let audioUnlocked = false;
+    let lastTickAt = 0;
 
     function getAudioCtx() {
       if (isMuted) return null;
@@ -641,7 +642,7 @@
       if (!AC) return;
 
       if (!audioCtx) audioCtx = new AC();
-      try { const p = audioCtx.resume && audioCtx.resume(); if (p && p.catch) p.catch(()=>{}); } catch {}
+      try { const p = audioCtx.resume && audioCtx.resume(); if (p?.catch) p.catch(()=>{}); } catch {}
 
       try {
         const buffer = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
@@ -669,15 +670,9 @@
       }
     }
 
-    function ensureUnlocked() {
-      const ctx = getAudioCtx();
-      if (!ctx) return;
-      if (!audioUnlocked) unlockAudioOnce();
-    }
-
     function tone(freq, dur, t, type = 'sine', gain = 0.24) {
-      if (isMuted) return;
-      ensureUnlocked();
+      if (isMuted || dur<=0) return;
+      unlockAudioOnce();
       const ctx = getAudioCtx(); if (!ctx) return;
 
       const start = typeof t === 'number' ? t : ctx.currentTime;
@@ -687,7 +682,7 @@
       o.type = type;
       o.frequency.setValueAtTime(freq, start);
 
-      g.gain.setValueAtTime(gain, start);
+      g.gain.setValueAtTime(Math.max(0.0001, gain), start);
       g.gain.exponentialRampToValueAtTime(0.001, start + dur);
 
       o.connect(g); g.connect(ctx.destination);
@@ -695,24 +690,27 @@
     }
 
     function playSelectTick() {
-      const ctx = getAudioCtx(); if (!ctx) { ensureUnlocked(); return; }
+      const ctx = getAudioCtx(); if (!ctx) { unlockAudioOnce(); return; }
+      const now = performance.now();
+      if (now - lastTickAt < 60) return; // מניעת הצפה בלחיצות מהירות
+      lastTickAt = now;
       const t = ctx.currentTime;
-      tone(520, 0.10, t, 'triangle', 0.24);
+      tone(520, 0.10, t, 'triangle', 0.22);
     }
 
     function playSuccessSound() {
-      const ctx = getAudioCtx(); if (!ctx) { ensureUnlocked(); return; }
+      const ctx = getAudioCtx(); if (!ctx) { unlockAudioOnce(); return; }
       const t = ctx.currentTime;
-      tone(523.25, 0.12, t,       'sine', 0.22);
-      tone(659.25, 0.12, t + 0.1, 'sine', 0.20);
-      tone(783.99, 0.14, t + 0.2, 'sine', 0.18);
+      tone(523.25, 0.12, t,       'sine', 0.20);
+      tone(659.25, 0.12, t + 0.10,'sine', 0.18);
+      tone(783.99, 0.14, t + 0.20,'sine', 0.16);
     }
 
     function playErrorSound() {
-      const ctx = getAudioCtx(); if (!ctx) { ensureUnlocked(); return; }
+      const ctx = getAudioCtx(); if (!ctx) { unlockAudioOnce(); return; }
       const t = ctx.currentTime;
-      tone(220, 0.12, t,       'square', 0.20);
-      tone(180, 0.12, t + 0.1, 'square', 0.18);
+      tone(220, 0.12, t,       'square', 0.18);
+      tone(180, 0.12, t + 0.10,'square', 0.16);
     }
 
     function initAudioToggle(){
@@ -1116,14 +1114,15 @@
       const incorrect=totalQuestions-correctCount;
       $('#mistakesCorrectBar').style.width=((correctCount/totalQuestions)*100)+'%';
       $('#mistakesIncorrectBar').style.width=((incorrect/totalQuestions)*100)+'%';
+
       const mm=$('#mistakesMessage');
       if(mistakes.length===0){
         mm.textContent='מושלם! ענית נכון על כל '+totalQuestions+' השאלות! 🌟';
         mm.className='subhead text-green-600 mb-4';
-        $('#mistakesList').innerHTML='<div class="text-center p-8"><div class="text-6ל mb-4">🎉</div><h3 class="text-2xl font-bold text-green-600">מעולה!</h3><p class="text-lg text-gray-600">לא היו לך טעויות במשחק הזה!</p></div>';
+        $('#mistakesList').innerHTML='<div class="text-center p-8"><div class="text-6xl mb-4">🎉</div><h3 class="text-2xl font-bold text-green-600">מעולה!</h3><p class="text-lg text-gray-600">לא היו לך טעויות במשחק הזה!</p></div>';
         focusTop('#mistakesTitle'); return;
       } else if(correctCount>0){
-        mm.textContent='ענית נכון על '+correctCount+' מתוך '+totalQuestions+' - בואו נלמד מה-'+mistakes.length+' שנשארו';
+        mm.textContent='ענית נכון על '+correctCount+' מתוך '+totalQuestions+' – בואו נלמד מה-'+mistakes.length+' שנשארו';
         mm.className='subhead text-blue-600 mb-4';
       } else {
         mm.textContent='בואו נלמד יחד איך לפתור את השאלות האלה';
@@ -1133,9 +1132,9 @@
       const list=$('#mistakesList'); list.innerHTML='';
       questions.forEach((q,i)=>{
         const m=mistakes.find(x=>x.question.id===q.id); if(!m) return;
-        const why = getWhyTip(m);
-        const d=document.createElement('div');
-        d.className='bg-orange-50 border-2 border-orange-200 rounded-2xl p-6 cursor-pointer hover:bg-orange-100 transition-colors';
+        const d=document.createElement('button');
+        d.type='button';
+        d.className='w-full text-right bg-orange-50 border-2 border-orange-200 rounded-2xl p-6 cursor-pointer hover:bg-orange-100 transition-colors';
         d.onclick=()=>showTutorial(m);
         d.innerHTML=`
           <div class="flex items-center justify-between mb-4">
@@ -1143,10 +1142,10 @@
               <div class="w-4 h-4 bg-orange-500 rounded-full"></div>
               <h3 class="text-xl font-bold text-orange-600">שאלה ${(i+1)}</h3>
             </div>
-            <div class="text-2xl">🤔</div>
+            <div class="text-2xl">👉</div>
           </div>
           <div class="text-2xl font-bold text-gray-800 mb-4 ltr">${m.question.questionText}</div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="bg-red-100 border-2 border-red-300 rounded-xl p-4">
               <div class="text-sm text-red-600 font-bold mb-1">התשובה שלך:</div>
               <div class="text-xl font-bold text-red-700 ltr">${m.userAnswer}</div>
@@ -1156,22 +1155,21 @@
               <div class="text-xl font-bold text-green-700 ltr">${m.correctAnswer}</div>
             </div>
           </div>
-          <div class="text-sm text-gray-600 mb-2">${why?('למה זה קרה? ' + why):''}</div>
-          <div class="text-center text-blue-600 font-bold">👆 לחץ כאן כדי ללמוד איך לפתור</div>
         `;
         list.appendChild(d);
       });
       focusTop('#mistakesTitle');
-      updateStatus('לחץ על שאלה כדי לראות הסבר אינטראקטיבי.');
+      updateStatus('לחץ על שאלה כדי לתרגל עם כדורים ולהגיע לתוצאה.');
     }
 
     function showTutorial(m){
       activeMistake = m;
       showScreen('tutorialScreen');
       const q=m.question; const title=$('#tutorialTitle'); title.textContent=q.questionText;
-      createTutorialSteps(q); createInteractiveDemo(q);
+      createTutorialSteps(q);
+      startBallTutor(q);
       requestAnimationFrame(()=>{ title.focus({preventScroll:true}); window.scrollTo({top:0,behavior:'auto'}); });
-      updateStatus('הנה הסבר צעד־אחר־צעד. נסה/י את האזור האינטראקטיבי.');
+      updateStatus('הנה הסבר צעד־אחר־צעד. השתמש/י בכפתורי +/− להוספה או החסרה של כדורים עד שמגיעים לתוצאה.');
     }
 
     function createTutorialSteps(q){
@@ -1187,325 +1185,158 @@
       const {operation,num1,num2,answer}=q;
       if(operation==='addition') return[
         {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+num1+' + '+num2+'.'},
-        {title:'הצגת הפריטים הראשונים',description:'נתחיל עם '+num1+' פריטים.'},
+        {title:'הצגת הפריטים הראשונים',description:'נתחיל עם '+num1+' פריטים (כדורים).'},
         {title:'הוספת פריטים',description:'נוסיף '+num2+' ונמנה הכול יחד.'},
         {title:'התוצאה',description:'יש '+answer+' פריטים. זו התשובה!'}
       ];
       if(operation==='subtraction') return[
         {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+num1+' - '+num2+'.'},
-        {title:'הצגת הפריטים הראשונים',description:'נתחיל עם '+num1+' פריטים.'},
+        {title:'הצגת הפריטים הראשונים',description:'נתחיל עם '+num1+' פריטים (כדורים).'},
         {title:'הסרת פריטים',description:'נסיר '+num2+' ונמנה כמה נשאר.'},
         {title:'התוצאה',description:'נשארו '+answer+' פריטים.'}
       ];
       if(operation==='multiplication') return[
         {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+num1+' × '+num2+'.'},
-        {title:'יצירת קבוצות',description:'ניצור '+num1+' קבוצות של '+num2+'.'},
-        {title:'ספירה',description:'נספור את כל הפריטים.'},
+        {title:'יצירת קבוצות',description:'נבנה קבוצות של כדורים בגודל '+num2+'.'},
+        {title:'ספירה',description:'נספור את כל הכדורים — נסו להגיע לתוצאה בעזרת הקבוצות.'},
         {title:'התוצאה',description:'יש '+answer+' פריטים בסך הכול.'}
       ];
       if(operation==='division'){
-        const dividend = num1 * num2; // quotient * divisor
+        const dividend = num1 * num2; // num1 הוא המנה, num2 מחלק; אנו מציגים את התרגיל המלא להבנה
         const divisor = num2;
         return[
           {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+dividend+' ÷ '+divisor+'.'},
-          {title:'הצגת כל הפריטים',description:'נתחיל עם '+dividend+' פריטים.'},
-          {title:'חלוקה לקבוצות',description:'נחלק לקבוצות של '+divisor+'.'},
-          {title:'התוצאה',description:'קיבלנו '+answer+' קבוצות.'}
+          {title:'כדורים לקבוצות',description:'נדמיין חלוקה לקבוצות שוות — נתקדם בעזרת קופסאות של 100/50/20/10/5/1 לפי הצורך.'},
+          {title:'התאמה לתוצאה',description:'נוסיף/נחסיר קופסאות עד שמגיעים בדיוק למספר המנה.'},
+          {title:'התוצאה',description:'המספר שבקופסה הגדולה הוא '+answer+'.'}
         ];
       }
       return [];
     }
     function markActiveMistakeReviewed(){ if (!activeMistake) return; activeMistake.reviewed = true; }
 
-    /* === אינטראקטיביות ללמידה מהטעויות === */
-    function createInteractiveDemo(q){
+    /* === אינטראקטיביות ללמידה מהטעויות – כדורים בלבד, בלי "תרגיל בקופסה" === */
+
+    // קובע סט צעדים מותר לפי היעד (עד 20: 1; עד 100: 10/5/1; מעל 100: 100/50/20/10/5/1)
+    function stepsForTarget(n){
+      if(n<=20) return [1];
+      if(n<=100) return [10,5,1];
+      return [100,50,20,10,5,1];
+    }
+
+    // מצייר קבוצה של כדורים (1,5,10,20,50,100) כגריד נקודות
+    function drawGroup(container, size){
+      const wrap = document.createElement('div');
+      wrap.className = 'inline-flex flex-col items-center justify-center border-2 rounded-xl bg-white m-1 p-2';
+      wrap.style.borderColor = '#e5e7eb';
+
+      let rows=1, cols=size;
+      if(size===1){ rows=1; cols=1; }
+      if(size===5){ rows=1; cols=5; }
+      if(size===10){ rows=1; cols=10; }
+      if(size===20){ rows=2; cols=10; }
+      if(size===50){ rows=5; cols=10; }
+      if(size===100){ rows=10; cols=10; }
+
+      const grid = document.createElement('div');
+      grid.className = 'grid gap-[3px]';
+      grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+      grid.style.maxWidth = 'min(92vw, 520px)';
+
+      const dotSize = size>=50 ? 8 : (size>=20 ? 10 : 14);
+      const dotBg = size>=50 ? '#a5b4fc' : (size>=20 ? '#93c5fd' : '#60a5fa');
+
+      const total = rows*cols;
+      for(let i=0;i<total;i++){
+        const b = document.createElement('span');
+        b.style.display='inline-block';
+        b.style.width=dotSize+'px';
+        b.style.height=dotSize+'px';
+        b.style.borderRadius='9999px';
+        b.style.background=dotBg;
+        grid.appendChild(b);
+      }
+
+      wrap.appendChild(grid);
+      container.appendChild(wrap);
+    }
+
+    // רנדר כמות כדורים נתונה בקיבוצים יעילים
+    function renderBallCount(container, count){
+      container.innerHTML='';
+      const groups = stepsForTarget(Math.max(count,1)).slice().sort((a,b)=>b-a); // מהגדול לקטן
+      let remaining = count;
+
+      groups.forEach(g=>{
+        const k = Math.floor(remaining / g);
+        for(let i=0;i<k;i++) drawGroup(container, g);
+        remaining = remaining % g;
+      });
+      while(remaining>0){
+        drawGroup(container, 1);
+        remaining--;
+      }
+    }
+
+    // UI אינטראקטיבי: "המטרה: X" + "סה״כ נוכחי: Y" + כפתורי +/− לפי הטווח
+    function startBallTutor(q){
       const area = $('#interactiveContent'), info = $('#interactiveInstructions');
       area.innerHTML = '';
-      const {operation,num1,num2,answer} = q;
-      const em = ['🍎','🎈','⭐','🌟','🍊','🎯','🌈','🎪'][Math.floor(Math.random()*8)];
-      const LARGE_ADD_SUB = 40;
-      const LARGE_MUL_DIV = 60;
 
-      if(operation==='addition'){
-        const total = answer;
-        if(total > LARGE_ADD_SUB){
-          numberLineDemo(num1, 10, total, true);
-          info.textContent = `נסו לקפוץ ב־+10 ואז להשלים ב־+1 עד ${total}`;
-          return;
-        }
-        let clicked=0;
-        for(let i=0;i<total;i++){
-          const s=document.createElement('span');
-          s.className='text-3xl m-1 opacity-50 cursor-pointer';
-          s.textContent=i<num1?'🔵':'🟡';
-          s.onclick=function(){
-            unlockAudioOnce();
-            if(this.style.opacity!=='1'){
-              this.style.opacity='1'; clicked++;
-              if(clicked===total){
-                setTimeout(()=>{
-                  info.textContent=`מעולה! ספרת ${total} פריטים - זו התשובה! 🎉`;
-                  info.className='text-green-600 font-bold text-lg';
-                  markActiveMistakeReviewed();
-                },400);
-              }else{
-                info.textContent=`המשך/י לספור... (${clicked}/${total})`;
-              }
-            }
-          };
-          area.appendChild(s);
-          if(((i+1)%5===0)&&i<total-1) area.appendChild(document.createElement('br'));
-        }
-        info.textContent=`לחץ/י על הכדורים כדי לספור את ${num1} + ${num2}`;
-        return;
-      }
+      const target = q.answer;
+      let current = (q.operation==='addition' || q.operation==='subtraction') ? q.num1 : 0;
 
-      if(operation==='subtraction'){
-        if(num1 > LARGE_ADD_SUB){
-          numberLineDemo(num1, 10, answer, false);
-          info.textContent = `התחילו מ־${num1}, קפצו ב־−10 ואז ב־−1 עד ${answer}`;
-          return;
-        }
-        let removed=0;
-        for(let i=0;i<num1;i++){
-          const s2=document.createElement('span');
-          s2.className='text-3xl m-1 cursor-pointer';
-          s2.textContent=em;
-          s2.onclick=function(){
-            unlockAudioOnce();
-            if(this.style.opacity!=='0.3'&&removed<num2){
-              this.style.opacity='0.3';
-              this.style.textDecoration='line-through';
-              removed++;
-              if(removed===num2){
-                setTimeout(()=>{
-                  info.textContent=`מעולה! הסרת ${num2} פריטים, נשארו ${answer} פריטים! 🎉`;
-                  info.className='text-green-600 font-bold text-lg';
-                  markActiveMistakeReviewed();
-                },400);
-              }else{
-                info.textContent=`לחץ/י על עוד ${num2-removed} פריטים כדי להסיר אותם`;
-              }
-            }
-          };
-          area.appendChild(s2);
-          if(((i+1)%5===0)&&i<num1-1) area.appendChild(document.createElement('br'));
-        }
-        info.textContent=`לחץ/י על ${num2} פריטים כדי להסיר אותם מתוך ${num1}`;
-        return;
-      }
+      const title = document.createElement('div');
+      title.className = 'text-xl font-extrabold text-gray-800 mb-2';
+      title.textContent = `המטרה: ${target} כדורים`;
 
-      if(operation==='multiplication'){
-        const groups=num1, items=num2;
-        if(groups*items > LARGE_MUL_DIV){
-          groupsCounterDemo(groups, items, groups*items);
-          info.textContent=`הוסיפו קבוצות עד שתגיעו ל־${groups} קבוצות של ${items}.`;
-          return;
-        }
-        let shown=0;
-        for(let g=0; g<groups; g++){
-          const group=document.createElement('div');
-          group.className='inline-block border-2 border-dashed border-blue-300 rounded-lg p-3 m-2 bg-blue-50';
-          group.style.opacity='0.5';
-          const label=document.createElement('div');
-          label.className='text-sm font-bold text-blue-600 mb-2 text-center';
-          label.textContent='קבוצה '+(g+1);
-          group.appendChild(label);
+      const status = document.createElement('div');
+      status.className = 'text-base font-bold text-blue-700 mb-3 ltr tabular-nums';
+      status.textContent = `סה״כ נוכחי: ${current}`;
 
-          for(let i=0;i<items;i++){
-            const sp=document.createElement('span');
-            sp.className='text-2xl m-1';
-            sp.textContent=em;
-            group.appendChild(sp);
-          }
+      const ballsWrap = document.createElement('div');
+      ballsWrap.className = 'flex flex-wrap items-start justify-center mb-3';
 
-          group.onclick=function(){
-            unlockAudioOnce();
-            if(this.style.opacity==='0.5'){
-              this.style.opacity='1';
-              shown++;
-              if(shown===groups){
-                setTimeout(()=>{
-                  info.textContent=`מעולה! ${groups} קבוצות × ${items} פריטים = ${groups*items} פריטים בסך הכל! 🎉`;
-                  info.className='text-green-600 font-bold text-lg';
-                  markActiveMistakeReviewed();
-                },400);
-              }else{
-                info.textContent=`נהדר! לחץ/י על ${groups-shown} הקבוצות הנותרות`;
-              }
-            }
-          };
-          area.appendChild(group);
-        }
-        info.textContent=`לחץ/י על הקבוצות כדי לראות ${groups} קבוצות של ${items}`;
-        return;
-      }
+      const btnRow = document.createElement('div');
+      btnRow.className = 'flex flex-wrap gap-2 justify-center my-2';
 
-      if(operation==='division'){
-        const dividend=num1*num2;
-        const groups=answer, size=num2;
-        if(dividend > LARGE_MUL_DIV){
-          divisionCounterDemo(dividend, size, groups);
-          info.textContent=`צרו קבוצות של ${size} עד שמחלקים את כל ה־${dividend}.`;
-          return;
-        }
-        let shown2=0;
-        for(let g=0; g<groups; g++){
-          const group2=document.createElement('div');
-          group2.className='inline-block border-2 border-dashed border-purple-300 rounded-lg p-3 m-2 bg-purple-50';
-          group2.style.opacity='0.5';
-          const label2=document.createElement('div');
-          label2.className='text-sm font-bold text-purple-600 mb-2 text-center';
-          label2.textContent='קבוצה '+(g+1);
-          group2.appendChild(label2);
+      const steps = stepsForTarget(target);
+      steps.forEach(step=>{
+        const plus = document.createElement('button');
+        plus.type='button';
+        plus.className='chip';
+        plus.textContent = `+${step}`;
+        plus.onclick = ()=>{ unlockAudioOnce(); current += step; playSelectTick(); update(); };
 
-          for(let i=0;i<size;i++){
-            const sp2=document.createElement('span');
-            sp2.className='text-2xl m-1';
-            sp2.textContent=em;
-            group2.appendChild(sp2);
-          }
+        const minus = document.createElement('button');
+        minus.type='button';
+        minus.className='chip';
+        minus.textContent = `-${step}`;
+        minus.onclick = ()=>{ unlockAudioOnce(); current = Math.max(0, current-step); playSelectTick(); update(); };
 
-          group2.onclick=function(){
-            unlockAudioOnce();
-            if(this.style.opacity==='0.5'){
-              this.style.opacity='1';
-              shown2++;
-              if(shown2===groups){
-                setTimeout(()=>{
-                  info.textContent=`מעולה! חילקת ${dividend} פריטים ל-${groups} קבוצות של ${size} פריטים! 🎉`;
-                  info.className='text-green-600 font-bold text-lg';
-                  markActiveMistakeReviewed();
-                },400);
-              }else{
-                info.textContent=`נהדר! לחץ/י על ${groups-shown2} הקבוצות הנותרות`;
-              }
-            }
-          };
-          area.appendChild(group2);
-        }
-        info.textContent=`לחץ/י על הקבוצות כדי לראות איך ${dividend} פריטים מתחלקים ל-${groups} קבוצות של ${size}`;
-      }
-    }
+        btnRow.appendChild(plus);
+        btnRow.appendChild(minus);
+      });
 
-    // דמו קו מספרים ל־+/- עם צעדי 10 ו־1
-    function numberLineDemo(start, step, target, plus=true){
-      const area = $('#interactiveContent'), info = $('#interactiveInstructions');
-      area.innerHTML='';
-      let current=start;
-
-      const box=document.createElement('div');
-      box.className='inline-flex items-center justify-center text-3xl font-extrabold text-gray-900 rounded-2xl border-2 border-blue-300 bg-white px-6 py-4 mb-3 ltr tabular-nums';
-      box.textContent=current;
-      area.appendChild(box);
-
-      const controls=document.createElement('div');
-      controls.className='flex flex-wrap gap-3 justify-center my-3';
-      const big=document.createElement('button'); big.className='chip'; big.textContent=(plus?'+':'-')+step;
-      const small=document.createElement('button'); small.className='chip'; small.textContent=(plus?'+':'-')+'1';
-      controls.appendChild(big); controls.appendChild(small);
-      area.appendChild(controls);
+      area.appendChild(title);
+      area.appendChild(status);
+      area.appendChild(ballsWrap);
+      area.appendChild(btnRow);
 
       function update(){
-        box.textContent=current;
+        status.textContent = `סה״כ נוכחי: ${current}`;
+        renderBallCount(ballsWrap, current);
         if(current===target){
-          info.textContent='בול! הגעת לתוצאה המבוקשת 🎉';
+          info.textContent='בול! הגעת לתוצאה 🎉';
           info.className='text-green-600 font-bold text-lg';
+          try{ playSuccessSound(); }catch{}
           markActiveMistakeReviewed();
         }else{
-          const dir = current<target ? 'המשיך/י לעלות' : 'המשיך/י לרדת';
-          info.textContent=`${dir} עד ${target}`;
+          info.textContent = current<target ? `הוסף/י כדורים עד ${target}` : `הסר/י כדורים עד ${target}`;
           info.className='text-gray-600';
         }
       }
 
-      big.onclick=()=>{ unlockAudioOnce(); current += (plus?step:-step); update(); };
-      small.onclick=()=>{ unlockAudioOnce(); current += (plus?1:-1); update(); };
-      update();
-    }
-
-    // דמו מונה לקבוצות בכפל
-    function groupsCounterDemo(groupsNeeded, groupSize, total){
-      const area=$('#interactiveContent'), info=$('#interactiveInstructions');
-      area.innerHTML='';
-      let groups=0;
-
-      const row=document.createElement('div');
-      row.className='flex flex-col items-center gap-3';
-      const groupsBox=document.createElement('div');
-      groupsBox.className='text-xl font-bold text-blue-700';
-      const totalBox=document.createElement('div');
-      totalBox.className='text-2xl font-extrabold text-gray-900 ltr tabular-nums';
-
-      const btnRow=document.createElement('div');
-      btnRow.className='flex gap-3 justify-center';
-      const plus1=document.createElement('button'); plus1.className='chip'; plus1.textContent='+1 קבוצה';
-      const plus5=document.createElement('button'); plus5.className='chip'; plus5.textContent='+5 קבוצות';
-
-      row.appendChild(groupsBox); row.appendChild(totalBox);
-      area.appendChild(row); area.appendChild(btnRow);
-      btnRow.appendChild(plus1); btnRow.appendChild(plus5);
-
-      function update(){
-        groupsBox.textContent=`קבוצות שנוצרו: ${groups}/${groupsNeeded} (כל קבוצה ${groupSize})`;
-        totalBox.textContent=`סה״כ פריטים: ${groups*groupSize}`;
-        if(groups>=groupsNeeded){
-          groups=groupsNeeded;
-          info.textContent=`מעולה! ${groupsNeeded}×${groupSize} = ${total} 🎉`;
-          info.className='text-green-600 font-bold text-lg';
-          markActiveMistakeReviewed();
-        }else{
-          info.textContent=`הוסיפו קבוצות עד ${groupsNeeded}`;
-          info.className='text-gray-600';
-        }
-      }
-
-      plus1.onclick=()=>{ unlockAudioOnce(); groups=Math.min(groupsNeeded, groups+1); update(); };
-      plus5.onclick=()=>{ unlockAudioOnce(); groups=Math.min(groupsNeeded, groups+5); update(); };
-      update();
-    }
-
-    // דמו מונה לחלוקה לקבוצות
-    function divisionCounterDemo(dividend, groupSize, groupsNeeded){
-      const area=$('#interactiveContent'), info=$('#interactiveInstructions');
-      area.innerHTML='';
-      let groups=0, remaining=dividend;
-
-      const boxes=document.createElement('div');
-      boxes.className='grid grid-cols-1 sm:grid-cols-2 gap-3 items-start justify-center mb-3';
-      const remBox=document.createElement('div');
-      remBox.className='text-xl font-bold text-purple-700';
-      const groupsBox=document.createElement('div');
-      groupsBox.className='text-xl font-bold text-purple-700';
-      const bigRes=document.createElement('div');
-      bigRes.className='text-2xl font-extrabold text-gray-900 ltr tabular-nums mt-2 text-center';
-
-      const btnRow=document.createElement('div');
-      btnRow.className='flex gap-3 justify-center';
-      const add1=document.createElement('button'); add1.className='chip'; add1.textContent='+1 קבוצה';
-      const add5=document.createElement('button'); add5.className='chip'; add5.textContent='+5 קבוצות';
-
-      boxes.appendChild(remBox); boxes.appendChild(groupsBox);
-      area.appendChild(boxes); area.appendChild(bigRes); area.appendChild(btnRow);
-      btnRow.appendChild(add1); btnRow.appendChild(add5);
-
-      function update(){
-        remBox.textContent=`נשאר לחלק: ${remaining}`;
-        groupsBox.textContent=`קבוצות שנוצרו: ${groups}/${groupsNeeded} (כל קבוצה ${groupSize})`;
-        bigRes.textContent=`חולקו: ${groups*groupSize} מתוך ${dividend}`;
-        if(groups>=groupsNeeded || remaining<=0){
-          groups=groupsNeeded; remaining=0;
-          info.textContent=`מעולה! ${dividend} ÷ ${groupSize} = ${groupsNeeded} 🎉`;
-          info.className='text-green-600 font-bold text-lg';
-          markActiveMistakeReviewed();
-        }else{
-          info.textContent=`צרו קבוצות עד שתאזלו את כל ה־${dividend}`;
-          info.className='text-gray-600';
-        }
-      }
-
-      add1.onclick=()=>{ unlockAudioOnce(); if(remaining>0){ groups=Math.min(groupsNeeded, groups+1); remaining=Math.max(0, remaining-groupSize);} update(); };
-      add5.onclick=()=>{ unlockAudioOnce(); if(remaining>0){ const k=Math.min(5, Math.ceil(remaining/groupSize)); groups=Math.min(groupsNeeded, groups+k); remaining=Math.max(0, remaining-k*groupSize);} update(); };
       update();
     }
 
@@ -1645,7 +1476,7 @@
       }
     }
 
-    /* ========= Why-tip (רמז קצר לפני ההסבר) ========= */
+    /* ========= Why-tip (לשימוש עתידי אם תרצה) ========= */
     function getWhyTip(m){
       const {operation,num1,num2,answer} = m.question;
       const ua = m.userAnswer;
@@ -1713,7 +1544,7 @@
         $('#playerName').value=''; $('#playerName').focus();
       });
 
-      // כפתוראזור אישי (קבוע) + ממסך תוצאות
+      // כפתור אזור אישי (קבוע) + ממסך תוצאות
       $('#profileBtn')?.addEventListener('click',()=> showProfile());
       $('#profileFromResultsBtn')?.addEventListener('click',()=> showProfile());
 
@@ -1771,20 +1602,24 @@
       $('#mistakesButton')?.addEventListener('click',()=> showMistakes());
       $('#altBtn')?.addEventListener('click',()=> showOperationSelect());
 
-      // טעויות: חזרה/התחל מחדש
+      // טעויות: חזור / ריסטרט
       $('#backToResults')?.addEventListener('click',()=> showResults());
       $('#restartFromMistakes')?.addEventListener('click',()=> showNameInput());
 
-      // טיוטוריאל: חזרה / התחל מחדש
+      // טיוטוריאל: כפתורים
       $('#backToMistakes')?.addEventListener('click',()=> showMistakes());
       $('#restartFromTutorial')?.addEventListener('click',()=> showNameInput());
     }
 
-    document.addEventListener('DOMContentLoaded',()=>{
+    function init(){
       storeInit();
       initAudioToggle();
       wireCoreEvents();
-    });
+      showScreen('welcomeScreen');
+      focusTop('#welcomeTitle');
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
