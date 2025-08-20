@@ -98,13 +98,12 @@
       pointer-events:none;
     }
 
-    @media (prefers-reduced-motion: reduce){
-      .owl-blink{ animation:none }
-    }
+    @media (prefers-reduced-motion: reduce){ .owl-blink{ animation:none } }
   </style>
 </head>
 <body class="bg-gradient-to-br from-blue-100 via-purple-50 to-green-100 min-h-screen">
 
+  <!-- Floating controls -->
   <div id="floatingControls" aria-label="בקרות מהירות">
     <button id="audioToggle" type="button" aria-label="החלפת מצב צליל" aria-pressed="false" title="הצליל פעיל">
       <span class="unmuted" aria-hidden="true">🔊</span>
@@ -127,7 +126,7 @@
     </footer>
   </div>
 
-  <!-- Name Input Screen -->
+  <!-- Name Screen -->
   <div id="nameScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <form id="nameForm" class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
       <div class="text-5xl mb-4">👋</div>
@@ -153,7 +152,7 @@
     </div>
   </div>
 
-  <!-- Curriculum Selection Screen -->
+  <!-- Curriculum Selection -->
   <div id="curriculumScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-3xl w-full">
       <div class="text-5xl mb-4">📚</div>
@@ -221,7 +220,7 @@
     </div>
   </div>
 
-  <!-- Operation + Question Count Screen -->
+  <!-- Operation + Count -->
   <div id="operationScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-3xl w-full">
       <div class="text-5xl mb-4">🎯</div>
@@ -271,12 +270,11 @@
     </div>
   </div>
 
-  <!-- Difficulty Selection Screen -->
+  <!-- Difficulty -->
   <div id="difficultyScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full">
-      <div class="text-5ל mb-4">⚡</div>
+      <div class="text-5xl mb-4">⚡</div>
       <h2 id="difficultyTitle" tabindex="-1" class="no-focus-outline text-3xl sm:text-4xl font-bold text-blue-600 mb-6">איזו רמת קושי מתאימה לך היום?</h2>
-
       <div class="flex flex-col gap-4 mb-2">
         <button type="button" data-diff="easy" class="choice-card diff-btn" data-tint="green" aria-pressed="false">
           <span class="accent" aria-hidden="true"></span>
@@ -297,7 +295,7 @@
     </div>
   </div>
 
-  <!-- Game Screen -->
+  <!-- Game -->
   <div id="gameScreen" class="hidden min-h-screen p-4">
     <div class="bg-white rounded-2xl shadow-lg p-4 mb-6 mx-auto max-w-4xl">
       <div class="flex justify-between items-center mb-4">
@@ -340,6 +338,7 @@
       <button type="button" id="restartBtn" class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-full text-lg font-bold hover:scale-105 transition-all duration-200 shadow-lg">התחל מחדש</button>
     </div>
 
+    <!-- Feedback Modal -->
     <div id="feedback" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div role="dialog" aria-modal="true" aria-labelledby="feedbackText" class="bg-white rounded-3xl p-8 text-center max-w-md mx-4">
         <div id="feedbackIcon" class="text-8xl mb-4">🎉</div>
@@ -349,7 +348,7 @@
     </div>
   </div>
 
-  <!-- Results Screen -->
+  <!-- Results -->
   <div id="resultsScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full relative overflow-hidden">
       <div class="text-8xl mb-4">🏆</div>
@@ -388,7 +387,7 @@
     </footer>
   </div>
 
-  <!-- Mistakes Review Screen -->
+  <!-- Mistakes Review -->
   <div id="mistakesScreen" class="hidden min-h-screen p-6">
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="text-center mb-8">
@@ -413,7 +412,7 @@
     </div>
   </div>
 
-  <!-- Tutorial Screen -->
+  <!-- Tutorial (per mistake) -->
   <div id="tutorialScreen" class="hidden min-h-screen p-6">
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="text-center mb-8">
@@ -422,13 +421,13 @@
         <p class="text-lg text-gray-600">בואו נלמד יחד איך לפתור את השאלה הזו!</p>
       </div>
       <div id="tutorialSteps" class="space-y-8 mb-8"></div>
+
       <div id="interactiveArea" class="bg-blue-50 rounded-2xl p-6 mb-8 text-center">
         <h3 class="subhead text-blue-600 mb-4">נסה בעצמך!</h3>
-        <div id="interactiveContent" class="flex flex-wrap justify-center gap-2 mb-4"></div>
-        <div id="interactiveInstructions" role="status" aria-live="polite" class="text-gray-600">
-          לחץ על הכפתורים כדי להוסיף או להחסיר ולהגיע לתוצאה
-        </div>
+        <div id="interactiveContent" class="flex flex-col items-center justify-center gap-3 mb-4"></div>
+        <div id="interactiveInstructions" role="status" aria-live="polite" class="text-gray-600">השתמש/י בכפתורים כדי להגיע לתוצאה</div>
       </div>
+
       <div class="flex justify-center gap-4 flex-wrap">
         <button id="backToMistakes" class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-full text-lg font-bold hover:scale-105 transition-all duration-200 shadow-lg">חזור לרשימת הטעויות</button>
         <button type="button" id="restartFromTutorial" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-full text-lg font-bold hover:scale-105 transition-all duration-200 shadow-lg">התחל מחדש</button>
@@ -436,7 +435,7 @@
     </div>
   </div>
 
-  <!-- Profile Screen -->
+  <!-- Profile -->
   <div id="profileScreen" class="hidden min-h-screen p-6">
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
@@ -482,10 +481,9 @@
     let questionCount=null, currentCurriculum=null;
     let activeMistake=null;
 
-    /* ========= Store ========= */
+    /* ========= Store (local profiles) ========= */
     const STORE_KEY='mspr_profiles_v1';
-    let store=null;
-    let memOnly=false;
+    let store=null; let memOnly=false;
 
     function uuid(){
       return 'xxxxxxxyxxxx'.replace(/[xy]/g, c=>{
@@ -495,25 +493,22 @@
     }
 
     function storeInit(){
-      try{ store = JSON.parse(localStorage.getItem(STORE_KEY)||'null'); }
-      catch{ store=null; memOnly=true; }
+      try{
+        store = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
+      }catch{ store=null; memOnly=true; }
       if(!store){
         store = { version:1, installedAt:Date.now(), activeId:null, profiles:{} };
-        try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch{ memOnly=true; }
+        try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
+        catch{ memOnly=true; }
       }
     }
     function saveStore(){ if(memOnly) return; try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }catch{ memOnly=true; } }
     function profilesArr(){ return Object.entries(store.profiles).map(([id,p])=>({id,...p})); }
     function getActiveProfile(){ return store.activeId ? store.profiles[store.activeId]||null : null; }
-    function setActiveProfile(id){
-      if(!store.profiles[id]) return;
-      store.activeId = id;
-      store.profiles[id].lastSeen = Date.now();
-      saveStore();
-    }
+    function setActiveProfile(id){ if(!store.profiles[id]) return; store.activeId=id; store.profiles[id].lastSeen=Date.now(); saveStore(); }
     function ensureProfileByName(name){
       const norm=(name||'').trim(); if(!norm) return null;
-      const existing = profilesArr().find(p=>p.name.trim()===norm);
+      const existing=profilesArr().find(p=>p.name.trim()===norm);
       if(existing){ setActiveProfile(existing.id); return existing; }
       const id=uuid();
       store.profiles[id]={ name:norm, createdAt:Date.now(), lastSeen:Date.now(),
@@ -525,20 +520,15 @@
     function logSessionToProfile(){
       const prof=getActiveProfile(); if(!prof) return;
       const entry={ id:uuid(), ts:Date.now(), curriculum:currentCurriculum, op:currentOperation, diff:currentDifficulty,
-        count:totalQuestions, correct:correctCount, avgSec:Math.max(1,Math.round(totalTime/Math.max(1,totalQuestions))), mistakesCount:mistakes.length };
+        count:totalQuestions, correct:correctCount, avgSec:Math.max(1,Math.round(totalTime/Math.max(1,totalQuestions))),
+        mistakesCount:mistakes.length };
       prof.history.unshift(entry); if(prof.history.length>100) prof.history.pop();
-      prof.totals.sets += 1;
-      prof.totals.questions += totalQuestions;
-      prof.totals.correct += correctCount;
-      prof.totals.timeSec += Math.round(totalTime);
+
+      prof.totals.sets+=1; prof.totals.questions+=totalQuestions; prof.totals.correct+=correctCount; prof.totals.timeSec+=Math.round(totalTime);
 
       const bucket=currentOperation||'mixed';
       if(!prof.byOp[bucket]) prof.byOp[bucket]={sets:0,questions:0,correct:0,timeSec:0};
-      prof.byOp[bucket].sets += 1;
-      prof.byOp[bucket].questions += totalQuestions;
-      prof.byOp[bucket].correct += correctCount;
-      prof.byOp[bucket].timeSec += Math.round(totalTime);
-
+      prof.byOp[bucket].sets+=1; prof.byOp[bucket].questions+=totalQuestions; prof.byOp[bucket].correct+=correctCount; prof.byOp[bucket].timeSec+=Math.round(totalTime);
       saveStore();
     }
 
@@ -563,16 +553,23 @@
     const $=sel=>document.querySelector(sel);
     const $$=sel=>document.querySelectorAll(sel);
     const randInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
-    function shuffle(a){const c=a.slice();for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]]}return c}
-
-    /* ========= Status ========= */
+    function shuffle(a){const c=a.slice();for(let i=c.length-1;i>0;i++){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]]}return c}
+    function focusTop(selector){
+      const el=typeof selector==='string'?document.querySelector(selector):selector;
+      const target=el||document.body;
+      if(target && !target.hasAttribute('tabindex')) target.setAttribute('tabindex','-1');
+      requestAnimationFrame(()=>{
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        try{ target && target.focus({preventScroll:true}); }catch{}
+      });
+    }
     function updateStatus(msg){ const el=$('#statusMsg'); if(el) el.textContent=msg||''; }
     function showCoach(msg){ updateStatus(msg); }
     function hideCoach(){}
     function placeCoach(){}
 
-    /* ========= Audio (QA) ========= */
-    let isMuted=false, audioCtx=null, audioUnlocked=false, lastTickAt=0;
+    /* ========= Audio (Safari-safe) ========= */
+    let isMuted=false, audioCtx=null, audioUnlocked=false;
 
     function getAudioCtx(){
       if(isMuted) return null;
@@ -586,43 +583,33 @@
       if(audioUnlocked||isMuted) return;
       const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
       if(!audioCtx) audioCtx=new AC();
-      try{ const p=audioCtx.resume&&audioCtx.resume(); if(p?.catch) p.catch(()=>{}); }catch{}
+      try{ const p=audioCtx.resume&&audioCtx.resume(); if(p&&p.catch) p.catch(()=>{}); }catch{}
       try{
         const buffer=audioCtx.createBuffer(1,1,audioCtx.sampleRate);
-        const src=audioCtx.createBufferSource(), gain=audioCtx.createGain();
-        gain.gain.value=0.0001; src.buffer=buffer; src.connect(gain); gain.connect(audioCtx.destination);
-        src.start(0); setTimeout(()=>{ try{src.disconnect(); gain.disconnect();}catch{} audioUnlocked=true; },0);
+        const src=audioCtx.createBufferSource(); const gain=audioCtx.createGain(); gain.gain.value=0.0001;
+        src.buffer=buffer; src.connect(gain); gain.connect(audioCtx.destination); src.start(0);
+        setTimeout(()=>{ try{ src.disconnect(); gain.disconnect(); }catch{} audioUnlocked=true; },0);
       }catch{
         try{ const t=audioCtx.currentTime, o=audioCtx.createOscillator(), g=audioCtx.createGain();
           g.gain.setValueAtTime(0.0001,t); o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.02); audioUnlocked=true; }catch{}
       }
     }
+    function ensureUnlocked(){ const ctx=getAudioCtx(); if(!ctx) return; if(!audioUnlocked) unlockAudioOnce(); }
     function tone(freq,dur,t,type='sine',gain=0.24){
-      if(isMuted||dur<=0) return; unlockAudioOnce();
-      const ctx=getAudioCtx(); if(!ctx) return;
-      const start=typeof t==='number'?t:ctx.currentTime;
-      const o=ctx.createOscillator(), g=ctx.createGain();
+      if(isMuted) return; ensureUnlocked(); const ctx=getAudioCtx(); if(!ctx) return;
+      const start=typeof t==='number'?t:ctx.currentTime; const o=ctx.createOscillator(); const g=ctx.createGain();
       o.type=type; o.frequency.setValueAtTime(freq,start);
-      g.gain.setValueAtTime(Math.max(0.0001,gain),start);
-      g.gain.exponentialRampToValueAtTime(0.001,start+dur);
-      o.connect(g); g.connect(ctx.destination);
-      try{ o.start(start); o.stop(start+dur); }catch{}
+      g.gain.setValueAtTime(gain,start); g.gain.exponentialRampToValueAtTime(0.001,start+dur);
+      o.connect(g); g.connect(ctx.destination); try{ o.start(start); o.stop(start+dur); }catch{}
     }
-    function playSelectTick(){
-      const ctx=getAudioCtx(); if(!ctx){ unlockAudioOnce(); return; }
-      const now=performance.now(); if(now-lastTickAt<60) return; lastTickAt=now;
-      const t=ctx.currentTime; tone(520,0.10,t,'triangle',0.22);
-    }
-    function playSuccessSound(){ const ctx=getAudioCtx(); if(!ctx){ unlockAudioOnce(); return; } const t=ctx.currentTime;
-      tone(523.25,0.12,t,'sine',0.20); tone(659.25,0.12,t+0.10,'sine',0.18); tone(783.99,0.14,t+0.20,'sine',0.16); }
-    function playErrorSound(){ const ctx=getAudioCtx(); if(!ctx){ unlockAudioOnce(); return; } const t=ctx.currentTime;
-      tone(220,0.12,t,'square',0.18); tone(180,0.12,t+0.10,'square',0.16); }
+    function playSelectTick(){ const ctx=getAudioCtx(); if(!ctx){ ensureUnlocked(); return; } const t=ctx.currentTime; tone(520,0.10,t,'triangle',0.24); }
+    function playSuccessSound(){ const ctx=getAudioCtx(); if(!ctx){ ensureUnlocked(); return; } const t=ctx.currentTime; tone(523.25,0.12,t,'sine',0.22); tone(659.25,0.12,t+0.1,'sine',0.20); tone(783.99,0.14,t+0.2,'sine',0.18); }
+    function playErrorSound(){ const ctx=getAudioCtx(); if(!ctx){ ensureUnlocked(); return; } const t=ctx.currentTime; tone(220,0.12,t,'square',0.20); tone(180,0.12,t+0.1,'square',0.18); }
     function initAudioToggle(){
       const btn=$('#audioToggle'); if(!btn) return;
       try{ isMuted=localStorage.getItem('soundMuted')==='true'; }catch{ isMuted=false; }
       btn.setAttribute('aria-pressed', isMuted?'true':'false');
-      btn.addEventListener('click',()=>{ isMuted=!isMuted; btn.setAttribute('aria-pressed', isMuted?'true':'false');
-        try{ localStorage.setItem('soundMuted', String(isMuted)); }catch{} if(!isMuted) unlockAudioOnce(); });
+      btn.addEventListener('click',()=>{ isMuted=!isMuted; btn.setAttribute('aria-pressed', isMuted?'true':'false'); try{ localStorage.setItem('soundMuted', String(isMuted)); }catch{} if(!isMuted) unlockAudioOnce(); });
     }
     document.addEventListener('click',e=>{
       const el=e.target.closest('button,.op-btn,.choice-card,.chip,.link-cta');
@@ -637,14 +624,18 @@
 
     /* ========= Screen switcher ========= */
     const SCREENS=['welcomeScreen','nameScreen','curriculumScreen','operationScreen','difficultyScreen','gameScreen','resultsScreen','mistakesScreen','tutorialScreen','profileScreen'];
-    function showScreen(id){ SCREENS.forEach(s=>$('#'+s)?.classList.add('hidden')); $('#'+id)?.classList.remove('hidden'); window.scrollTo({top:0,left:0,behavior:'auto'}); }
+    function showScreen(id){
+      SCREENS.forEach(s=>$('#'+s)?.classList.add('hidden'));
+      $('#'+id)?.classList.remove('hidden');
+      window.scrollTo({top:0,left:0,behavior:'auto'});
+    }
 
     /* ========= Curriculum gating ========= */
     function applyCurriculumToOperationButtons(){
       const cur=curricula[currentCurriculum]; const allowed=cur&&cur.operations?cur.operations:null;
       $$('#opsGrid .op-btn').forEach(btn=>{
         const op=btn.getAttribute('data-op');
-        const enabled=!allowed||op==='mixed'||allowed.includes(op);
+        const enabled=!allowed || op==='mixed' || allowed.includes(op);
         btn.classList.toggle('opacity-50',!enabled);
         btn.classList.toggle('pointer-events-none',!enabled);
         btn.classList.toggle('cursor-not-allowed',!enabled);
@@ -660,7 +651,8 @@
     /* ========= Curriculum overflow ========= */
     let isCurriculumExpanded=false;
     function refreshCurriculumOverflow(){
-      const grid=$('#curriculumGrid'), more=$('#curriculumMore'), fade=$('#curriculumFade'); if(!grid||!more||!fade) return;
+      const grid=$('#curriculumGrid'), more=$('#curriculumMore'), fade=$('#curriculumFade');
+      if(!grid||!more||!fade) return;
       const overflow=grid.scrollHeight>grid.clientHeight+2;
       more.classList.toggle('hidden', !overflow && !isCurriculumExpanded);
       fade.classList.toggle('hidden', isCurriculumExpanded || !overflow);
@@ -674,9 +666,10 @@
       refreshCurriculumOverflow();
     }
 
-    /* ========= Build questions ========= */
+    /* ========= Question generation ========= */
     function getEffectiveRules(diff){
-      const base=Object.assign({},rulesByDifficulty[diff]); const cur=curricula[currentCurriculum]||{};
+      const base=Object.assign({},rulesByDifficulty[diff]);
+      const cur=curricula[currentCurriculum]||{};
       ['addSubMax','mulMax','divMaxDivisor','divMaxQuotient'].forEach(k=>{ if(typeof cur[k]!=='undefined') base[k]=cur[k]; });
       return base;
     }
@@ -714,7 +707,7 @@
       const subtitle=$('#nameSubtitle');
       if(prof){ $('#playerName').value=prof.name; subtitle.textContent=`נעים לראותך שוב, ${prof.name}!`; subtitle.classList.remove('hidden'); }
       else{ $('#playerName').value=''; subtitle.classList.add('hidden'); }
-      updateStatus('');
+      focusTop('#nameTitle'); updateStatus('');
     }
 
     function trapDialog(modalSel){
@@ -755,7 +748,7 @@
       $$('#curriculumGrid .choice-card').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
       const btn=$('#curriculumNext'); btn.disabled=true; btn.setAttribute('aria-disabled','true');
       setCurriculumExpanded(false); requestAnimationFrame(refreshCurriculumOverflow);
-      updateStatus('');
+      focusTop('#curriculumTitle'); updateStatus('');
     }
 
     function showOperationSelect(){
@@ -764,18 +757,20 @@
       currentOperation=null; questionCount=null;
       $$('#opsGrid .op-btn').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
       $$('#questionChips .chip').forEach(c=>{ c.classList.remove('selected'); c.setAttribute('aria-pressed','false'); });
-      applyCurriculumToOperationButtons(); updateOperationNextState(); updateStatus('');
+      applyCurriculumToOperationButtons(); updateOperationNextState();
+      focusTop('#operationTitle'); updateStatus('');
     }
 
     function showDifficultySelect(){
       if(!currentOperation || !questionCount){ alert('בחר/י סוג תרגיל ומספר שאלות'); return; }
       showScreen('difficultyScreen');
       $$('#difficultyScreen .diff-btn').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
-      updateStatus('');
+      focusTop('#difficultyTitle'); updateStatus('');
     }
 
     function startGame(diff){
-      $('#feedback')?.classList.add('hidden'); $('#nextButton')?.onclick=null;
+      $('#feedback')?.classList.add('hidden');
+      const nb=$('#nextButton'); if(nb) nb.onclick=null;
       currentDifficulty=diff; currentQuestionIndex=0; correctCount=0; totalTime=0; mistakes=[]; selectedAnswer=null;
 
       questions=generatePracticeSet(currentOperation,diff,questionCount||6);
@@ -783,11 +778,15 @@
 
       totalQuestions=questions.length; $('#totalQuestions').textContent=totalQuestions; $('#resultsTotal').textContent=totalQuestions;
       showScreen('gameScreen');
-      const prof=getActiveProfile(); playerName = prof ? prof.name : playerName; $('#gamePlayerName').textContent=playerName;
+
+      const prof=getActiveProfile(); playerName = prof ? prof.name : playerName;
+      $('#gamePlayerName').textContent=playerName;
 
       const pb=$('#progressBar'); pb.style.width='0%'; pb.setAttribute('aria-valuenow','0');
 
-      showQuestion(); updateStatus('יצאנו לדרך! בחר/י תשובה ואז אשר/י.');
+      showQuestion();
+      focusTop('#questionText');
+      showCoach('יצאנו לדרך! בחר/י תשובה ואז אשר/י.');
     }
 
     /* ========= Game ========= */
@@ -808,37 +807,49 @@
       startTime=Date.now();
       placeCoach('game');
     }
+
     function enableConfirm(){ const btn=$('#confirmButton'); btn.disabled=false; btn.removeAttribute('disabled'); btn.setAttribute('aria-disabled','false'); }
     function disableConfirm(){ const btn=$('#confirmButton'); btn.disabled=true; btn.setAttribute('disabled',''); btn.setAttribute('aria-disabled','true'); }
 
     function confirmAnswer(){
       unlockAudioOnce();
-      const btn=$('#confirmButton'); if(!btn || btn.hasAttribute('disabled')) return;
+      const btn=$('#confirmButton');
+      if(!btn || btn.hasAttribute('disabled')) return;
       if(selectedAnswer===null) return;
+
       disableConfirm();
 
       const correct=questions[currentQuestionIndex].answer;
-      totalTime += (Date.now() - startTime) / 1000;
-      const isLast = currentQuestionIndex === totalQuestions - 1;
+      const end=Date.now();
+      totalTime+=(end-startTime)/1000;
 
-      if(selectedAnswer===correct){ correctCount++; playSuccessSound(); showCoach(isLast?'מעולה! סיימנו את הסט — עוברים לסיכום.':'כל הכבוד! לשאלה הבאה…'); }
-      else{
+      const isLast=currentQuestionIndex===totalQuestions-1;
+
+      if(selectedAnswer===correct){
+        correctCount++; playSuccessSound();
+        showCoach(isLast ? 'מעולה! סיימנו את הסט — עוברים לסיכום.' : 'כל הכבוד! לשאלה הבאה…');
+      }else{
         mistakes.push({ question:questions[currentQuestionIndex], userAnswer:selectedAnswer, correctAnswer:correct, reviewed:false });
-        playErrorSound(); showCoach(isLast?'סיימנו את הסט — עוברים לסיכום.':'כמעט! ממשיכים לשאלה הבאה…');
+        playErrorSound();
+        showCoach(isLast ? 'סיימנו את הסט — עוברים לסיכום.' : 'כמעט! ממשיכים לשאלה הבאה…');
       }
 
-      if(isLast) showFinalFeedback(); else setTimeout(nextQuestion,900);
+      if(isLast){ showFinalFeedback(); }
+      else{ setTimeout(nextQuestion, 900); }
     }
 
     function showFinalFeedback(){
       const fb=$('#feedback'), icon=$('#feedbackIcon'), text=$('#feedbackText'), nextBtn=$('#nextButton');
       const pct=Math.round((correctCount/totalQuestions)*100);
+
       if(pct===100){ icon.textContent='👏'; text.className='text-2xl font-bold mb-6 text-green-600'; text.textContent='ואוו אליפות, סיימנו את הסט'; }
       else if(pct>=60){ icon.textContent='👏'; text.className='text-2xl font-bold mb-6 text-blue-600'; text.textContent='עבודה טובה, סיימנו את הסט'; }
       else{ icon.textContent='💪'; text.className='text-2xl font-bold mb-6 text-orange-600'; text.textContent='סיימנו את הסט'; }
+
       nextBtn.textContent='לסיכום התוצאות';
-      nextBtn.onclick=()=>{ fb.classList.add('hidden'); showResults(); };
-      fb.classList.remove('hidden'); trapDialog('#feedback');
+      nextBtn.onclick=()=>{ $('#feedback').classList.add('hidden'); showResults(); };
+      fb.classList.remove('hidden');
+      trapDialog('#feedback');
     }
 
     function nextQuestion(){
@@ -849,7 +860,6 @@
 
     function getResultsTitleCopy(name,pct){
       if(pct===0) return `לא נורא ${name}, שופי בטוח שבפעם הבאה תהיה תוצאה טובה יותר`;
-      else if(pct<=40) return `${name} רואים שיפור, שופי מחכה לתרגול נוסף`;
       else if(pct<=59) return `${name} רואים שיפור, שופי מחכה לתרגול נוסף`;
       else if(pct<=79) return `${name} עבודה טובה, שופי מחכה לתרגול נוסף`;
       else if(pct<=89) return `ואוו ${name}, איזו שליטה נמשיך לתרגל עם שופי`;
@@ -858,7 +868,9 @@
 
     function showResults(){
       showScreen('resultsScreen');
-      const incorrect=totalQuestions-correctCount, pct=Math.round((correctCount/totalQuestions)*100);
+
+      const incorrect=totalQuestions-correctCount;
+      const pct=Math.round((correctCount/totalQuestions)*100);
       const prof=getActiveProfile(); const displayName=prof?prof.name:playerName;
       $('#resultsTitle').textContent=getResultsTitleCopy(displayName,pct);
 
@@ -874,8 +886,10 @@
 
       logSessionToProfile();
 
-      let coachText='סיכום הסט הושלם.'; coachText += mistakes.length===0?' אפשר לתרגל מחדש.': (mistakes.length===1?' אפשר לתרגל מחדש או ללמוד מהטעות.':' אפשר לתרגל מחדש או ללמוד מהטעויות.');
+      let coachText='סיכום הסט הושלם.'; if(mistakes.length===0) coachText+=' אפשר לתרגל מחדש.'; else if(mistakes.length===1) coachText+=' אפשר לתרגל מחדש או ללמוד מהטעות.'; else coachText+=' אפשר לתרגל מחדש או ללמוד מהטעויות.';
       updateStatus(coachText);
+
+      focusTop('#resultsTitle');
     }
 
     function updatePerformanceBar(correct,incorrect,pct){
@@ -892,15 +906,14 @@
       const incorrect=totalQuestions-correctCount;
       $('#mistakesCorrectBar').style.width=((correctCount/totalQuestions)*100)+'%';
       $('#mistakesIncorrectBar').style.width=((incorrect/totalQuestions)*100)+'%';
-
       const mm=$('#mistakesMessage');
       if(mistakes.length===0){
-        mm.textContent='מושלם! ענית נכון על '+totalQuestions+' השאלות! 🌟';
+        mm.textContent='מושלם! ענית נכון על כל '+totalQuestions+' השאלות! 🌟';
         mm.className='subhead text-green-600 mb-4';
         $('#mistakesList').innerHTML='<div class="text-center p-8"><div class="text-6xl mb-4">🎉</div><h3 class="text-2xl font-bold text-green-600">מעולה!</h3><p class="text-lg text-gray-600">לא היו לך טעויות במשחק הזה!</p></div>';
-        return;
+        focusTop('#mistakesTitle'); return;
       } else if(correctCount>0){
-        mm.textContent='ענית נכון על '+correctCount+' מתוך '+totalQuestions+' – בואו נלמד מה-'+mistakes.length+' שנשארו';
+        mm.textContent='ענית נכון על '+correctCount+' מתוך '+totalQuestions+' - בואו נלמד מה-'+mistakes.length+' שנשארו';
         mm.className='subhead text-blue-600 mb-4';
       } else {
         mm.textContent='בואו נלמד יחד איך לפתור את השאלות האלה';
@@ -910,9 +923,9 @@
       const list=$('#mistakesList'); list.innerHTML='';
       questions.forEach((q,i)=>{
         const m=mistakes.find(x=>x.question.id===q.id); if(!m) return;
-        const d=document.createElement('button');
-        d.type='button';
-        d.className='w-full text-right bg-orange-50 border-2 border-orange-200 rounded-2xl p-6 cursor-pointer hover:bg-orange-100 transition-colors';
+        const why=getWhyTip(m);
+        const d=document.createElement('div');
+        d.className='bg-orange-50 border-2 border-orange-200 rounded-2xl p-6 cursor-pointer hover:bg-orange-100 transition-colors';
         d.onclick=()=>showTutorial(m);
         d.innerHTML=`
           <div class="flex items-center justify-between mb-4">
@@ -920,10 +933,10 @@
               <div class="w-4 h-4 bg-orange-500 rounded-full"></div>
               <h3 class="text-xl font-bold text-orange-600">שאלה ${(i+1)}</h3>
             </div>
-            <div class="text-2xl">👉</div>
+            <div class="text-2xl">🤔</div>
           </div>
           <div class="text-2xl font-bold text-gray-800 mb-4 ltr">${m.question.questionText}</div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
             <div class="bg-red-100 border-2 border-red-300 rounded-xl p-4">
               <div class="text-sm text-red-600 font-bold mb-1">התשובה שלך:</div>
               <div class="text-xl font-bold text-red-700 ltr">${m.userAnswer}</div>
@@ -933,18 +946,22 @@
               <div class="text-xl font-bold text-green-700 ltr">${m.correctAnswer}</div>
             </div>
           </div>
+          <div class="text-sm text-gray-600 mb-2">${why?('למה זה קרה? ' + why):''}</div>
+          <div class="text-center text-blue-600 font-bold">👆 לחץ כאן כדי ללמוד איך לפתור</div>
         `;
         list.appendChild(d);
       });
-      updateStatus('לחץ על שאלה כדי לתרגל ולהגיע לתוצאה.');
+      focusTop('#mistakesTitle');
+      updateStatus('לחץ על שאלה כדי לראות הסבר אינטראקטיבי.');
     }
 
     function showTutorial(m){
       activeMistake=m;
       showScreen('tutorialScreen');
       const q=m.question; const title=$('#tutorialTitle'); title.textContent=q.questionText;
-      createTutorialSteps(q); startBallTutor(q);
-      updateStatus('הנה תרגול אינטראקטיבי. הוסף/י או החסר/י עד שמגיעים לתוצאה.');
+      createTutorialSteps(q); createInteractiveDemoNumeric(q);
+      requestAnimationFrame(()=>{ title.focus({preventScroll:true}); window.scrollTo({top:0,behavior:'auto'}); });
+      updateStatus('הנה הסבר צעד־אחר־צעד. השתמש/י בכפתורי המספרים כדי להגיע לתוצאה.');
     }
 
     function createTutorialSteps(q){
@@ -956,157 +973,268 @@
         c.appendChild(d);
       });
     }
+
     function getTutorialSteps(q){
       const {operation,num1,num2,answer}=q;
       if(operation==='addition') return[
-        {title:'הבנת השאלה',description:`אנחנו רוצים לדעת כמה זה ${num1} + ${num2}.`},
-        {title:'התקדמות לתוצאה',description:`הוסיפו עד שתגיעו ל־${answer}.`},
-        {title:'בדיקה',description:'בדקו שהמספר הנוכחי שווה למטרה.'},
-        {title:'סיום',description:'הגעתם לתוצאה — מעולה!'}
+        {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+num1+' + '+num2+'.'},
+        {title:'לבנות את המספר',description:'נשתמש בכפתורי מספרים כדי להגיע לתוצאה — עדיף להתחיל בצעדים גדולים ואז לדייק.'},
+        {title:'דיוק',description:'כשקרובים לתוצאה, עוברים לצעדים קטנים יותר (למשל +1).'},
+        {title:'התוצאה',description:'עוצרים בדיוק ב־'+answer+'.'}
       ];
       if(operation==='subtraction') return[
-        {title:'הבנת השאלה',description:`אנחנו רוצים לדעת כמה זה ${num1} - ${num2}.`},
-        {title:'התקדמות לתוצאה',description:`החסירו/הוסיפו עד שתגיעו ל־${answer}.`},
-        {title:'בדיקה',description:'בדקו שהמספר הנוכחי שווה למטרה.'},
-        {title:'סיום',description:'הגעתם לתוצאה — מעולה!'}
+        {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+num1+' - '+num2+'.'},
+        {title:'להגיע למספר היעד',description:'נתחיל מ־'+num1+' ונחסר בצעדים גדולים, ואז נעבור לקטנים.'},
+        {title:'דיוק',description:'אפשר גם להחזיר מעט עם +1 אם ירדנו יותר מדי.'},
+        {title:'התוצאה',description:'עוצרים בדיוק ב־'+answer+'.'}
       ];
       if(operation==='multiplication') return[
-        {title:'הבנת השאלה',description:`אנחנו רוצים לדעת כמה זה ${num1} × ${num2}.`},
-        {title:'צעדים יעילים',description:'השתמשו בצעדים גדולים ואז דקיקים.'},
-        {title:'בדיקה',description:`כוונו ל־${answer}.`},
-        {title:'סיום',description:'הגעתם לתוצאה — מעולה!'}
+        {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+num1+' × '+num2+'.'},
+        {title:'קבוצות שוות',description:'נוסיף קבוצות במספרים (לא פריטים), כל קבוצה בגודל '+num2+'.'},
+        {title:'סכימה',description:'סופרים את מספר הקבוצות שהוספנו ומציגים את הסך הכל כקבוצות×גודל.'},
+        {title:'התוצאה',description:'כאשר נוסיף '+num1+' קבוצות נקבל '+answer+'.'}
       ];
       if(operation==='division'){
-        const dividend=num1*num2, divisor=num2;
+        const dividend = num1 * num2; const divisor=num2;
         return[
-          {title:'הבנת השאלה',description:`אנחנו רוצים לדעת כמה זה ${dividend} ÷ ${divisor}.`},
-          {title:'צעדים יעילים',description:'השתמשו בצעדים גדולים ואז דקיקים.'},
-          {title:'בדיקה',description:`כוונו ל־${answer}.`},
-          {title:'סיום',description:'הגעתם לתוצאה — מעולה!'}
+          {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+dividend+' ÷ '+divisor+'.'},
+          {title:'יצירת קבוצות',description:'נוסיף קבוצות אחת אחת (או בקפיצות), כל קבוצה בגודל '+divisor+'.'},
+          {title:'עצירה בזמן',description:'עוצרים כשסיימנו לחלק את כל ה־'+dividend+' ללא שארית.'},
+          {title:'התוצאה',description:'מספר הקבוצות הוא '+answer+'.'}
         ];
       }
       return [];
     }
+
     function markActiveMistakeReviewed(){ if(!activeMistake) return; activeMistake.reviewed=true; }
 
-    /* === Learn-from-mistakes: כדורים עד 100; מעל 100 תצוגה מספרית בלבד === */
-
-    function stepsForTarget(n){
-      if(n<=20) return [1];
-      if(n<=100) return [10,5,1];
-      return [100,50,20,10,5,1];
+    /* === Numeric-only interactive demos (no balls/boxes) === */
+    function stepSetByMagnitude(maxVal){
+      if(maxVal<=20) return [5,1];        // כולל +1 ו+5
+      if(maxVal<=100) return [10,5,1];    // עד 100
+      return [100,50,20,10,5,1];          // מעל 100
     }
 
-    function drawGroup(container,size){
-      const wrap=document.createElement('div');
-      wrap.className='inline-flex flex-col items-center justify-center border-2 rounded-xl bg-white m-1 p-2';
-      wrap.style.borderColor='#e5e7eb';
-      let rows=1, cols=size;
-      if(size===1){rows=1; cols=1;}
-      if(size===5){rows=1; cols=5;}
-      if(size===10){rows=1; cols=10;}
-      if(size===20){rows=2; cols=10;}
-      if(size===50){rows=5; cols=10;}
-      if(size===100){rows=10; cols=10;}
-      const grid=document.createElement('div');
-      grid.className='grid gap-[3px]';
-      grid.style.gridTemplateColumns=`repeat(${cols}, minmax(0, 1fr))`;
-      grid.style.maxWidth='min(92vw, 520px)';
-      const dotSize=size>=50?8:(size>=20?10:14);
-      const dotBg=size>=50?'#a5b4fc':(size>=20?'#93c5fd':'#60a5fa');
-      const total=rows*cols;
-      for(let i=0;i<total;i++){
-        const b=document.createElement('span');
-        b.style.display='inline-block'; b.style.width=dotSize+'px'; b.style.height=dotSize+'px';
-        b.style.borderRadius='9999px'; b.style.background=dotBg; grid.appendChild(b);
-      }
-      wrap.appendChild(grid); container.appendChild(wrap);
+    function makeStepButton(label,onClick){
+      const b=document.createElement('button');
+      b.className='chip';
+      b.textContent=label;
+      b.onclick=()=>{ unlockAudioOnce(); onClick(); };
+      return b;
     }
 
-    function renderBallCount(container,count){
-      container.innerHTML='';
-      const groups=stepsForTarget(Math.max(count,1)).slice().sort((a,b)=>b-a);
-      let remaining=count;
-      groups.forEach(g=>{
-        const k=Math.floor(remaining/g);
-        for(let i=0;i<k;i++) drawGroup(container,g);
-        remaining=remaining%g;
-      });
-      while(remaining>0){ drawGroup(container,1); remaining--; }
-    }
-
-    // NEW: מצב מהיר למספרים גבוהים — רק מונה מספרי, בלי ציור כדורים
-    function startBallTutor(q){
+    // Addition/Subtraction: general numeric stepper toward target
+    function numericStepper({start,target,allowNegative=false}){
       const area=$('#interactiveContent'), info=$('#interactiveInstructions');
       area.innerHTML='';
-      const target=q.answer;
-      let current=(q.operation==='addition'||q.operation==='subtraction')? q.num1 : 0;
+      let cur=start;
 
-      const numericOnly = target>100;
+      const bigBox=document.createElement('div');
+      bigBox.className='inline-flex items-center justify-center text-4xl font-extrabold text-gray-900 rounded-2xl border-2 border-blue-300 bg-white px-8 py-5 mb-2 ltr tabular-nums';
+      bigBox.textContent=cur; area.appendChild(bigBox);
 
-      const title=document.createElement('div');
-      title.className='text-xl font-extrabold text-gray-800 mb-2';
-      title.textContent=`המטרה: ${target}`;
+      const hint=document.createElement('div');
+      hint.className='text-sm text-gray-600 mb-2'; hint.textContent=`מטרה: ${target}`; area.appendChild(hint);
 
-      const status=document.createElement('div');
-      status.className='text-2xl font-extrabold text-blue-700 mb-3 ltr tabular-nums';
-      status.textContent=`${current}`;
-
-      const ballsWrap=document.createElement('div');
-      ballsWrap.className='flex flex-wrap items-start justify-center mb-3';
-
-      const btnRow=document.createElement('div');
-      btnRow.className='flex flex-wrap gap-2 justify-center my-2';
-
-      const steps=stepsForTarget(target);
-      steps.forEach(step=>{
-        const plus=document.createElement('button');
-        plus.type='button'; plus.className='chip'; plus.textContent=`+${step}`;
-        plus.onclick=()=>{ unlockAudioOnce(); current+=step; playSelectTick(); update(); };
-
-        const minus=document.createElement('button');
-        minus.type='button'; minus.className='chip'; minus.textContent=`-${step}`;
-        minus.onclick=()=>{ unlockAudioOnce(); current=Math.max(0,current-step); playSelectTick(); update(); };
-
-        btnRow.appendChild(plus); btnRow.appendChild(minus);
+      const steps=stepSetByMagnitude(Math.max(Math.abs(start),Math.abs(target)));
+      const row=document.createElement('div'); row.className='flex flex-wrap gap-3 justify-center';
+      steps.forEach(s=>{
+        row.appendChild(makeStepButton('+'+s,()=>{ cur+=s; update(); }));
       });
+      if(allowNegative){
+        steps.forEach(s=>{
+          row.appendChild(makeStepButton('−'+s,()=>{ cur-=s; update(); }));
+        });
+      }
+      area.appendChild(row);
 
-      area.appendChild(title);
-      area.appendChild(status);
-      if(!numericOnly) area.appendChild(ballsWrap); // רק עד 100
-      area.appendChild(btnRow);
+      const reset=document.createElement('button');
+      reset.className='chip mt-2'; reset.textContent='איפוס';
+      reset.onclick=()=>{ cur=start; update(); };
+      area.appendChild(reset);
 
       function update(){
-        status.textContent=String(current);
-        if(!numericOnly) renderBallCount(ballsWrap,current);
-        if(current===target){
-          info.textContent='בול! הגעת לתוצאה 🎉';
+        bigBox.textContent=cur;
+        if(cur===target){
+          info.textContent='בול! הגעת לתוצאה המבוקשת 🎉';
           info.className='text-green-600 font-bold text-lg';
-          try{ playSuccessSound(); }catch{}
           markActiveMistakeReviewed();
         }else{
-          info.textContent = current<target ? `הוסף/י עד ${target}` : `הסר/י עד ${target}`;
+          const dir = cur<target ? 'העלה' : 'הורד';
+          info.textContent=`${dir} את המספר עד ${target}`;
           info.className='text-gray-600';
         }
       }
       update();
     }
 
+    // Multiplication: add groups numerically (no items rendering)
+    function groupsNumericDemo(groupsNeeded, groupSize){
+      const area=$('#interactiveContent'), info=$('#interactiveInstructions');
+      area.innerHTML='';
+      let groups=0;
+
+      const totalBox=document.createElement('div');
+      totalBox.className='text-2xl font-extrabold text-gray-900 ltr tabular-nums';
+      const groupsBox=document.createElement('div');
+      groupsBox.className='text-xl font-bold text-blue-700';
+
+      const top=document.createElement('div');
+      top.className='flex flex-col items-center gap-1';
+      top.appendChild(groupsBox); top.appendChild(totalBox);
+      area.appendChild(top);
+
+      const steps=stepSetByMagnitude(groupsNeeded);
+      const row=document.createElement('div'); row.className='flex flex-wrap gap-3 justify-center my-3';
+      steps.forEach(s=> row.appendChild(makeStepButton('+'+s+' קבוצות',()=>{ groups=Math.min(groupsNeeded, groups+s); update(); })));
+      row.appendChild(makeStepButton('איפוס',()=>{ groups=0; update(); }));
+      area.appendChild(row);
+
+      function update(){
+        groupsBox.textContent=`קבוצות: ${groups}/${groupsNeeded} (כל קבוצה ${groupSize})`;
+        totalBox.textContent=`סה״כ פריטים: ${groups*groupSize}`;
+        if(groups>=groupsNeeded){
+          info.textContent=`מעולה! ${groupsNeeded}×${groupSize} = ${groupsNeeded*groupSize} 🎉`;
+          info.className='text-green-600 font-bold text-lg';
+          markActiveMistakeReviewed();
+        }else{
+          info.textContent=`הוסיפו קבוצות עד ${groupsNeeded}`;
+          info.className='text-gray-600';
+        }
+      }
+      update();
+    }
+
+    // Division: add groups numerically until dividend is exhausted
+    function divisionNumericDemo(dividend, groupSize, groupsNeeded){
+      const area=$('#interactiveContent'), info=$('#interactiveInstructions');
+      area.innerHTML='';
+      let groups=0, remaining=dividend;
+
+      const remBox=document.createElement('div');
+      remBox.className='text-xl font-bold text-purple-700';
+      const groupsBox=document.createElement('div');
+      groupsBox.className='text-xl font-bold text-purple-700';
+      const bigRes=document.createElement('div');
+      bigRes.className='text-2xl font-extrabold text-gray-900 ltr tabular-nums mt-1 text-center';
+
+      const top=document.createElement('div');
+      top.className='grid grid-cols-1 sm:grid-cols-2 gap-3 items-start justify-center mb-2';
+      top.appendChild(remBox); top.appendChild(groupsBox); area.appendChild(top); area.appendChild(bigRes);
+
+      const steps=stepSetByMagnitude(groupsNeeded);
+      const row=document.createElement('div'); row.className='flex flex-wrap gap-3 justify-center my-3';
+      steps.forEach(s=> row.appendChild(makeStepButton('+'+s+' קבוצות',()=>{
+        const canAdd=Math.min(s, Math.floor(remaining/groupSize));
+        groups=Math.min(groupsNeeded, groups+canAdd);
+        remaining=Math.max(0, remaining - canAdd*groupSize);
+        update();
+      })));
+      row.appendChild(makeStepButton('איפוס',()=>{ groups=0; remaining=dividend; update(); }));
+      area.appendChild(row);
+
+      function update(){
+        remBox.textContent=`נשאר לחלק: ${remaining}`;
+        groupsBox.textContent=`קבוצות: ${groups}/${groupsNeeded} (כל קבוצה ${groupSize})`;
+        bigRes.textContent=`חולקו: ${groups*groupSize} מתוך ${dividend}`;
+        if(groups>=groupsNeeded || remaining<=0){
+          groups=groupsNeeded; remaining=0;
+          info.textContent=`מעולה! ${dividend} ÷ ${groupSize} = ${groupsNeeded} 🎉`;
+          info.className='text-green-600 font-bold text-lg';
+          markActiveMistakeReviewed();
+        }else{
+          info.textContent=`צרו קבוצות עד שתחלקו את כל ה־${dividend}`;
+          info.className='text-gray-600';
+        }
+      }
+      update();
+    }
+
+    // Create numeric interactive demo according to operation
+    function createInteractiveDemoNumeric(q){
+      const area=$('#interactiveContent'), info=$('#interactiveInstructions');
+      area.innerHTML=''; info.className='text-gray-600';
+
+      const {operation,num1,num2,answer}=q;
+
+      if(operation==='addition'){
+        // לבנות את המספר בעזרת צעדים — מתחילים מ-0 ועד לתשובה
+        numericStepper({start:0, target:answer, allowNegative:true});
+        info.textContent=`בנו את ${answer} בעזרת כפתורי מספרים (אפשר גם לחזור אחורה אם עברתם).`;
+        return;
+      }
+
+      if(operation==='subtraction'){
+        // מתחילים מהמספר הראשון ומגיעים לתוצאה בעזרת חיסור/הוספה
+        numericStepper({start:num1, target:answer, allowNegative:true});
+        info.textContent=`התחילו מ־${num1} והשתמשו בחיסור (ואם צריך בהוספה) כדי להגיע ל־${answer}.`;
+        return;
+      }
+
+      if(operation==='multiplication'){
+        groupsNumericDemo(num1, num2);
+        info.textContent=`הוסיפו קבוצות בגודל ${num2} עד שתגיעו ל־${num1} קבוצות.`;
+        return;
+      }
+
+      if(operation==='division'){
+        const dividend=num1*num2, size=num2, groupsNeeded=answer;
+        divisionNumericDemo(dividend, size, groupsNeeded);
+        info.textContent=`צרו קבוצות של ${size} עד שתחלקו את כל ה־${dividend}.`;
+        return;
+      }
+    }
+
+    /* ========= Why-tip ========= */
+    function getWhyTip(m){
+      const {operation,num1,num2,answer}=m.question; const ua=m.userAnswer;
+      if(operation==='addition'){
+        if(ua===num1-num2) return 'נראה שחיסרת במקום לחבר.';
+        return 'השתמש/י בצעדים גדולים (+10/‏+5) ואז לדייק עם +1.';
+      }
+      if(operation==='subtraction'){
+        if(ua===num1+num2) return 'נראה שחיברת במקום לחסר.';
+        return 'התחל/י מ־'+num1+' וחסר/י בצעדים גדולים (−10/‏−5) ואז דייק/י עם −1.';
+      }
+      if(operation==='multiplication'){
+        if(ua===num1+num2) return 'כפל הוא קבוצות שוות, לא חיבור חד־פעמי.';
+        return 'הוסיפו קבוצות (לא פריטים) עד שמספר הקבוצות שווה ל־'+num1+'.';
+      }
+      if(operation==='division'){
+        return 'צרו קבוצות שוות והפסיקו כשאין מה לחלק — מספר הקבוצות הוא התשובה.';
+      }
+      return '';
+    }
+
+    /* ========= Answers grid ========= */
+    function bindAnswerGrid(){
+      const grid=$('#answersGrid'); if(!grid) return;
+      grid.addEventListener('click',e=>{
+        const item=e.target.closest('.answer-item'); if(!item||!grid.contains(item)) return;
+        unlockAudioOnce(); chooseItem(item);
+      });
+      grid.addEventListener('keydown',e=>{
+        const item=e.target.closest('.answer-item'); if(!item||!grid.contains(item)) return;
+        if(e.key==='Enter'||e.key===' '){ e.preventDefault(); unlockAudioOnce(); chooseItem(item); }
+      });
+      function chooseItem(item){
+        $$('#answersGrid .answer-item').forEach(it=>{ it.classList.remove('selected'); it.setAttribute('aria-selected','false'); });
+        item.classList.add('selected'); item.setAttribute('aria-selected','true');
+        selectedAnswer=parseInt(item.getAttribute('data-value'),10);
+        enableConfirm(); playSelectTick();
+      }
+    }
+
     /* ========= Confetti ========= */
     function confettiBurst(container){
       try{ if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; }catch{}
-      const n=28;
-      for(let i=0;i<n;i++){
+      const n=28; for(let i=0;i<n;i++){
         const dot=document.createElement('span');
         dot.style.position='absolute'; dot.style.width='8px'; dot.style.height='8px'; dot.style.borderRadius='50%';
         dot.style.left='50%'; dot.style.top='10%';
         const colors=['#22c55e','#3b82f6','#f59e0b','#ef4444','#a855f7']; dot.style.background=colors[i%colors.length];
         const angle=(i/n)*Math.PI*2, dist=80+Math.random()*50, tx=Math.cos(angle)*dist, ty=Math.sin(angle)*dist;
-        const anim=dot.animate(
-          [{transform:'translate(-50%,-50%) scale(1)',opacity:1},
-           {transform:`translate(${tx-50}%,${ty-50}%) scale(.9)`,opacity:0}],
-          {duration:900,easing:'cubic-bezier(.2,.8,.2,1)'}
-        );
+        const anim=dot.animate([{transform:'translate(-50%,-50%) scale(1)',opacity:1},{transform:'translate('+(tx-50)+'%,'+(ty-50)+'%) scale(.9)',opacity:0}],{duration:900,easing:'cubic-bezier(.2,.8,.2,1)'});
         anim.onfinish=()=>dot.remove();
         (container||document.body).appendChild(dot);
       }
@@ -1118,7 +1246,8 @@
       cont.addEventListener('click',e=>{
         const btn=e.target.closest(itemSel); if(!btn||!cont.contains(btn)) return;
         $$(containerSel+' '+itemSel).forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
-        btn.classList.add('selected'); btn.setAttribute('aria-pressed','true'); onChange && onChange(btn);
+        btn.classList.add('selected'); btn.setAttribute('aria-pressed','true');
+        onChange && onChange(btn);
       });
       cont.addEventListener('keydown',e=>{
         const btn=e.target.closest(itemSel); if(!btn||!cont.contains(btn)) return;
@@ -1126,22 +1255,21 @@
       });
     }
     function updateOperationNextState(){
-      const nextBtn=$('#operationNext');
-      const enabled=!!currentOperation && !!questionCount;
-      nextBtn.disabled=!enabled; nextBtn.setAttribute('aria-disabled',enabled?'false':'true');
+      const nextBtn=$('#operationNext'); const enabled=!!currentOperation && !!questionCount;
+      nextBtn.disabled=!enabled; nextBtn.setAttribute('aria-disabled', enabled?'false':'true');
     }
 
     /* ========= Profile ========= */
-    function showProfile(){ showScreen('profileScreen'); renderProfile(); updateStatus(''); }
-    function setSwitchBtnDisabled(disabled){ const btn=$('#profileSwitchBtn'); if(!btn) return; btn.disabled=disabled; btn.classList.toggle('btn-disabled',disabled); }
-
+    function showProfile(){ showScreen('profileScreen'); renderProfile(); focusTop('#profileScreen .text-indigo-600'); updateStatus(''); }
+    function setSwitchBtnDisabled(disabled){ const btn=$('#profileSwitchBtn'); if(!btn) return; btn.disabled=disabled; btn.classList.toggle('btn-disabled', disabled); }
     function renderProfile(){
       const prof=getActiveProfile(); const header=$('#profileHeader'); const totalUsers=profilesArr().length;
       setSwitchBtnDisabled(totalUsers<=1);
       if(!prof){
         header.textContent='אין משתמש פעיל. ניתן ליצור משתמש חדש או להחליף למשתמש קיים.';
         $('#kpiSets').textContent='0'; $('#kpiAccuracy').textContent='0%'; $('#kpiAvg').textContent='0s';
-        $('#byOpGrid').innerHTML=''; $('#historyList').innerHTML='<div class="p-4 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-600">אין היסטוריית סטים עדיין.</div>'; return;
+        $('#byOpGrid').innerHTML=''; $('#historyList').innerHTML='<div class="p-4 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-600">אין היסטוריית סטים עדיין.</div>';
+        return;
       }
       header.innerHTML=`משתמש פעיל: <span class="font-bold text-gray-900">${prof.name}</span>`;
       const tot=prof.totals||{sets:0,questions:0,correct:0,timeSec:0};
@@ -1166,13 +1294,14 @@
       });
 
       const h=prof.history||[]; const list=$('#historyList'); list.innerHTML='';
-      if(h.length===0){ list.innerHTML='<div class="p-4 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-600">אין היסטוריית סטים עדיין.</div>'; }
-      else{
+      if(h.length===0){
+        list.innerHTML='<div class="p-4 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-600">אין היסטוריית סטים עדיין.</div>';
+      }else{
         h.slice(0,12).forEach(item=>{
           const pct=Math.round((item.correct/item.count)*100);
           const row=document.createElement('div');
           row.className='p-3 border-2 border-gray-200 rounded-xl bg-white flex items-center justify-between gap-3';
-          const date=new Date(item.ts).toLocaleString('he-IL',{dateStyle:'short',timeStyle:'short'});
+          const date=new Date(item.ts).toLocaleString('he-IL',{dateStyle:'short', timeStyle:'short'});
           row.innerHTML=`<div>
               <div class="text-sm text-gray-500">${date}</div>
               <div class="text-gray-800">${(curricula[item.curriculum]?.name)||'ללא תוכנית'} · ${item.op==='mixed'?'הכל':labels[item.op]?.replace(/^[^ ]+ /,'')}</div>
@@ -1187,53 +1316,80 @@
       }
     }
 
-    /* ========= Init ========= */
-    function wireCoreEvents(){
+    /* ========= Wiring ========= */
+    function selectChoice(containerSel,itemSel,onChange){ /* already defined above; kept for clarity */ }
+
+    function bindNavigationAndActions(){
+      // First user gesture unlocks audio
       window.addEventListener('touchstart', unlockAudioOnce, { once:true, passive:true });
       window.addEventListener('touchend',   unlockAudioOnce, { once:true, passive:true });
       window.addEventListener('pointerdown',unlockAudioOnce, { once:true, capture:true });
       window.addEventListener('click',      unlockAudioOnce, { once:true, capture:true });
 
-      $('#startBtn')?.addEventListener('click',e=>{e.preventDefault(); unlockAudioOnce(); showNameInput();});
-      $('#nameForm')?.addEventListener('submit',e=>{e.preventDefault(); unlockAudioOnce(); showCurriculumSelect();});
+      // Welcome → Name
+      $('#startBtn')?.addEventListener('click', e=>{ e.preventDefault(); unlockAudioOnce(); showNameInput(); });
 
+      // Name form
+      $('#nameForm')?.addEventListener('submit', e=>{ e.preventDefault(); unlockAudioOnce(); showCurriculumSelect(); });
+
+      // Switch / Profile from name
       $('#profileOrSwitchBtn')?.addEventListener('click',()=>{ const arr=profilesArr(); if(arr.length>1) showUserPicker(); else showProfile(); });
+
+      // Modal
       $('#userPickerCancel')?.addEventListener('click',()=> $('#userPickerModal').classList.add('hidden'));
       $('#newUserBtn')?.addEventListener('click',()=>{ $('#userPickerModal').classList.add('hidden'); $('#playerName').value=''; $('#playerName').focus(); });
 
+      // Global profile buttons
       $('#profileBtn')?.addEventListener('click',()=> showProfile());
       $('#profileFromResultsBtn')?.addEventListener('click',()=> showProfile());
       $('#profileSwitchBtn')?.addEventListener('click',()=>{ if(profilesArr().length>1) showUserPicker(); });
       $('#profileNewBtn')?.addEventListener('click',()=>{ store.activeId=null; saveStore(); showNameInput(); });
-      $('#profileStartBtn')?.addEventListener('click',()=>{ const prof=getActiveProfile(); if(!prof){ showNameInput(); return; } playerName=prof.name; showCurriculumSelect(); });
+      $('#profileStartBtn')?.addEventListener('click',()=>{
+        const prof=getActiveProfile(); if(!prof){ showNameInput(); return; }
+        playerName=prof.name; showCurriculumSelect();
+      });
 
+      // Curriculum selection
       selectChoice('#curriculumGrid','.choice-card',(btn)=>{ currentCurriculum=btn.getAttribute('data-value'); const next=$('#curriculumNext'); next.disabled=false; next.setAttribute('aria-disabled','false'); });
       $('#curriculumNext')?.addEventListener('click',()=> showOperationSelect());
       $('#curriculumMore')?.addEventListener('click',()=> setCurriculumExpanded(!isCurriculumExpanded));
       window.addEventListener('resize', refreshCurriculumOverflow);
 
+      // Operation selection
       selectChoice('#opsGrid','.op-btn',(btn)=>{ currentOperation=btn.getAttribute('data-op'); updateOperationNextState(); });
       selectChoice('#questionChips','.chip',(chip)=>{ questionCount=parseInt(chip.getAttribute('data-count'),10); updateOperationNextState(); });
       $('#operationNext')?.addEventListener('click',()=> showDifficultySelect());
 
+      // Difficulty → start
       selectChoice('#difficultyScreen','.diff-btn',(btn)=>{ startGame(btn.getAttribute('data-diff')); });
 
+      // Game
       bindAnswerGrid();
       $('#confirmButton')?.addEventListener('click',confirmAnswer);
       $('#restartBtn')?.addEventListener('click',()=> showNameInput());
 
-      $('#retryBtn')?.addEventListener('click',()=>{ if(!currentOperation||!questionCount||!currentDifficulty) showOperationSelect(); else startGame(currentDifficulty); });
+      // Results
+      $('#retryBtn')?.addEventListener('click',()=>{
+        if(!currentOperation || !questionCount || !currentDifficulty){ showOperationSelect(); }
+        else{ startGame(currentDifficulty); }
+      });
       $('#mistakesButton')?.addEventListener('click',()=> showMistakes());
       $('#altBtn')?.addEventListener('click',()=> showOperationSelect());
 
+      // Mistakes & Tutorial
       $('#backToResults')?.addEventListener('click',()=> showResults());
       $('#restartFromMistakes')?.addEventListener('click',()=> showNameInput());
-
       $('#backToMistakes')?.addEventListener('click',()=> showMistakes());
       $('#restartFromTutorial')?.addEventListener('click',()=> showNameInput());
     }
 
-    function init(){ storeInit(); initAudioToggle(); wireCoreEvents(); showScreen('welcomeScreen'); }
+    function init(){
+      storeInit();
+      initAudioToggle();
+      bindNavigationAndActions();
+      showScreen('welcomeScreen');
+    }
+
     document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
