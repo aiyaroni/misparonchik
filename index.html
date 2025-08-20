@@ -13,10 +13,8 @@
     .owl-blink{animation:blink 2s infinite}
     @keyframes blink{0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
 
-    /* הסרת מסגרת פוקוס רק לכותרות שאנו ממקדים אליהן תכנותית */
     .no-focus-outline:focus{outline:none !important; box-shadow:none !important}
 
-    /* ===== קישור־כפתור בפופאפ שם ===== */
     .link-cta{
       display:inline-flex; align-items:center; justify-content:center; gap:.35rem;
       margin:.5rem auto 1rem;
@@ -29,7 +27,6 @@
     }
     .link-cta:focus{outline:2px solid #93c5fd; outline-offset:2px}
 
-    /* ===== כותרות משנה ===== */
     .subhead{
       font-weight:800;
       font-size:clamp(1.375rem, 1.05rem + 1.2vw, 1.75rem);
@@ -38,7 +35,6 @@
       letter-spacing:-.01em;
     }
 
-    /* תשובות (גריד המשחק) */
     .answer-item{position:relative;transition:transform .14s,box-shadow .14s,border-color .14s;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;background:rgba(255,255,255,.96);border-radius:1rem;border:2px solid transparent;outline:none}
     .answer-item::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:var(--tint,transparent);opacity:.08}
     .answer-item .accent{display:none;position:absolute;right:0;top:0;bottom:0;width:8px;border-radius:0 1rem 1rem 0;opacity:.55;background:var(--tint);pointer-events:none}
@@ -53,7 +49,6 @@
     .confirm-button{transition:all .25s}
     .confirm-button[disabled]{opacity:.5;cursor:not-allowed}
 
-    /* כרטיסיות בחירה (תכנית לימוד / סוג תרגיל) */
     .choice-card{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;
       background:rgba(255,255,255,.96); border:2px solid transparent; border-radius:1.25rem; padding:1.15rem;
       box-shadow:0 10px 26px rgba(0,0,0,.12); transition:.18s; cursor:pointer; outline:none; user-select:none}
@@ -68,11 +63,9 @@
     .choice-card.selected{border-color:#2563eb; box-shadow:0 12px 30px rgba(0,0,0,.18)}
     .choice-card.selected .accent{display:block; background:var(--tint,#3b82f6)}
     .choice-card .emoji{font-size:2rem}
-    /* הקטנה עדינה לכרטיסיות סוג התרגיל */
     .op-btn .emoji{font-size:1.8rem}
     .op-btn .text-xl{font-size:1.1rem}
 
-    /* ===== צ’יפים לבחירת מספר שאלות – קצת יותר גדולים ===== */
     .chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center}
     .chip{min-width:68px; min-height:52px; display:inline-flex; align-items:center; justify-content:center;
       border:2px solid #e5e7eb; background:white; border-radius:1rem; padding:.3rem .8rem;
@@ -80,7 +73,6 @@
     .chip:hover{transform:translateY(-2px)}
     .chip.selected{border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.20)}
 
-    /* כפתור השתקת אודיו + אזור אישי – ביחד בעמודה שמאלית עם רווח קבוע */
     #floatingControls{
       position:fixed; left:16px; top:16px; z-index:50;
       display:flex; flex-direction:column; gap:10px;
@@ -91,16 +83,13 @@
     #audioToggle[aria-pressed="false"] .muted{display:none}
     #audioToggle[aria-pressed="false"] .unmuted{display:inline}
 
-    /* כפתור 'החלף משתמש' מושבת באזור האישי */
     .btn-disabled{opacity:.5; cursor:not-allowed}
 
-    /* חתימה */
     .site-signature{ text-align:center;color:#6b7280;font-size:.875rem;line-height:1.6; margin-top:1.25rem;margin-bottom:1.25rem }
     @media (min-width:640px){ .site-signature{font-size:1rem;margin-top:2rem;margin-bottom:2rem} }
     .site-signature a{color:#4b5563;text-decoration:underline}
     .site-signature a:hover{color:#111827}
 
-    /* ===== Curriculum: Show more / less ===== */
     #curriculumWrapper{position:relative}
     .curriculum-collapsed{max-height:min(45vh, 360px); overflow:hidden;}
     #curriculumFade{
@@ -109,7 +98,6 @@
       pointer-events:none;
     }
 
-    /* Reduced Motion: עצירת מצמוץ ינשוף */
     @media (prefers-reduced-motion: reduce){
       .owl-blink{ animation:none }
     }
@@ -117,7 +105,6 @@
 </head>
 <body class="bg-gradient-to-br from-blue-100 via-purple-50 to-green-100 min-h-screen">
 
-  <!-- Floating controls: Mute + Profile (שניהם בצד שמאל למעלה, אחד מתחת לשני) -->
   <div id="floatingControls" aria-label="בקרות מהירות">
     <button id="audioToggle" type="button" aria-label="החלפת מצב צליל" aria-pressed="false" title="הצליל פעיל">
       <span class="unmuted" aria-hidden="true">🔊</span>
@@ -157,7 +144,7 @@
   <!-- User Picker Modal -->
   <div id="userPickerModal" class="hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
     <div role="dialog" aria-modal="true" class="bg-white rounded-2xl max-w-md w-full p-6">
-      <h3 class="text-2ל font-bold text-gray-800 mb-3">בחרו משתמש</h3>
+      <h3 class="text-2xl font-bold text-gray-800 mb-3">בחרו משתמש</h3>
       <div id="userList" class="space-y-2 max-h-[50vh] overflow-auto mb-4"></div>
       <div class="flex gap-2 justify-between">
         <button id="userPickerCancel" class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 font-bold">סגור</button>
@@ -287,7 +274,7 @@
   <!-- Difficulty Selection Screen -->
   <div id="difficultyScreen" class="hidden flex flex-col items-center justify-center min-h-screen p-6">
     <div class="text-center bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full">
-      <div class="text-5xl mb-4">⚡</div>
+      <div class="text-5ל mb-4">⚡</div>
       <h2 id="difficultyTitle" tabindex="-1" class="no-focus-outline text-3xl sm:text-4xl font-bold text-blue-600 mb-6">איזו רמת קושי מתאימה לך היום?</h2>
 
       <div class="flex flex-col gap-4 mb-2">
@@ -312,7 +299,7 @@
 
   <!-- Game Screen -->
   <div id="gameScreen" class="hidden min-h-screen p-4">
-    <div class="bg-white rounded-2ל shadow-lg p-4 mb-6 mx-auto max-w-4xl">
+    <div class="bg-white rounded-2xl shadow-lg p-4 mb-6 mx-auto max-w-4xl">
       <div class="flex justify-between items-center mb-4">
         <div class="text-2xl font-bold text-purple-600">שאלה <span id="currentQuestion" class="ltr">1</span> מתוך <span id="totalQuestions" class="ltr">6</span></div>
         <div class="text-xl text-gray-600">שלום <span id="gamePlayerName"></span>! 👋</div>
@@ -320,7 +307,6 @@
       <div class="w-full bg-gray-200 rounded-full h-4" aria-hidden="true">
         <div id="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" class="bg-gradient-to-r from-green-400 to-blue-500 h-4 rounded-full" style="width: 0%"></div>
       </div>
-      <!-- סטטוס לטובת קוראי מסך בלבד (הסרנו את ווידג׳ט שופי) -->
       <div id="statusMsg" class="sr-only" aria-live="polite"></div>
     </div>
 
@@ -330,7 +316,6 @@
       <div class="subhead text-gray-700 mb-4">יש לבחור את התשובה הנכונה</div>
     </div>
 
-    <!-- תשובות 2×2 -->
     <div id="answersGrid" class="grid grid-cols-2 gap-4 max-w-lg mx-auto px-4 mb-6">
       <div class="answer-item shadow-lg flex items-center justify-center min-h-[88px] p-4" data-value="6" data-idx="0" tabindex="0" role="button" aria-selected="false">
         <span class="accent" aria-hidden="true"></span>
@@ -355,7 +340,6 @@
       <button type="button" id="restartBtn" class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-full text-lg font-bold hover:scale-105 transition-all duration-200 shadow-lg">התחל מחדש</button>
     </div>
 
-    <!-- Feedback Modal (רק לסוף הסט) -->
     <div id="feedback" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div role="dialog" aria-modal="true" aria-labelledby="feedbackText" class="bg-white rounded-3xl p-8 text-center max-w-md mx-4">
         <div id="feedbackIcon" class="text-8xl mb-4">🎉</div>
@@ -441,7 +425,9 @@
       <div id="interactiveArea" class="bg-blue-50 rounded-2xl p-6 mb-8 text-center">
         <h3 class="subhead text-blue-600 mb-4">נסה בעצמך!</h3>
         <div id="interactiveContent" class="flex flex-wrap justify-center gap-2 mb-4"></div>
-        <div id="interactiveInstructions" role="status" aria-live="polite" class="text-gray-600">לחץ על הכפתורים כדי להוסיף או להחסיר כדורים ולהגיע לתוצאה</div>
+        <div id="interactiveInstructions" role="status" aria-live="polite" class="text-gray-600">
+          לחץ על הכפתורים כדי להוסיף או להחסיר ולהגיע לתוצאה
+        </div>
       </div>
       <div class="flex justify-center gap-4 flex-wrap">
         <button id="backToMistakes" class="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-3 rounded-full text-lg font-bold hover:scale-105 transition-all duration-200 shadow-lg">חזור לרשימת הטעויות</button>
@@ -450,7 +436,7 @@
     </div>
   </div>
 
-  <!-- Profile (Personal Area) Screen -->
+  <!-- Profile Screen -->
   <div id="profileScreen" class="hidden min-h-screen p-6">
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
@@ -496,10 +482,10 @@
     let questionCount=null, currentCurriculum=null;
     let activeMistake=null;
 
-    /* ========= Store (local profiles) ========= */
+    /* ========= Store ========= */
     const STORE_KEY='mspr_profiles_v1';
     let store=null;
-    let memOnly=false; // fallback אם localStorage חסום
+    let memOnly=false;
 
     function uuid(){
       return 'xxxxxxxyxxxx'.replace(/[xy]/g, c=>{
@@ -509,19 +495,14 @@
     }
 
     function storeInit(){
-      try{
-        store = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
-      }catch{ store=null; memOnly=true; }
+      try{ store = JSON.parse(localStorage.getItem(STORE_KEY)||'null'); }
+      catch{ store=null; memOnly=true; }
       if(!store){
         store = { version:1, installedAt:Date.now(), activeId:null, profiles:{} };
-        try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
-        catch{ memOnly=true; }
+        try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch{ memOnly=true; }
       }
     }
-    function saveStore(){ 
-      if(memOnly) return;
-      try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }catch{ memOnly=true; }
-    }
+    function saveStore(){ if(memOnly) return; try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }catch{ memOnly=true; } }
     function profilesArr(){ return Object.entries(store.profiles).map(([id,p])=>({id,...p})); }
     function getActiveProfile(){ return store.activeId ? store.profiles[store.activeId]||null : null; }
     function setActiveProfile(id){
@@ -531,43 +512,28 @@
       saveStore();
     }
     function ensureProfileByName(name){
-      const norm = (name||'').trim();
-      if(!norm) return null;
+      const norm=(name||'').trim(); if(!norm) return null;
       const existing = profilesArr().find(p=>p.name.trim()===norm);
       if(existing){ setActiveProfile(existing.id); return existing; }
-      const id = uuid();
-      store.profiles[id] = {
-        name:norm, createdAt:Date.now(), lastSeen:Date.now(),
-        totals:{sets:0,questions:0,correct:0,timeSec:0},
-        byOp:{}, history:[]
-      };
+      const id=uuid();
+      store.profiles[id]={ name:norm, createdAt:Date.now(), lastSeen:Date.now(),
+        totals:{sets:0,questions:0,correct:0,timeSec:0}, byOp:{}, history:[] };
       setActiveProfile(id);
       return {id, ...store.profiles[id]};
     }
 
     function logSessionToProfile(){
-      const prof = getActiveProfile(); if(!prof) return;
-      const entry = {
-        id: uuid(),
-        ts: Date.now(),
-        curriculum: currentCurriculum,
-        op: currentOperation,
-        diff: currentDifficulty,
-        count: totalQuestions,
-        correct: correctCount,
-        avgSec: Math.max(1, Math.round(totalTime/Math.max(1,totalQuestions))),
-        mistakesCount: mistakes.length
-      };
-      prof.history.unshift(entry);
-      if(prof.history.length>100) prof.history.pop();
-
+      const prof=getActiveProfile(); if(!prof) return;
+      const entry={ id:uuid(), ts:Date.now(), curriculum:currentCurriculum, op:currentOperation, diff:currentDifficulty,
+        count:totalQuestions, correct:correctCount, avgSec:Math.max(1,Math.round(totalTime/Math.max(1,totalQuestions))), mistakesCount:mistakes.length };
+      prof.history.unshift(entry); if(prof.history.length>100) prof.history.pop();
       prof.totals.sets += 1;
       prof.totals.questions += totalQuestions;
       prof.totals.correct += correctCount;
       prof.totals.timeSec += Math.round(totalTime);
 
-      const bucket = currentOperation || 'mixed';
-      if(!prof.byOp[bucket]) prof.byOp[bucket] = {sets:0,questions:0,correct:0,timeSec:0};
+      const bucket=currentOperation||'mixed';
+      if(!prof.byOp[bucket]) prof.byOp[bucket]={sets:0,questions:0,correct:0,timeSec:0};
       prof.byOp[bucket].sets += 1;
       prof.byOp[bucket].questions += totalQuestions;
       prof.byOp[bucket].correct += correctCount;
@@ -599,163 +565,86 @@
     const randInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
     function shuffle(a){const c=a.slice();for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]]}return c}
 
-    /* ========= Focus helper ========= */
-    function focusTop(selector){
-      const el = typeof selector==='string' ? document.querySelector(selector) : selector;
-      const target = el || document.body;
-      if (target && !target.hasAttribute('tabindex')) target.setAttribute('tabindex','-1');
-      requestAnimationFrame(()=>{
-        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-        try { target && target.focus({ preventScroll: true }); } catch {}
-      });
-    }
-
-    /* ========= UI status (החליף את ווידג׳ט שופי) ========= */
-    function updateStatus(msg){
-      const el = $('#statusMsg');
-      if(el) el.textContent = msg || '';
-    }
+    /* ========= Status ========= */
+    function updateStatus(msg){ const el=$('#statusMsg'); if(el) el.textContent=msg||''; }
     function showCoach(msg){ updateStatus(msg); }
-    function hideCoach(){ /* no-op */ }
-    function placeCoach(){ /* no-op */ }
+    function hideCoach(){}
+    function placeCoach(){}
 
-    /* ========= Audio (Safari-safe, QA'ed) ========= */
-    let isMuted = false;
-    let audioCtx = null;
-    let audioUnlocked = false;
-    let lastTickAt = 0;
+    /* ========= Audio (QA) ========= */
+    let isMuted=false, audioCtx=null, audioUnlocked=false, lastTickAt=0;
 
-    function getAudioCtx() {
-      if (isMuted) return null;
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return null;
-      if (!audioCtx) audioCtx = new AC();
-      if (audioCtx.state !== 'running' && audioCtx.resume) {
-        try { audioCtx.resume(); } catch {}
-      }
+    function getAudioCtx(){
+      if(isMuted) return null;
+      const AC=window.AudioContext||window.webkitAudioContext;
+      if(!AC) return null;
+      if(!audioCtx) audioCtx=new AC();
+      if(audioCtx.state!=='running' && audioCtx.resume){ try{ audioCtx.resume(); }catch{} }
       return audioCtx;
     }
-
-    function unlockAudioOnce() {
-      if (audioUnlocked || isMuted) return;
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return;
-
-      if (!audioCtx) audioCtx = new AC();
-      try { const p = audioCtx.resume && audioCtx.resume(); if (p?.catch) p.catch(()=>{}); } catch {}
-
-      try {
-        const buffer = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
-        const src = audioCtx.createBufferSource();
-        const gain = audioCtx.createGain();
-        gain.gain.value = 0.0001;
-        src.buffer = buffer;
-        src.connect(gain);
-        gain.connect(audioCtx.destination);
-        src.start(0);
-        setTimeout(() => {
-          try { src.disconnect(); gain.disconnect(); } catch {}
-          audioUnlocked = true;
-        }, 0);
-      } catch {
-        try {
-          const t = audioCtx.currentTime;
-          const o = audioCtx.createOscillator();
-          const g = audioCtx.createGain();
-          g.gain.setValueAtTime(0.0001, t);
-          o.connect(g); g.connect(audioCtx.destination);
-          o.start(t); o.stop(t + 0.02);
-          audioUnlocked = true;
-        } catch {}
+    function unlockAudioOnce(){
+      if(audioUnlocked||isMuted) return;
+      const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+      if(!audioCtx) audioCtx=new AC();
+      try{ const p=audioCtx.resume&&audioCtx.resume(); if(p?.catch) p.catch(()=>{}); }catch{}
+      try{
+        const buffer=audioCtx.createBuffer(1,1,audioCtx.sampleRate);
+        const src=audioCtx.createBufferSource(), gain=audioCtx.createGain();
+        gain.gain.value=0.0001; src.buffer=buffer; src.connect(gain); gain.connect(audioCtx.destination);
+        src.start(0); setTimeout(()=>{ try{src.disconnect(); gain.disconnect();}catch{} audioUnlocked=true; },0);
+      }catch{
+        try{ const t=audioCtx.currentTime, o=audioCtx.createOscillator(), g=audioCtx.createGain();
+          g.gain.setValueAtTime(0.0001,t); o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+0.02); audioUnlocked=true; }catch{}
       }
     }
-
-    function tone(freq, dur, t, type = 'sine', gain = 0.24) {
-      if (isMuted || dur<=0) return;
-      unlockAudioOnce();
-      const ctx = getAudioCtx(); if (!ctx) return;
-
-      const start = typeof t === 'number' ? t : ctx.currentTime;
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-
-      o.type = type;
-      o.frequency.setValueAtTime(freq, start);
-
-      g.gain.setValueAtTime(Math.max(0.0001, gain), start);
-      g.gain.exponentialRampToValueAtTime(0.001, start + dur);
-
+    function tone(freq,dur,t,type='sine',gain=0.24){
+      if(isMuted||dur<=0) return; unlockAudioOnce();
+      const ctx=getAudioCtx(); if(!ctx) return;
+      const start=typeof t==='number'?t:ctx.currentTime;
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.type=type; o.frequency.setValueAtTime(freq,start);
+      g.gain.setValueAtTime(Math.max(0.0001,gain),start);
+      g.gain.exponentialRampToValueAtTime(0.001,start+dur);
       o.connect(g); g.connect(ctx.destination);
-      try { o.start(start); o.stop(start + dur); } catch {}
+      try{ o.start(start); o.stop(start+dur); }catch{}
     }
-
-    function playSelectTick() {
-      const ctx = getAudioCtx(); if (!ctx) { unlockAudioOnce(); return; }
-      const now = performance.now();
-      if (now - lastTickAt < 60) return; // מניעת הצפה בלחיצות מהירות
-      lastTickAt = now;
-      const t = ctx.currentTime;
-      tone(520, 0.10, t, 'triangle', 0.22);
+    function playSelectTick(){
+      const ctx=getAudioCtx(); if(!ctx){ unlockAudioOnce(); return; }
+      const now=performance.now(); if(now-lastTickAt<60) return; lastTickAt=now;
+      const t=ctx.currentTime; tone(520,0.10,t,'triangle',0.22);
     }
-
-    function playSuccessSound() {
-      const ctx = getAudioCtx(); if (!ctx) { unlockAudioOnce(); return; }
-      const t = ctx.currentTime;
-      tone(523.25, 0.12, t,       'sine', 0.20);
-      tone(659.25, 0.12, t + 0.10,'sine', 0.18);
-      tone(783.99, 0.14, t + 0.20,'sine', 0.16);
-    }
-
-    function playErrorSound() {
-      const ctx = getAudioCtx(); if (!ctx) { unlockAudioOnce(); return; }
-      const t = ctx.currentTime;
-      tone(220, 0.12, t,       'square', 0.18);
-      tone(180, 0.12, t + 0.10,'square', 0.16);
-    }
-
+    function playSuccessSound(){ const ctx=getAudioCtx(); if(!ctx){ unlockAudioOnce(); return; } const t=ctx.currentTime;
+      tone(523.25,0.12,t,'sine',0.20); tone(659.25,0.12,t+0.10,'sine',0.18); tone(783.99,0.14,t+0.20,'sine',0.16); }
+    function playErrorSound(){ const ctx=getAudioCtx(); if(!ctx){ unlockAudioOnce(); return; } const t=ctx.currentTime;
+      tone(220,0.12,t,'square',0.18); tone(180,0.12,t+0.10,'square',0.16); }
     function initAudioToggle(){
-      const btn = document.querySelector('#audioToggle'); if (!btn) return;
-      try { isMuted = localStorage.getItem('soundMuted') === 'true'; } catch { isMuted = false; }
-      btn.setAttribute('aria-pressed', isMuted ? 'true' : 'false');
-      btn.addEventListener('click', () => {
-        isMuted = !isMuted;
-        btn.setAttribute('aria-pressed', isMuted ? 'true' : 'false');
-        try { localStorage.setItem('soundMuted', String(isMuted)); } catch {}
-        if (!isMuted) unlockAudioOnce();
-      });
+      const btn=$('#audioToggle'); if(!btn) return;
+      try{ isMuted=localStorage.getItem('soundMuted')==='true'; }catch{ isMuted=false; }
+      btn.setAttribute('aria-pressed', isMuted?'true':'false');
+      btn.addEventListener('click',()=>{ isMuted=!isMuted; btn.setAttribute('aria-pressed', isMuted?'true':'false');
+        try{ localStorage.setItem('soundMuted', String(isMuted)); }catch{} if(!isMuted) unlockAudioOnce(); });
     }
-
-    // טיק על רוב הכפתורים — גם הקליק הראשון ישמע
-    document.addEventListener('click', e=>{
+    document.addEventListener('click',e=>{
       const el=e.target.closest('button,.op-btn,.choice-card,.chip,.link-cta');
       if(!el||el.id==='audioToggle') return;
-      const wasLocked = !audioUnlocked;
-      unlockAudioOnce();
+      const wasLocked=!audioUnlocked; unlockAudioOnce();
       if(el.disabled||el.getAttribute('aria-disabled')==='true') return;
-      if (wasLocked) setTimeout(playSelectTick, 0); else playSelectTick();
+      if(wasLocked) setTimeout(playSelectTick,0); else playSelectTick();
     });
-
-    // טיק גם במקלדת על Enter/Space
-    document.addEventListener('keydown', e=>{
-      if((e.key==='Enter'||e.key===' ') && document.activeElement?.closest('button,.op-btn,.choice-card,.chip,.link-cta')){
-        playSelectTick();
-      }
+    document.addEventListener('keydown',e=>{
+      if((e.key==='Enter'||e.key===' ') && document.activeElement?.closest('button,.op-btn,.choice-card,.chip,.link-cta')) playSelectTick();
     });
 
     /* ========= Screen switcher ========= */
-    const SCREENS = ['welcomeScreen','nameScreen','curriculumScreen','operationScreen','difficultyScreen','gameScreen','resultsScreen','mistakesScreen','tutorialScreen','profileScreen'];
-    function showScreen(id){
-      SCREENS.forEach(s=>{ const el=$('#'+s); if(el) el.classList.add('hidden'); });
-      const tgt = $('#'+id); if(tgt) tgt.classList.remove('hidden');
-      window.scrollTo({top:0,left:0,behavior:'auto'});
-    }
+    const SCREENS=['welcomeScreen','nameScreen','curriculumScreen','operationScreen','difficultyScreen','gameScreen','resultsScreen','mistakesScreen','tutorialScreen','profileScreen'];
+    function showScreen(id){ SCREENS.forEach(s=>$('#'+s)?.classList.add('hidden')); $('#'+id)?.classList.remove('hidden'); window.scrollTo({top:0,left:0,behavior:'auto'}); }
 
     /* ========= Curriculum gating ========= */
     function applyCurriculumToOperationButtons(){
       const cur=curricula[currentCurriculum]; const allowed=cur&&cur.operations?cur.operations:null;
       $$('#opsGrid .op-btn').forEach(btn=>{
         const op=btn.getAttribute('data-op');
-        const enabled = !allowed || op==='mixed' || allowed.includes(op);
+        const enabled=!allowed||op==='mixed'||allowed.includes(op);
         btn.classList.toggle('opacity-50',!enabled);
         btn.classList.toggle('pointer-events-none',!enabled);
         btn.classList.toggle('cursor-not-allowed',!enabled);
@@ -768,28 +657,20 @@
       updateOperationNextState();
     }
 
-    /* ========= Curriculum overflow + "show more" ========= */
-    let isCurriculumExpanded = false;
-
+    /* ========= Curriculum overflow ========= */
+    let isCurriculumExpanded=false;
     function refreshCurriculumOverflow(){
-      const grid = document.querySelector('#curriculumGrid');
-      const more = document.querySelector('#curriculumMore');
-      const fade = document.querySelector('#curriculumFade');
-      if(!grid || !more || !fade) return;
-
-      const overflow = grid.scrollHeight > grid.clientHeight + 2;
+      const grid=$('#curriculumGrid'), more=$('#curriculumMore'), fade=$('#curriculumFade'); if(!grid||!more||!fade) return;
+      const overflow=grid.scrollHeight>grid.clientHeight+2;
       more.classList.toggle('hidden', !overflow && !isCurriculumExpanded);
       fade.classList.toggle('hidden', isCurriculumExpanded || !overflow);
     }
-
     function setCurriculumExpanded(expanded){
-      isCurriculumExpanded = !!expanded;
-      const grid = document.querySelector('#curriculumGrid');
-      const more = document.querySelector('#curriculumMore');
-      if(!grid || !more) return;
+      isCurriculumExpanded=!!expanded;
+      const grid=$('#curriculumGrid'), more=$('#curriculumMore'); if(!grid||!more) return;
       grid.classList.toggle('curriculum-collapsed', !isCurriculumExpanded);
-      more.textContent = isCurriculumExpanded ? 'הצג פחות' : 'הצג עוד';
-      more.setAttribute('aria-expanded', isCurriculumExpanded ? 'true' : 'false');
+      more.textContent=isCurriculumExpanded?'הצג פחות':'הצג עוד';
+      more.setAttribute('aria-expanded', isCurriculumExpanded?'true':'false');
       refreshCurriculumOverflow();
     }
 
@@ -826,22 +707,13 @@
       return shuffle([...opts]);
     }
 
-    /* ========= Flow Screens ========= */
+    /* ========= Flow ========= */
     function showNameInput(){
-      const prof = getActiveProfile();
+      const prof=getActiveProfile();
       showScreen('nameScreen');
-
-      const subtitle = $('#nameSubtitle');
-      if(prof){
-        $('#playerName').value = prof.name;
-        subtitle.textContent = `נעים לראותך שוב, ${prof.name}!`;
-        subtitle.classList.remove('hidden');
-      }else{
-        $('#playerName').value = '';
-        subtitle.classList.add('hidden');
-      }
-
-      focusTop('#nameTitle');
+      const subtitle=$('#nameSubtitle');
+      if(prof){ $('#playerName').value=prof.name; subtitle.textContent=`נעים לראותך שוב, ${prof.name}!`; subtitle.classList.remove('hidden'); }
+      else{ $('#playerName').value=''; subtitle.classList.add('hidden'); }
       updateStatus('');
     }
 
@@ -863,21 +735,12 @@
     function showUserPicker(){
       const list=$('#userList'); list.innerHTML='';
       const arr=profilesArr();
-      if(arr.length<=1){
-        $('#userPickerModal').classList.add('hidden');
-        showProfile();
-        return;
-      }
+      if(arr.length<=1){ $('#userPickerModal').classList.add('hidden'); showProfile(); return; }
       arr.forEach(p=>{
         const btn=document.createElement('button');
         btn.className='w-full text-right p-3 border-2 border-gray-200 rounded-xl hover:bg-gray-50 flex items-center justify-between';
         btn.innerHTML=`<span class="font-bold text-gray-800">${p.name}</span><span class="text-sm text-gray-500 ltr">${new Date(p.lastSeen||Date.now()).toLocaleDateString('he-IL')}</span>`;
-        btn.onclick=()=>{
-          setActiveProfile(p.id);
-          $('#playerName').value=p.name;
-          $('#userPickerModal').classList.add('hidden');
-          if(!$('#profileScreen').classList.contains('hidden')) renderProfile();
-        };
+        btn.onclick=()=>{ setActiveProfile(p.id); $('#playerName').value=p.name; $('#userPickerModal').classList.add('hidden'); if(!$('#profileScreen').classList.contains('hidden')) renderProfile(); };
         list.appendChild(btn);
       });
       $('#userPickerModal').classList.remove('hidden');
@@ -886,18 +749,12 @@
 
     function showCurriculumSelect(){
       const inp=$('#playerName'); const name=(inp?.value||'').trim(); if(!name){ alert('אנא הכנס את שמך'); inp?.focus(); return; }
-      playerName=name;
-      ensureProfileByName(name);
+      playerName=name; ensureProfileByName(name);
       showScreen('curriculumScreen');
-
       currentCurriculum=null;
       $$('#curriculumGrid .choice-card').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
       const btn=$('#curriculumNext'); btn.disabled=true; btn.setAttribute('aria-disabled','true');
-
-      setCurriculumExpanded(false);
-      requestAnimationFrame(refreshCurriculumOverflow);
-
-      focusTop('#curriculumTitle');
+      setCurriculumExpanded(false); requestAnimationFrame(refreshCurriculumOverflow);
       updateStatus('');
     }
 
@@ -907,23 +764,18 @@
       currentOperation=null; questionCount=null;
       $$('#opsGrid .op-btn').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
       $$('#questionChips .chip').forEach(c=>{ c.classList.remove('selected'); c.setAttribute('aria-pressed','false'); });
-      applyCurriculumToOperationButtons();
-      updateOperationNextState();
-      focusTop('#operationTitle');
-      updateStatus('');
+      applyCurriculumToOperationButtons(); updateOperationNextState(); updateStatus('');
     }
 
     function showDifficultySelect(){
       if(!currentOperation || !questionCount){ alert('בחר/י סוג תרגיל ומספר שאלות'); return; }
       showScreen('difficultyScreen');
       $$('#difficultyScreen .diff-btn').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
-      focusTop('#difficultyTitle');
       updateStatus('');
     }
 
     function startGame(diff){
-      const fbEl = $('#feedback'); if (fbEl) fbEl.classList.add('hidden');
-      const nb = $('#nextButton'); if (nb) nb.onclick = null;
+      $('#feedback')?.classList.add('hidden'); $('#nextButton')?.onclick=null;
       currentDifficulty=diff; currentQuestionIndex=0; correctCount=0; totalTime=0; mistakes=[]; selectedAnswer=null;
 
       questions=generatePracticeSet(currentOperation,diff,questionCount||6);
@@ -931,16 +783,11 @@
 
       totalQuestions=questions.length; $('#totalQuestions').textContent=totalQuestions; $('#resultsTotal').textContent=totalQuestions;
       showScreen('gameScreen');
-
-      const prof = getActiveProfile();
-      playerName = prof ? prof.name : playerName;
-      $('#gamePlayerName').textContent=playerName;
+      const prof=getActiveProfile(); playerName = prof ? prof.name : playerName; $('#gamePlayerName').textContent=playerName;
 
       const pb=$('#progressBar'); pb.style.width='0%'; pb.setAttribute('aria-valuenow','0');
 
-      showQuestion();
-      focusTop('#questionText');
-      showCoach('יצאנו לדרך! בחר/י תשובה ואז אשר/י.');
+      showQuestion(); updateStatus('יצאנו לדרך! בחר/י תשובה ואז אשר/י.');
     }
 
     /* ========= Game ========= */
@@ -961,128 +808,64 @@
       startTime=Date.now();
       placeCoach('game');
     }
-
-    function enableConfirm(){
-      const btn = $('#confirmButton');
-      btn.disabled = false;
-      btn.removeAttribute('disabled');
-      btn.setAttribute('aria-disabled','false');
-    }
-
-    function disableConfirm(){
-      const btn = $('#confirmButton');
-      btn.disabled = true;
-      btn.setAttribute('disabled','');
-      btn.setAttribute('aria-disabled','true');
-    }
+    function enableConfirm(){ const btn=$('#confirmButton'); btn.disabled=false; btn.removeAttribute('disabled'); btn.setAttribute('aria-disabled','false'); }
+    function disableConfirm(){ const btn=$('#confirmButton'); btn.disabled=true; btn.setAttribute('disabled',''); btn.setAttribute('aria-disabled','true'); }
 
     function confirmAnswer(){
       unlockAudioOnce();
-      const btn = $('#confirmButton');
-      if (!btn || btn.hasAttribute('disabled')) return;
-      if (selectedAnswer === null) return;
-
+      const btn=$('#confirmButton'); if(!btn || btn.hasAttribute('disabled')) return;
+      if(selectedAnswer===null) return;
       disableConfirm();
 
-      const correct = questions[currentQuestionIndex].answer;
-      const end = Date.now();
-      totalTime += (end - startTime) / 1000;
-
+      const correct=questions[currentQuestionIndex].answer;
+      totalTime += (Date.now() - startTime) / 1000;
       const isLast = currentQuestionIndex === totalQuestions - 1;
 
-      if (selectedAnswer === correct) {
-        correctCount++;
-        playSuccessSound();
-        showCoach(isLast ? 'מעולה! סיימנו את הסט — עוברים לסיכום.' : 'כל הכבוד! לשאלה הבאה…');
-      } else {
-        mistakes.push({
-          question: questions[currentQuestionIndex],
-          userAnswer: selectedAnswer,
-          correctAnswer: correct,
-          reviewed: false
-        });
-        playErrorSound();
-        showCoach(isLast ? 'סיימנו את הסט — עוברים לסיכום.' : 'כמעט! ממשיכים לשאלה הבאה…');
+      if(selectedAnswer===correct){ correctCount++; playSuccessSound(); showCoach(isLast?'מעולה! סיימנו את הסט — עוברים לסיכום.':'כל הכבוד! לשאלה הבאה…'); }
+      else{
+        mistakes.push({ question:questions[currentQuestionIndex], userAnswer:selectedAnswer, correctAnswer:correct, reviewed:false });
+        playErrorSound(); showCoach(isLast?'סיימנו את הסט — עוברים לסיכום.':'כמעט! ממשיכים לשאלה הבאה…');
       }
 
-      if (isLast) {
-        showFinalFeedback();
-      } else {
-        setTimeout(nextQuestion, 900);
-      }
+      if(isLast) showFinalFeedback(); else setTimeout(nextQuestion,900);
     }
 
-    // פופאפ סיכום לפי אחוזים
     function showFinalFeedback(){
-      const fb = $('#feedback'), icon = $('#feedbackIcon'), text = $('#feedbackText'), nextBtn = $('#nextButton');
-      const pct = Math.round((correctCount/totalQuestions)*100);
-
-      if (pct === 100) {
-        icon.textContent = '👏';
-        text.className = 'text-2xl font-bold mb-6 text-green-600';
-        text.textContent = 'ואוו אליפות, סיימנו את הסט';
-      } else if (pct >= 60) {
-        icon.textContent = '👏';
-        text.className = 'text-2xl font-bold mb-6 text-blue-600';
-        text.textContent = 'עבודה טובה, סיימנו את הסט';
-      } else {
-        icon.textContent = '💪';
-        text.className = 'text-2xl font-bold mb-6 text-orange-600';
-        text.textContent = 'סיימנו את הסט';
-      }
-
-      nextBtn.textContent = 'לסיכום התוצאות';
-      nextBtn.onclick = () => { $('#feedback').classList.add('hidden'); showResults(); };
-      fb.classList.remove('hidden');
-      trapDialog('#feedback');
+      const fb=$('#feedback'), icon=$('#feedbackIcon'), text=$('#feedbackText'), nextBtn=$('#nextButton');
+      const pct=Math.round((correctCount/totalQuestions)*100);
+      if(pct===100){ icon.textContent='👏'; text.className='text-2xl font-bold mb-6 text-green-600'; text.textContent='ואוו אליפות, סיימנו את הסט'; }
+      else if(pct>=60){ icon.textContent='👏'; text.className='text-2xl font-bold mb-6 text-blue-600'; text.textContent='עבודה טובה, סיימנו את הסט'; }
+      else{ icon.textContent='💪'; text.className='text-2xl font-bold mb-6 text-orange-600'; text.textContent='סיימנו את הסט'; }
+      nextBtn.textContent='לסיכום התוצאות';
+      nextBtn.onclick=()=>{ fb.classList.add('hidden'); showResults(); };
+      fb.classList.remove('hidden'); trapDialog('#feedback');
     }
 
     function nextQuestion(){
       currentQuestionIndex++;
-      if (currentQuestionIndex < totalQuestions) {
-        showQuestion();
-        $('#confirmButton').focus();
-      } else {
-        const pb = $('#progressBar');
-        pb.style.width = '100%';
-        pb.setAttribute('aria-valuenow','100');
-        showResults();
-      }
+      if(currentQuestionIndex<totalQuestions){ showQuestion(); $('#confirmButton').focus(); }
+      else{ const pb=$('#progressBar'); pb.style.width='100%'; pb.setAttribute('aria-valuenow','100'); showResults(); }
     }
 
     function getResultsTitleCopy(name,pct){
-      if (pct===0) return `לא נורא ${name}, שופי בטוח שבפעם הבאה תהיה תוצאה טובה יותר`;
-      else if (pct<=40) return `${name} רואים שיפור, שופי מחכה לתרגול נוסף`;
-      else if (pct<=59) return `${name} רואים שיפור, שופי מחכה לתרגול נוסף`;
-      else if (pct<=79) return `${name} עבודה טובה, שופי מחכה לתרגול נוסף`;
-      else if (pct<=89) return `ואוו ${name}, איזו שליטה נמשיך לתרגל עם שופי`;
+      if(pct===0) return `לא נורא ${name}, שופי בטוח שבפעם הבאה תהיה תוצאה טובה יותר`;
+      else if(pct<=40) return `${name} רואים שיפור, שופי מחכה לתרגול נוסף`;
+      else if(pct<=59) return `${name} רואים שיפור, שופי מחכה לתרגול נוסף`;
+      else if(pct<=79) return `${name} עבודה טובה, שופי מחכה לתרגול נוסף`;
+      else if(pct<=89) return `ואוו ${name}, איזו שליטה נמשיך לתרגל עם שופי`;
       return `כל הכבוד ${name} שופי גאה בך!`;
     }
 
     function showResults(){
       showScreen('resultsScreen');
-
-      const incorrect=totalQuestions-correctCount;
-      const pct=Math.round((correctCount/totalQuestions)*100);
-      const prof = getActiveProfile();
-      const displayName = prof ? prof.name : playerName;
+      const incorrect=totalQuestions-correctCount, pct=Math.round((correctCount/totalQuestions)*100);
+      const prof=getActiveProfile(); const displayName=prof?prof.name:playerName;
       $('#resultsTitle').textContent=getResultsTitleCopy(displayName,pct);
 
       const msg=$('#performanceMessage'), icon=$('#resultsScreen .text-8xl');
-      if(correctCount===totalQuestions){
-        msg.textContent='מושלם! ענית נכון על כל השאלות! 🌟';
-        msg.className='mb-4 font-medium text-lg text-green-600';
-        icon.textContent='🏆';
-        confettiBurst($('#resultsScreen .bg-white')||$('#resultsScreen'));
-      } else if(pct<50){
-        msg.textContent='נחזק את החולשות ואחר כך נתרגל שוב.';
-        msg.className='mb-4 font-medium text-lg text-orange-600';
-        icon.textContent='💪';
-      } else {
-        msg.textContent='ענית נכון על '+correctCount+' מתוך '+totalQuestions+' שאלות - כל הכבוד! 🎯';
-        msg.className='mb-4 font-medium text-lg text-blue-600';
-        icon.textContent='🏆';
-      }
+      if(correctCount===totalQuestions){ msg.textContent='מושלם! ענית נכון על כל השאלות! 🌟'; msg.className='mb-4 font-medium text-lg text-green-600'; icon.textContent='🏆'; confettiBurst($('#resultsScreen .bg-white')||$('#resultsScreen')); }
+      else if(pct<50){ msg.textContent='נחזק את החולשות ואחר כך נתרגל שוב.'; msg.className='mb-4 font-medium text-lg text-orange-600'; icon.textContent='💪'; }
+      else{ msg.textContent='ענית נכון על '+correctCount+' מתוך '+totalQuestions+' שאלות - כל הכבוד! 🎯'; msg.className='mb-4 font-medium text-lg text-blue-600'; icon.textContent='🏆'; }
 
       updatePerformanceBar(correctCount,incorrect,pct);
       $('#correctAnswers').textContent=String(correctCount);
@@ -1091,13 +874,8 @@
 
       logSessionToProfile();
 
-      let coachText = 'סיכום הסט הושלם.';
-      if (mistakes.length === 0) coachText += ' אפשר לתרגל מחדש.';
-      else if (mistakes.length === 1) coachText += ' אפשר לתרגל מחדש או ללמוד מהטעות.';
-      else coachText += ' אפשר לתרגל מחדש או ללמוד מהטעויות.';
+      let coachText='סיכום הסט הושלם.'; coachText += mistakes.length===0?' אפשר לתרגל מחדש.': (mistakes.length===1?' אפשר לתרגל מחדש או ללמוד מהטעות.':' אפשר לתרגל מחדש או ללמוד מהטעויות.');
       updateStatus(coachText);
-
-      focusTop('#resultsTitle');
     }
 
     function updatePerformanceBar(correct,incorrect,pct){
@@ -1117,10 +895,10 @@
 
       const mm=$('#mistakesMessage');
       if(mistakes.length===0){
-        mm.textContent='מושלם! ענית נכון על כל '+totalQuestions+' השאלות! 🌟';
+        mm.textContent='מושלם! ענית נכון על '+totalQuestions+' השאלות! 🌟';
         mm.className='subhead text-green-600 mb-4';
         $('#mistakesList').innerHTML='<div class="text-center p-8"><div class="text-6xl mb-4">🎉</div><h3 class="text-2xl font-bold text-green-600">מעולה!</h3><p class="text-lg text-gray-600">לא היו לך טעויות במשחק הזה!</p></div>';
-        focusTop('#mistakesTitle'); return;
+        return;
       } else if(correctCount>0){
         mm.textContent='ענית נכון על '+correctCount+' מתוך '+totalQuestions+' – בואו נלמד מה-'+mistakes.length+' שנשארו';
         mm.className='subhead text-blue-600 mb-4';
@@ -1158,18 +936,15 @@
         `;
         list.appendChild(d);
       });
-      focusTop('#mistakesTitle');
-      updateStatus('לחץ על שאלה כדי לתרגל עם כדורים ולהגיע לתוצאה.');
+      updateStatus('לחץ על שאלה כדי לתרגל ולהגיע לתוצאה.');
     }
 
     function showTutorial(m){
-      activeMistake = m;
+      activeMistake=m;
       showScreen('tutorialScreen');
       const q=m.question; const title=$('#tutorialTitle'); title.textContent=q.questionText;
-      createTutorialSteps(q);
-      startBallTutor(q);
-      requestAnimationFrame(()=>{ title.focus({preventScroll:true}); window.scrollTo({top:0,behavior:'auto'}); });
-      updateStatus('הנה הסבר צעד־אחר־צעד. השתמש/י בכפתורי +/− להוספה או החסרה של כדורים עד שמגיעים לתוצאה.');
+      createTutorialSteps(q); startBallTutor(q);
+      updateStatus('הנה תרגול אינטראקטיבי. הוסף/י או החסר/י עד שמגיעים לתוצאה.');
     }
 
     function createTutorialSteps(q){
@@ -1184,285 +959,221 @@
     function getTutorialSteps(q){
       const {operation,num1,num2,answer}=q;
       if(operation==='addition') return[
-        {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+num1+' + '+num2+'.'},
-        {title:'הצגת הפריטים הראשונים',description:'נתחיל עם '+num1+' פריטים (כדורים).'},
-        {title:'הוספת פריטים',description:'נוסיף '+num2+' ונמנה הכול יחד.'},
-        {title:'התוצאה',description:'יש '+answer+' פריטים. זו התשובה!'}
+        {title:'הבנת השאלה',description:`אנחנו רוצים לדעת כמה זה ${num1} + ${num2}.`},
+        {title:'התקדמות לתוצאה',description:`הוסיפו עד שתגיעו ל־${answer}.`},
+        {title:'בדיקה',description:'בדקו שהמספר הנוכחי שווה למטרה.'},
+        {title:'סיום',description:'הגעתם לתוצאה — מעולה!'}
       ];
       if(operation==='subtraction') return[
-        {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+num1+' - '+num2+'.'},
-        {title:'הצגת הפריטים הראשונים',description:'נתחיל עם '+num1+' פריטים (כדורים).'},
-        {title:'הסרת פריטים',description:'נסיר '+num2+' ונמנה כמה נשאר.'},
-        {title:'התוצאה',description:'נשארו '+answer+' פריטים.'}
+        {title:'הבנת השאלה',description:`אנחנו רוצים לדעת כמה זה ${num1} - ${num2}.`},
+        {title:'התקדמות לתוצאה',description:`החסירו/הוסיפו עד שתגיעו ל־${answer}.`},
+        {title:'בדיקה',description:'בדקו שהמספר הנוכחי שווה למטרה.'},
+        {title:'סיום',description:'הגעתם לתוצאה — מעולה!'}
       ];
       if(operation==='multiplication') return[
-        {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+num1+' × '+num2+'.'},
-        {title:'יצירת קבוצות',description:'נבנה קבוצות של כדורים בגודל '+num2+'.'},
-        {title:'ספירה',description:'נספור את כל הכדורים — נסו להגיע לתוצאה בעזרת הקבוצות.'},
-        {title:'התוצאה',description:'יש '+answer+' פריטים בסך הכול.'}
+        {title:'הבנת השאלה',description:`אנחנו רוצים לדעת כמה זה ${num1} × ${num2}.`},
+        {title:'צעדים יעילים',description:'השתמשו בצעדים גדולים ואז דקיקים.'},
+        {title:'בדיקה',description:`כוונו ל־${answer}.`},
+        {title:'סיום',description:'הגעתם לתוצאה — מעולה!'}
       ];
       if(operation==='division'){
-        const dividend = num1 * num2; // num1 הוא המנה, num2 מחלק; אנו מציגים את התרגיל המלא להבנה
-        const divisor = num2;
+        const dividend=num1*num2, divisor=num2;
         return[
-          {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+dividend+' ÷ '+divisor+'.'},
-          {title:'כדורים לקבוצות',description:'נדמיין חלוקה לקבוצות שוות — נתקדם בעזרת קופסאות של 100/50/20/10/5/1 לפי הצורך.'},
-          {title:'התאמה לתוצאה',description:'נוסיף/נחסיר קופסאות עד שמגיעים בדיוק למספר המנה.'},
-          {title:'התוצאה',description:'המספר שבקופסה הגדולה הוא '+answer+'.'}
+          {title:'הבנת השאלה',description:`אנחנו רוצים לדעת כמה זה ${dividend} ÷ ${divisor}.`},
+          {title:'צעדים יעילים',description:'השתמשו בצעדים גדולים ואז דקיקים.'},
+          {title:'בדיקה',description:`כוונו ל־${answer}.`},
+          {title:'סיום',description:'הגעתם לתוצאה — מעולה!'}
         ];
       }
       return [];
     }
-    function markActiveMistakeReviewed(){ if (!activeMistake) return; activeMistake.reviewed = true; }
+    function markActiveMistakeReviewed(){ if(!activeMistake) return; activeMistake.reviewed=true; }
 
-    /* === אינטראקטיביות ללמידה מהטעויות – כדורים בלבד, בלי "תרגיל בקופסה" === */
+    /* === Learn-from-mistakes: כדורים עד 100; מעל 100 תצוגה מספרית בלבד === */
 
-    // קובע סט צעדים מותר לפי היעד (עד 20: 1; עד 100: 10/5/1; מעל 100: 100/50/20/10/5/1)
     function stepsForTarget(n){
       if(n<=20) return [1];
       if(n<=100) return [10,5,1];
       return [100,50,20,10,5,1];
     }
 
-    // מצייר קבוצה של כדורים (1,5,10,20,50,100) כגריד נקודות
-    function drawGroup(container, size){
-      const wrap = document.createElement('div');
-      wrap.className = 'inline-flex flex-col items-center justify-center border-2 rounded-xl bg-white m-1 p-2';
-      wrap.style.borderColor = '#e5e7eb';
-
+    function drawGroup(container,size){
+      const wrap=document.createElement('div');
+      wrap.className='inline-flex flex-col items-center justify-center border-2 rounded-xl bg-white m-1 p-2';
+      wrap.style.borderColor='#e5e7eb';
       let rows=1, cols=size;
-      if(size===1){ rows=1; cols=1; }
-      if(size===5){ rows=1; cols=5; }
-      if(size===10){ rows=1; cols=10; }
-      if(size===20){ rows=2; cols=10; }
-      if(size===50){ rows=5; cols=10; }
-      if(size===100){ rows=10; cols=10; }
-
-      const grid = document.createElement('div');
-      grid.className = 'grid gap-[3px]';
-      grid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
-      grid.style.maxWidth = 'min(92vw, 520px)';
-
-      const dotSize = size>=50 ? 8 : (size>=20 ? 10 : 14);
-      const dotBg = size>=50 ? '#a5b4fc' : (size>=20 ? '#93c5fd' : '#60a5fa');
-
-      const total = rows*cols;
+      if(size===1){rows=1; cols=1;}
+      if(size===5){rows=1; cols=5;}
+      if(size===10){rows=1; cols=10;}
+      if(size===20){rows=2; cols=10;}
+      if(size===50){rows=5; cols=10;}
+      if(size===100){rows=10; cols=10;}
+      const grid=document.createElement('div');
+      grid.className='grid gap-[3px]';
+      grid.style.gridTemplateColumns=`repeat(${cols}, minmax(0, 1fr))`;
+      grid.style.maxWidth='min(92vw, 520px)';
+      const dotSize=size>=50?8:(size>=20?10:14);
+      const dotBg=size>=50?'#a5b4fc':(size>=20?'#93c5fd':'#60a5fa');
+      const total=rows*cols;
       for(let i=0;i<total;i++){
-        const b = document.createElement('span');
-        b.style.display='inline-block';
-        b.style.width=dotSize+'px';
-        b.style.height=dotSize+'px';
-        b.style.borderRadius='9999px';
-        b.style.background=dotBg;
-        grid.appendChild(b);
+        const b=document.createElement('span');
+        b.style.display='inline-block'; b.style.width=dotSize+'px'; b.style.height=dotSize+'px';
+        b.style.borderRadius='9999px'; b.style.background=dotBg; grid.appendChild(b);
       }
-
-      wrap.appendChild(grid);
-      container.appendChild(wrap);
+      wrap.appendChild(grid); container.appendChild(wrap);
     }
 
-    // רנדר כמות כדורים נתונה בקיבוצים יעילים
-    function renderBallCount(container, count){
+    function renderBallCount(container,count){
       container.innerHTML='';
-      const groups = stepsForTarget(Math.max(count,1)).slice().sort((a,b)=>b-a); // מהגדול לקטן
-      let remaining = count;
-
+      const groups=stepsForTarget(Math.max(count,1)).slice().sort((a,b)=>b-a);
+      let remaining=count;
       groups.forEach(g=>{
-        const k = Math.floor(remaining / g);
-        for(let i=0;i<k;i++) drawGroup(container, g);
-        remaining = remaining % g;
+        const k=Math.floor(remaining/g);
+        for(let i=0;i<k;i++) drawGroup(container,g);
+        remaining=remaining%g;
       });
-      while(remaining>0){
-        drawGroup(container, 1);
-        remaining--;
-      }
+      while(remaining>0){ drawGroup(container,1); remaining--; }
     }
 
-    // UI אינטראקטיבי: "המטרה: X" + "סה״כ נוכחי: Y" + כפתורי +/− לפי הטווח
+    // NEW: מצב מהיר למספרים גבוהים — רק מונה מספרי, בלי ציור כדורים
     function startBallTutor(q){
-      const area = $('#interactiveContent'), info = $('#interactiveInstructions');
-      area.innerHTML = '';
+      const area=$('#interactiveContent'), info=$('#interactiveInstructions');
+      area.innerHTML='';
+      const target=q.answer;
+      let current=(q.operation==='addition'||q.operation==='subtraction')? q.num1 : 0;
 
-      const target = q.answer;
-      let current = (q.operation==='addition' || q.operation==='subtraction') ? q.num1 : 0;
+      const numericOnly = target>100;
 
-      const title = document.createElement('div');
-      title.className = 'text-xl font-extrabold text-gray-800 mb-2';
-      title.textContent = `המטרה: ${target} כדורים`;
+      const title=document.createElement('div');
+      title.className='text-xl font-extrabold text-gray-800 mb-2';
+      title.textContent=`המטרה: ${target}`;
 
-      const status = document.createElement('div');
-      status.className = 'text-base font-bold text-blue-700 mb-3 ltr tabular-nums';
-      status.textContent = `סה״כ נוכחי: ${current}`;
+      const status=document.createElement('div');
+      status.className='text-2xl font-extrabold text-blue-700 mb-3 ltr tabular-nums';
+      status.textContent=`${current}`;
 
-      const ballsWrap = document.createElement('div');
-      ballsWrap.className = 'flex flex-wrap items-start justify-center mb-3';
+      const ballsWrap=document.createElement('div');
+      ballsWrap.className='flex flex-wrap items-start justify-center mb-3';
 
-      const btnRow = document.createElement('div');
-      btnRow.className = 'flex flex-wrap gap-2 justify-center my-2';
+      const btnRow=document.createElement('div');
+      btnRow.className='flex flex-wrap gap-2 justify-center my-2';
 
-      const steps = stepsForTarget(target);
+      const steps=stepsForTarget(target);
       steps.forEach(step=>{
-        const plus = document.createElement('button');
-        plus.type='button';
-        plus.className='chip';
-        plus.textContent = `+${step}`;
-        plus.onclick = ()=>{ unlockAudioOnce(); current += step; playSelectTick(); update(); };
+        const plus=document.createElement('button');
+        plus.type='button'; plus.className='chip'; plus.textContent=`+${step}`;
+        plus.onclick=()=>{ unlockAudioOnce(); current+=step; playSelectTick(); update(); };
 
-        const minus = document.createElement('button');
-        minus.type='button';
-        minus.className='chip';
-        minus.textContent = `-${step}`;
-        minus.onclick = ()=>{ unlockAudioOnce(); current = Math.max(0, current-step); playSelectTick(); update(); };
+        const minus=document.createElement('button');
+        minus.type='button'; minus.className='chip'; minus.textContent=`-${step}`;
+        minus.onclick=()=>{ unlockAudioOnce(); current=Math.max(0,current-step); playSelectTick(); update(); };
 
-        btnRow.appendChild(plus);
-        btnRow.appendChild(minus);
+        btnRow.appendChild(plus); btnRow.appendChild(minus);
       });
 
       area.appendChild(title);
       area.appendChild(status);
-      area.appendChild(ballsWrap);
+      if(!numericOnly) area.appendChild(ballsWrap); // רק עד 100
       area.appendChild(btnRow);
 
       function update(){
-        status.textContent = `סה״כ נוכחי: ${current}`;
-        renderBallCount(ballsWrap, current);
+        status.textContent=String(current);
+        if(!numericOnly) renderBallCount(ballsWrap,current);
         if(current===target){
           info.textContent='בול! הגעת לתוצאה 🎉';
           info.className='text-green-600 font-bold text-lg';
           try{ playSuccessSound(); }catch{}
           markActiveMistakeReviewed();
         }else{
-          info.textContent = current<target ? `הוסף/י כדורים עד ${target}` : `הסר/י כדורים עד ${target}`;
+          info.textContent = current<target ? `הוסף/י עד ${target}` : `הסר/י עד ${target}`;
           info.className='text-gray-600';
         }
       }
-
       update();
-    }
-
-    /* ========= תשובות: בחירה ========= */
-    function bindAnswerGrid(){
-      const grid=$('#answersGrid'); if(!grid) return;
-      grid.addEventListener('click',e=>{
-        const item=e.target.closest('.answer-item'); if(!item||!grid.contains(item)) return;
-        unlockAudioOnce(); chooseItem(item);
-      });
-      grid.addEventListener('keydown',e=>{
-        const item=e.target.closest('.answer-item'); if(!item||!grid.contains(item)) return;
-        if(e.key==='Enter'||e.key===' '){ e.preventDefault(); unlockAudioOnce(); chooseItem(item); }
-      });
-      function chooseItem(item){
-        $$('#answersGrid .answer-item').forEach(it=>{ it.classList.remove('selected'); it.setAttribute('aria-selected','false'); });
-        item.classList.add('selected'); item.setAttribute('aria-selected','true');
-        selectedAnswer=parseInt(item.getAttribute('data-value'),10);
-        enableConfirm(); playSelectTick();
-      }
     }
 
     /* ========= Confetti ========= */
     function confettiBurst(container){
       try{ if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; }catch{}
-      const n=28; for(let i=0;i<n;i++){
+      const n=28;
+      for(let i=0;i<n;i++){
         const dot=document.createElement('span');
         dot.style.position='absolute'; dot.style.width='8px'; dot.style.height='8px'; dot.style.borderRadius='50%';
         dot.style.left='50%'; dot.style.top='10%';
         const colors=['#22c55e','#3b82f6','#f59e0b','#ef4444','#a855f7']; dot.style.background=colors[i%colors.length];
         const angle=(i/n)*Math.PI*2, dist=80+Math.random()*50, tx=Math.cos(angle)*dist, ty=Math.sin(angle)*dist;
-        const anim=dot.animate([{transform:'translate(-50%,-50%) scale(1)',opacity:1},{transform:'translate('+(tx-50)+'%,'+(ty-50)+'%) scale(.9)',opacity:0}],{duration:900,easing:'cubic-bezier(.2,.8,.2,1)'});
+        const anim=dot.animate(
+          [{transform:'translate(-50%,-50%) scale(1)',opacity:1},
+           {transform:`translate(${tx-50}%,${ty-50}%) scale(.9)`,opacity:0}],
+          {duration:900,easing:'cubic-bezier(.2,.8,.2,1)'}
+        );
         anim.onfinish=()=>dot.remove();
         (container||document.body).appendChild(dot);
       }
     }
 
     /* ========= Selection helpers ========= */
-    function selectChoice(containerSel, itemSel, onChange){
+    function selectChoice(containerSel,itemSel,onChange){
       const cont=$(containerSel); if(!cont) return;
-      cont.addEventListener('click', e=>{
+      cont.addEventListener('click',e=>{
         const btn=e.target.closest(itemSel); if(!btn||!cont.contains(btn)) return;
         $$(containerSel+' '+itemSel).forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
-        btn.classList.add('selected'); btn.setAttribute('aria-pressed','true');
-        onChange && onChange(btn);
+        btn.classList.add('selected'); btn.setAttribute('aria-pressed','true'); onChange && onChange(btn);
       });
-      cont.addEventListener('keydown', e=>{
+      cont.addEventListener('keydown',e=>{
         const btn=e.target.closest(itemSel); if(!btn||!cont.contains(btn)) return;
         if(e.key==='Enter'||e.key===' '){ e.preventDefault(); btn.click(); }
       });
     }
-
     function updateOperationNextState(){
       const nextBtn=$('#operationNext');
-      const enabled = !!currentOperation && !!questionCount;
-      nextBtn.disabled = !enabled;
-      nextBtn.setAttribute('aria-disabled', enabled?'false':'true');
+      const enabled=!!currentOperation && !!questionCount;
+      nextBtn.disabled=!enabled; nextBtn.setAttribute('aria-disabled',enabled?'false':'true');
     }
 
-    /* ========= Profile screen rendering ========= */
-    function showProfile(){
-      showScreen('profileScreen');
-      renderProfile();
-      focusTop('#profileScreen .text-indigo-600');
-      updateStatus('');
-    }
-
-    function setSwitchBtnDisabled(disabled){
-      const btn = $('#profileSwitchBtn');
-      if(!btn) return;
-      btn.disabled = disabled;
-      btn.classList.toggle('btn-disabled', disabled);
-    }
+    /* ========= Profile ========= */
+    function showProfile(){ showScreen('profileScreen'); renderProfile(); updateStatus(''); }
+    function setSwitchBtnDisabled(disabled){ const btn=$('#profileSwitchBtn'); if(!btn) return; btn.disabled=disabled; btn.classList.toggle('btn-disabled',disabled); }
 
     function renderProfile(){
-      const prof = getActiveProfile();
-      const header = $('#profileHeader');
-      const totalUsers = profilesArr().length;
-
+      const prof=getActiveProfile(); const header=$('#profileHeader'); const totalUsers=profilesArr().length;
       setSwitchBtnDisabled(totalUsers<=1);
-
       if(!prof){
-        header.textContent = 'אין משתמש פעיל. ניתן ליצור משתמש חדש או להחליף למשתמש קיים.';
-        $('#kpiSets').textContent='0';
-        $('#kpiAccuracy').textContent='0%';
-        $('#kpiAvg').textContent='0s';
-        $('#byOpGrid').innerHTML='';
-        $('#historyList').innerHTML='<div class="p-4 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-600">אין היסטוריית סטים עדיין.</div>';
-        return;
+        header.textContent='אין משתמש פעיל. ניתן ליצור משתמש חדש או להחליף למשתמש קיים.';
+        $('#kpiSets').textContent='0'; $('#kpiAccuracy').textContent='0%'; $('#kpiAvg').textContent='0s';
+        $('#byOpGrid').innerHTML=''; $('#historyList').innerHTML='<div class="p-4 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-600">אין היסטוריית סטים עדיין.</div>'; return;
       }
+      header.innerHTML=`משתמש פעיל: <span class="font-bold text-gray-900">${prof.name}</span>`;
+      const tot=prof.totals||{sets:0,questions:0,correct:0,timeSec:0};
+      const acc=tot.questions>0?Math.round((tot.correct/tot.questions)*100):0;
+      const avg=tot.questions>0?Math.round(tot.timeSec/tot.questions):0;
+      $('#kpiSets').textContent=String(tot.sets||0);
+      $('#kpiAccuracy').textContent=acc+'%';
+      $('#kpiAvg').textContent=(avg||0)+'s';
 
-      header.innerHTML = `משתמש פעיל: <span class="font-bold text-gray-900">${prof.name}</span>`;
-
-      const tot = prof.totals || {sets:0,questions:0,correct:0,timeSec:0};
-      const acc = tot.questions>0 ? Math.round((tot.correct/tot.questions)*100) : 0;
-      const avg = tot.questions>0 ? Math.round(tot.timeSec/tot.questions) : 0;
-      $('#kpiSets').textContent = String(tot.sets||0);
-      $('#kpiAccuracy').textContent = acc+'%';
-      $('#kpiAvg').textContent = (avg||0)+'s';
-
-      const ops = ['addition','subtraction','multiplication','division','mixed'];
-      const labels = {addition:'➕ חיבור', subtraction:'➖ חיסור', multiplication:'✖️ כפל', division:'➗ חילוק', mixed:'🎲 הכל'};
-      const grid = $('#byOpGrid'); grid.innerHTML='';
+      const ops=['addition','subtraction','multiplication','division','mixed'];
+      const labels={addition:'➕ חיבור', subtraction:'➖ חיסור', multiplication:'✖️ כפל', division:'➗ חילוק', mixed:'🎲 הכל'};
+      const grid=$('#byOpGrid'); grid.innerHTML='';
       ops.forEach(op=>{
-        const b = prof.byOp?.[op];
-        const s = b?.sets||0, q=b?.questions||0, c=b?.correct||0, a = q? Math.round(c/q*100):0;
+        const b=prof.byOp?.[op]; const s=b?.sets||0, q=b?.questions||0, c=b?.correct||0, a=q?Math.round(c/q*100):0;
         const card=document.createElement('div');
         card.className='p-4 rounded-2xl border-2 border-gray-200 bg-gray-50';
-        card.innerHTML = `<div class="font-bold mb-2">${labels[op]}</div>
+        card.innerHTML=`<div class="font-bold mb-2">${labels[op]}</div>
           <div class="text-sm text-gray-600 mb-1">סטים: <span class="ltr">${s}</span></div>
           <div class="text-sm text-gray-600 mb-1">דיוק: <span class="ltr">${a}%</span></div>
           <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden"><div style="width:${a}%" class="h-2 bg-blue-500"></div></div>`;
         grid.appendChild(card);
       });
 
-      const h = prof.history||[];
-      const list = $('#historyList'); list.innerHTML='';
-      if(h.length===0){
-        list.innerHTML='<div class="p-4 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-600">אין היסטוריית סטים עדיין.</div>';
-      } else {
+      const h=prof.history||[]; const list=$('#historyList'); list.innerHTML='';
+      if(h.length===0){ list.innerHTML='<div class="p-4 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-600">אין היסטוריית סטים עדיין.</div>'; }
+      else{
         h.slice(0,12).forEach(item=>{
-          const pct = Math.round((item.correct/item.count)*100);
+          const pct=Math.round((item.correct/item.count)*100);
           const row=document.createElement('div');
           row.className='p-3 border-2 border-gray-200 rounded-xl bg-white flex items-center justify-between gap-3';
-          const date = new Date(item.ts).toLocaleString('he-IL', {dateStyle:'short', timeStyle:'short'});
-          row.innerHTML = `<div>
+          const date=new Date(item.ts).toLocaleString('he-IL',{dateStyle:'short',timeStyle:'short'});
+          row.innerHTML=`<div>
               <div class="text-sm text-gray-500">${date}</div>
               <div class="text-gray-800">${(curricula[item.curriculum]?.name)||'ללא תוכנית'} · ${item.op==='mixed'?'הכל':labels[item.op]?.replace(/^[^ ]+ /,'')}</div>
               <div class="text-sm text-gray-500">רמה: ${item.diff} · שאלות: ${item.count}</div>
@@ -1476,149 +1187,53 @@
       }
     }
 
-    /* ========= Why-tip (לשימוש עתידי אם תרצה) ========= */
-    function getWhyTip(m){
-      const {operation,num1,num2,answer} = m.question;
-      const ua = m.userAnswer;
-
-      const ADD_SUB_LARGE = 40;
-      const MUL_DIV_LARGE = 60;
-
-      if (operation === 'addition'){
-        if (ua === num1 - num2) return 'נראה שחיסרת במקום לחבר.';
-        const total = num1 + num2;
-        if (total > ADD_SUB_LARGE){
-          return `קפיצות קדימה: +10 ואז השלים/י ב־+1 עד ${total}.`;
-        }
-        return `ספר/י קדימה ${num2} צעדים מ־${num1} (כדורים).`;
-      }
-
-      if (operation === 'subtraction'){
-        if (ua === num1 + num2) return 'נראה שחיברת במקום לחסר.';
-        if (num1 > ADD_SUB_LARGE){
-          return `קפיצות אחורה: −10 ואז ב־−1 עד ${answer}.`;
-        }
-        return `ספר/י אחורה ${num2} צעדים מ־${num1} (כדורים).`;
-      }
-
-      if (operation === 'multiplication'){
-        if (ua === num1 + num2) return 'ערבוב עם חיבור: כפל = קבוצות שוות, לא חיבור חד־פעמי.';
-        if (num1 * num2 > MUL_DIV_LARGE){
-          return `בנו מונה קבוצות: הוסיפו קבוצות של ${num2} עד ${num1} קבוצות.`;
-        }
-        return `חשבו כ־${num1} קבוצות, כל אחת בגודל ${num2} (כדורים).`;
-      }
-
-      if (operation === 'division'){
-        const dividend = num1 * num2;
-        if (dividend > MUL_DIV_LARGE){
-          return `מונה קבוצות: הפחיתו ${num2} כל פעם עד לאפס — ספרו את הקבוצות.`;
-        }
-        return `חלק/י ל־${num2} בקבוצות שוות; כמה קבוצות יוצאות? (כדורים).`;
-      }
-
-      return '';
-    }
-
     /* ========= Init ========= */
     function wireCoreEvents(){
-      // פתיחה על המחווה הראשונה – כולל iOS/macOS Safari
-      window.addEventListener('touchstart', unlockAudioOnce, { once: true, passive: true });
-      window.addEventListener('touchend',   unlockAudioOnce, { once: true, passive: true });
-      window.addEventListener('pointerdown', unlockAudioOnce, { once: true, capture: true });
-      window.addEventListener('click',        unlockAudioOnce, { once: true, capture: true });
+      window.addEventListener('touchstart', unlockAudioOnce, { once:true, passive:true });
+      window.addEventListener('touchend',   unlockAudioOnce, { once:true, passive:true });
+      window.addEventListener('pointerdown',unlockAudioOnce, { once:true, capture:true });
+      window.addEventListener('click',      unlockAudioOnce, { once:true, capture:true });
 
-      // ניווט ראשוני
       $('#startBtn')?.addEventListener('click',e=>{e.preventDefault(); unlockAudioOnce(); showNameInput();});
       $('#nameForm')?.addEventListener('submit',e=>{e.preventDefault(); unlockAudioOnce(); showCurriculumSelect();});
 
-      // "החלף משתמש / אזור אישי"
-      $('#profileOrSwitchBtn')?.addEventListener('click',()=>{
-        const arr=profilesArr();
-        if(arr.length>1) showUserPicker(); else showProfile();
-      });
-
+      $('#profileOrSwitchBtn')?.addEventListener('click',()=>{ const arr=profilesArr(); if(arr.length>1) showUserPicker(); else showProfile(); });
       $('#userPickerCancel')?.addEventListener('click',()=> $('#userPickerModal').classList.add('hidden'));
-      $('#newUserBtn')?.addEventListener('click',()=>{
-        $('#userPickerModal').classList.add('hidden');
-        $('#playerName').value=''; $('#playerName').focus();
-      });
+      $('#newUserBtn')?.addEventListener('click',()=>{ $('#userPickerModal').classList.add('hidden'); $('#playerName').value=''; $('#playerName').focus(); });
 
-      // כפתור אזור אישי (קבוע) + ממסך תוצאות
       $('#profileBtn')?.addEventListener('click',()=> showProfile());
       $('#profileFromResultsBtn')?.addEventListener('click',()=> showProfile());
+      $('#profileSwitchBtn')?.addEventListener('click',()=>{ if(profilesArr().length>1) showUserPicker(); });
+      $('#profileNewBtn')?.addEventListener('click',()=>{ store.activeId=null; saveStore(); showNameInput(); });
+      $('#profileStartBtn')?.addEventListener('click',()=>{ const prof=getActiveProfile(); if(!prof){ showNameInput(); return; } playerName=prof.name; showCurriculumSelect(); });
 
-      // אזור אישי – כפתורים
-      $('#profileSwitchBtn')?.addEventListener('click',()=> { if(profilesArr().length>1) showUserPicker(); });
-      $('#profileNewBtn')?.addEventListener('click',()=>{
-        store.activeId=null; saveStore(); showNameInput();
-      });
-      $('#profileStartBtn')?.addEventListener('click',()=>{
-        const prof=getActiveProfile();
-        if(!prof){ showNameInput(); return; }
-        playerName=prof.name;
-        showCurriculumSelect();
-      });
-
-      // Curriculum בחירה וחיווט
-      selectChoice('#curriculumGrid','.choice-card',(btn)=>{
-        currentCurriculum = btn.getAttribute('data-value');
-        const next=$('#curriculumNext');
-        next.disabled=false; next.setAttribute('aria-disabled','false');
-      });
+      selectChoice('#curriculumGrid','.choice-card',(btn)=>{ currentCurriculum=btn.getAttribute('data-value'); const next=$('#curriculumNext'); next.disabled=false; next.setAttribute('aria-disabled','false'); });
       $('#curriculumNext')?.addEventListener('click',()=> showOperationSelect());
       $('#curriculumMore')?.addEventListener('click',()=> setCurriculumExpanded(!isCurriculumExpanded));
       window.addEventListener('resize', refreshCurriculumOverflow);
 
-      // Operation בחירה וחיווט
-      selectChoice('#opsGrid','.op-btn',(btn)=>{
-        currentOperation = btn.getAttribute('data-op');
-        updateOperationNextState();
-      });
-      selectChoice('#questionChips','.chip',(chip)=>{
-        questionCount = parseInt(chip.getAttribute('data-count'),10);
-        updateOperationNextState();
-      });
+      selectChoice('#opsGrid','.op-btn',(btn)=>{ currentOperation=btn.getAttribute('data-op'); updateOperationNextState(); });
+      selectChoice('#questionChips','.chip',(chip)=>{ questionCount=parseInt(chip.getAttribute('data-count'),10); updateOperationNextState(); });
       $('#operationNext')?.addEventListener('click',()=> showDifficultySelect());
 
-      // Difficulty → התחל משחק
-      selectChoice('#difficultyScreen','.diff-btn',(btn)=>{
-        startGame(btn.getAttribute('data-diff'));
-      });
+      selectChoice('#difficultyScreen','.diff-btn',(btn)=>{ startGame(btn.getAttribute('data-diff')); });
 
-      // משחק: בחירת תשובות + אשר תשובה + התחל מחדש
       bindAnswerGrid();
       $('#confirmButton')?.addEventListener('click',confirmAnswer);
       $('#restartBtn')?.addEventListener('click',()=> showNameInput());
 
-      // תוצאות: תרגל מחדש / טעויות / תרגול אחר
-      $('#retryBtn')?.addEventListener('click',()=>{
-        if(!currentOperation || !questionCount || !currentDifficulty){
-          showOperationSelect();
-        }else{
-          startGame(currentDifficulty);
-        }
-      });
+      $('#retryBtn')?.addEventListener('click',()=>{ if(!currentOperation||!questionCount||!currentDifficulty) showOperationSelect(); else startGame(currentDifficulty); });
       $('#mistakesButton')?.addEventListener('click',()=> showMistakes());
       $('#altBtn')?.addEventListener('click',()=> showOperationSelect());
 
-      // טעויות: חזור / ריסטרט
       $('#backToResults')?.addEventListener('click',()=> showResults());
       $('#restartFromMistakes')?.addEventListener('click',()=> showNameInput());
 
-      // טיוטוריאל: כפתורים
       $('#backToMistakes')?.addEventListener('click',()=> showMistakes());
       $('#restartFromTutorial')?.addEventListener('click',()=> showNameInput());
     }
 
-    function init(){
-      storeInit();
-      initAudioToggle();
-      wireCoreEvents();
-      showScreen('welcomeScreen');
-      focusTop('#welcomeTitle');
-    }
-
+    function init(){ storeInit(); initAudioToggle(); wireCoreEvents(); showScreen('welcomeScreen'); }
     document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
