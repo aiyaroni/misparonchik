@@ -453,7 +453,7 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div class="p-4 rounded-2xl border-2 border-green-200 bg-green-50">
           <div class="text-sm text-green-700">סטים שבוצעו</div>
-          <div id="kpiSets" class="text-3ל font-extrabold text-gray-900 ltr">0</div>
+          <div id="kpiSets" class="text-3xl font-extrabold text-gray-900 ltr">0</div>
         </div>
         <div class="p-4 rounded-2xl border-2 border-blue-200 bg-blue-50">
           <div class="text-sm text-blue-700">דיוק מצטבר</div>
@@ -481,6 +481,9 @@
     let startTime=0, totalTime=0, playerName='', selectedAnswer=null;
     let questionCount=null, currentCurriculum=null;
     let activeMistake=null;
+
+    // לשחזור פוקוס אחרי מודלים/דיאלוגים
+    let lastFocusEl = null;
 
     /* ========= Store ========= */
     const STORE_KEY='mspr_profiles_v1';
@@ -699,7 +702,7 @@
       const modal=$(modalSel); if(!modal) return;
       const getF=()=>modal.querySelectorAll('button,[href],[tabindex]:not([tabindex="-1"])');
       function onKey(e){
-        if(e.key==='Escape'){ modal.classList.add('hidden'); modal.removeEventListener('keydown',onKey); return; }
+        if(e.key==='Escape'){ modal.classList.add('hidden'); modal.removeEventListener('keydown',onKey); lastFocusEl && lastFocusEl.focus(); return; }
         if(e.key!=='Tab') return;
         const f=[...getF()]; if(!f.length) return;
         const first=f[0], last=f[f.length-1];
@@ -718,9 +721,10 @@
         const btn=document.createElement('button');
         btn.className='w-full text-right p-3 border-2 border-gray-200 rounded-xl hover:bg-gray-50 flex items-center justify-between';
         btn.innerHTML=`<span class="font-bold text-gray-800">${p.name}</span><span class="text-sm text-gray-500 ltr">${new Date(p.lastSeen||Date.now()).toLocaleDateString('he-IL')}</span>`;
-        btn.onclick=()=>{ setActiveProfile(p.id); $('#playerName').value=p.name; $('#userPickerModal').classList.add('hidden'); if(!$('#profileScreen').classList.contains('hidden')) renderProfile(); };
+        btn.onclick=()=>{ setActiveProfile(p.id); $('#playerName').value=p.name; $('#userPickerModal').classList.add('hidden'); if(!$('#profileScreen').classList.contains('hidden')) renderProfile(); lastFocusEl && lastFocusEl.focus(); };
         list.appendChild(btn);
       });
+      lastFocusEl = document.activeElement;
       $('#userPickerModal').classList.remove('hidden');
       trapDialog('#userPickerModal');
     }
@@ -848,7 +852,8 @@
       else{ icon.textContent='💪'; text.className='text-2xl font-bold mb-6 text-orange-600'; text.textContent='סיימנו את הסט'; }
 
       nextBtn.textContent='לסיכום התוצאות';
-      nextBtn.onclick=()=>{ $('#feedback').classList.add('hidden'); showResults(); };
+      lastFocusEl = document.activeElement;
+      nextBtn.onclick=()=>{ $('#feedback').classList.add('hidden'); showResults(); lastFocusEl && lastFocusEl.focus(); };
       fb.classList.remove('hidden');
       trapDialog('#feedback');
     }
@@ -1152,7 +1157,7 @@
       if(!prof){
         header.textContent='אין משתמש פעיל. ניתן ליצור משתמש חדש או להחליף למשתמש קיים.';
         $('#kpiSets').textContent='0'; $('#kpiAccuracy').textContent='0%'; $('#kpiAvg').textContent='0s';
-        $('#byOpGrid').innerHTML=''; $('#historyList').innerHTML='<div class="פ-4 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-600">אין היסטוריית סטים עדיין.</div>';
+        $('#byOpGrid').innerHTML=''; $('#historyList').innerHTML='<div class="p-4 rounded-xl border-2 border-gray-200 bg-gray-50 text-gray-600">אין היסטוריית סטים עדיין.</div>';
         return;
       }
       header.innerHTML=`משתמש פעיל: <span class="font-bold text-gray-900">${prof.name}</span>`;
@@ -1173,7 +1178,7 @@
         card.innerHTML=`<div class="font-bold mb-2">${labels[op]}</div>
           <div class="text-sm text-gray-600 mb-1">סטים: <span class="ltr">${s}</span></div>
           <div class="text-sm text-gray-600 mb-1">דיוק: <span class="ltr">${a}%</span></div>
-          <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden"><div style="width:${a}%" class="ה-2 bg-blue-500"></div></div>`;
+          <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden"><div style="width:${a}%" class="h-2 bg-blue-500"></div></div>`;
         grid.appendChild(card);
       });
 
@@ -1212,7 +1217,7 @@
 
       $('#profileOrSwitchBtn')?.addEventListener('click',()=>{ const arr=profilesArr(); if(arr.length>1) showUserPicker(); else showProfile(); });
 
-      $('#userPickerCancel')?.addEventListener('click',()=> $('#userPickerModal').classList.add('hidden'));
+      $('#userPickerCancel')?.addEventListener('click',()=>{ $('#userPickerModal').classList.add('hidden'); lastFocusEl && lastFocusEl.focus(); });
       $('#newUserBtn')?.addEventListener('click',()=>{ $('#userPickerModal').classList.add('hidden'); $('#playerName').value=''; $('#playerName').focus(); });
 
       $('#profileBtn')?.addEventListener('click',()=> showProfile());
@@ -1236,12 +1241,11 @@
       selectChoice('#questionChips','.chip',(chip)=>{ questionCount=parseInt(chip.getAttribute('data-count'),10); updateOperationNextState(); });
       $('#operationNext')?.addEventListener('click',()=> showDifficultySelect());
 
-      // ✅ תיקון: חיבור ישיר של כפתורי רמת הקושי ל-startGame (גם מקלדת)
-      $$('#difficultyScreen .diff-btn').forEach(btn=>{
-        btn.addEventListener('click', ()=> startGame(btn.getAttribute('data-diff')));
-        btn.addEventListener('keydown', e=>{
-          if(e.key==='Enter'||e.key===' '){ e.preventDefault(); startGame(btn.getAttribute('data-diff')); }
-        });
+      // בחירת רמת קושי – ללא שינוי UI, הדגשה רגעית ואז התחלת משחק
+      selectChoice('#difficultyScreen', '.diff-btn', (btn)=>{
+        const diff = btn.getAttribute('data-diff');
+        currentDifficulty = diff;
+        requestAnimationFrame(()=> setTimeout(()=> startGame(diff), 140));
       });
 
       bindAnswerGrid();
