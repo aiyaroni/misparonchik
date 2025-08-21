@@ -1242,11 +1242,12 @@
       $('#operationNext')?.addEventListener('click',()=> showDifficultySelect());
 
       // בחירת רמת קושי – ללא שינוי UI, הדגשה רגעית ואז התחלת משחק
-      selectChoice('#difficultyScreen', '.diff-btn', (btn)=>{
-        const diff = btn.getAttribute('data-diff');
-        currentDifficulty = diff;
-        requestAnimationFrame(()=> setTimeout(()=> startGame(diff), 140));
-      });
+selectChoice('#difficultyScreen', '.diff-btn', (btn)=>{
+  const diff = btn.getAttribute('data-diff');
+  currentDifficulty = diff;
+  requestAnimationFrame(()=> setTimeout(()=> startGame(diff), 140));
+});
+
 
       bindAnswerGrid();
       $('#confirmButton')?.addEventListener('click',confirmAnswer);
