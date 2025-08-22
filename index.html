@@ -392,7 +392,7 @@
   <div id="mistakesScreen" class="hidden min-h-screen p-6">
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="text-center mb-8">
-        <div class="text-6xl mb-4">📚</div>
+        <div class="text-6ל mb-4">📚</div>
         <h2 id="mistakesTitle" tabindex="-1" class="no-focus-outline text-3xl font-bold text-orange-600 mb-4">למד מהטעויות</h2>
         <div class="mb-6 max-w-md mx-auto">
           <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden mb-3">
@@ -451,7 +451,7 @@
       <div id="profileHeader" class="mb-6 text-lg text-gray-700"></div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div class="p-4 rounded-2xl border-2 border-green-200 bg-green-50">
+        <div class="p-4 rounded-2ל border-2 border-green-200 bg-green-50">
           <div class="text-sm text-green-700">סטים שבוצעו</div>
           <div id="kpiSets" class="text-3xl font-extrabold text-gray-900 ltr">0</div>
         </div>
@@ -481,9 +481,6 @@
     let startTime=0, totalTime=0, playerName='', selectedAnswer=null;
     let questionCount=null, currentCurriculum=null;
     let activeMistake=null;
-
-    // למניעת לחיצה כפולה על רמת קושי
-    let startingGame=false;
 
     // לשחזור פוקוס אחרי מודלים/דיאלוגים
     let lastFocusEl = null;
@@ -647,19 +644,13 @@
       const cont=$(containerSel); if(!cont) return;
       cont.addEventListener('click', e=>{
         const btn=e.target.closest(itemSel); if(!btn||!cont.contains(btn)) return;
-        // אל תבחר אם פריט מנוטרל
-        if(btn.getAttribute('aria-disabled')==='true' || btn.classList.contains('pointer-events-none')) return;
         $$(containerSel+' '+itemSel).forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
         btn.classList.add('selected'); btn.setAttribute('aria-pressed','true');
         onChange && onChange(btn);
       });
       cont.addEventListener('keydown', e=>{
         const btn=e.target.closest(itemSel); if(!btn||!cont.contains(btn)) return;
-        if(e.key==='Enter'||e.key===' '){
-          e.preventDefault();
-          if(btn.getAttribute('aria-disabled')==='true' || btn.classList.contains('pointer-events-none')) return;
-          btn.click();
-        }
+        if(e.key==='Enter'||e.key===' '){ e.preventDefault(); btn.click(); }
       });
     }
 
@@ -670,14 +661,7 @@
       ['addSubMax','mulMax','divMaxDivisor','divMaxQuotient'].forEach(k=>{ if(typeof cur[k]!=='undefined') base[k]=cur[k]; });
       return base;
     }
-    // הקשחה קלה: אם selectedOp חסר/מעורב → נשתמש בחוקי התכנית או בכל האריתמטיקות
-    function getOpsList(selectedOp,cur){
-      const allowed=cur&&cur.operations?cur.operations:null;
-      if(!selectedOp || selectedOp==='mixed'){
-        return (allowed&&allowed.length)?allowed:['addition','subtraction','multiplication','division'];
-      }
-      return [selectedOp];
-    }
+    function getOpsList(selectedOp,cur){ if(selectedOp!=='mixed') return [selectedOp]; const allowed=cur&&cur.operations?cur.operations:null; return (allowed&&allowed.length)?allowed:['addition','subtraction','multiplication','division']; }
     function buildOpPool(op,rules,targetSize,diff){
       const pool=[]; let tries=0, max=6000;
       const mk=(text,ans,op,a,b,sym)=>({ id:`${op}:${a}${sym}${b}`, questionText:text, answer:ans, operation:op, num1:a, num2:b, symbol:sym });
@@ -691,7 +675,12 @@
       const rules=getEffectiveRules(diff); const cur=curricula[currentCurriculum]; const ops=getOpsList(operation,cur);
       let pool=[]; ops.forEach(o=>pool=pool.concat(buildOpPool(o,rules,count*4,diff)));
       const map={}; pool.forEach(q=>{ if(!map[q.id]) map[q.id]=q; });
-      return shuffle(Object.values(map)).slice(0,count);
+      const uniq=Object.values(map);
+      if(uniq.length===0){ // fall back guard
+        // נייצר שאלות טריוויאליות כדי שלא ייתקע
+        return [{id:'fallback:1+1',questionText:'1 + 1 = ?',answer:2,operation:'addition',num1:1,num2:1,symbol:'+'}];
+      }
+      return shuffle(uniq).slice(0,count);
     }
     function generateAnswerOptions(correct){
       const opts=new Set([correct]);
@@ -745,7 +734,6 @@
       trapDialog('#userPickerModal');
     }
 
-    // משתמש פעיל קודם; אם אין — נבקש שם
     function showCurriculumSelect(){
       let name = '';
       const prof = getActiveProfile();
@@ -785,49 +773,55 @@
     function showDifficultySelect(){
       if(!currentOperation || !questionCount){ alert('בחר/י סוג תרגיל ומספר שאלות'); return; }
       showScreen('difficultyScreen');
-      $$('#difficultyScreen .diff-btn').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
+      const cards=$$('#difficultyScreen .diff-btn');
+      cards.forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
+
+      // חיווט חסין־שגיאות (פעם אחת לכל כפתור)
+      cards.forEach(btn=>{
+        if(btn.dataset.wired==='1') return;
+        btn.dataset.wired='1';
+        btn.addEventListener('click', ()=>{
+          // בחירה ויזואלית
+          cards.forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
+          btn.classList.add('selected'); btn.setAttribute('aria-pressed','true');
+
+          const diff = btn.getAttribute('data-diff')||'easy';
+          currentDifficulty = diff;
+
+          // התחלה בטוחה של משחק
+          setTimeout(()=> startGame(diff), 120);
+        });
+        btn.addEventListener('keydown', (e)=>{
+          if(e.key==='Enter' || e.key===' '){ e.preventDefault(); btn.click(); }
+        });
+      });
+
       focusTop('#difficultyTitle'); updateStatus('');
     }
 
     function startGame(diff){
-      // אנטי-לחיצה כפולה
-      if(startingGame) return;
-      startingGame=true;
-
-      try{
-        // וולידציה מוקדמת – אם חסר משהו חוזרים למסך בחירת סוג/כמות
-        if(!currentOperation || !questionCount){
-          alert('צריך לבחור סוג תרגיל ומספר שאלות לפני שמתחילים');
-          showOperationSelect();
-          return;
-        }
-
-        $('#feedback')?.classList.add('hidden');
-        const nb=$('#nextButton'); if(nb) nb.onclick=null;
-        currentDifficulty=diff; currentQuestionIndex=0; correctCount=0; totalTime=0; mistakes=[]; selectedAnswer=null;
-
-        questions=generatePracticeSet(currentOperation,diff,questionCount||6);
-        if(!questions.length){
-          alert('שגיאה: לא ניתן ליצור תרגילים עבור ההגדרות שנבחרו');
-          showOperationSelect();
-          return;
-        }
-
-        totalQuestions=questions.length; $('#totalQuestions').textContent=totalQuestions; $('#resultsTotal').textContent=totalQuestions;
-        showScreen('gameScreen');
-
-        const prof=getActiveProfile(); playerName = prof ? prof.name : playerName;
-        $('#gamePlayerName').textContent=playerName;
-
-        const pb=$('#progressBar'); pb.style.width='0%'; pb.setAttribute('aria-valuenow','0');
-
-        showQuestion();
-        focusTop('#questionText');
-        showCoach('יצאנו לדרך! בחר/י תשובה ואז אשר/י.');
-      } finally {
-        // שחרור הנעילה אחרי טיק קצר כדי למנוע דאבל-קליק מיידי
-        setTimeout(()=>{ startingGame=false; }, 120);
+      // ולידציה מקדימה — אם משהו חסר חוזרים למסך המתאים
+      if(!currentOperation || !questionCount){
+        alert('בחר/י סוג תרגיל ומספר שאלות'); showOperationSelect(); return;
       }
+      $('#feedback')?.classList.add('hidden');
+      const nb=$('#nextButton'); if(nb) nb.onclick=null;
+      currentDifficulty=diff; currentQuestionIndex=0; correctCount=0; totalTime=0; mistakes=[]; selectedAnswer=null;
+
+      questions=generatePracticeSet(currentOperation,diff,questionCount||6);
+      if(!questions.length){ alert('שגיאה: לא ניתן ליצור תרגילים עבור ההגדרות שנבחרו'); showOperationSelect(); return; }
+
+      totalQuestions=questions.length; $('#totalQuestions').textContent=totalQuestions; $('#resultsTotal').textContent=totalQuestions;
+      showScreen('gameScreen');
+
+      const prof=getActiveProfile(); playerName = prof ? prof.name : playerName;
+      $('#gamePlayerName').textContent=playerName;
+
+      const pb=$('#progressBar'); pb.style.width='0%'; pb.setAttribute('aria-valuenow','0');
+
+      showQuestion();
+      focusTop('#questionText');
+      showCoach('יצאנו לדרך! בחר/י תשובה ואז אשר/י.');
     }
 
     /* ========= Game ========= */
@@ -862,7 +856,7 @@
 
       const correct=questions[currentQuestionIndex].answer;
       const end=Date.now();
-      totalTime+=(end-startTime)/1000;
+      totalTime+=Math.max(0,(end-startTime)/1000);
 
       const isLast=currentQuestionIndex===totalQuestions-1;
 
@@ -1210,7 +1204,7 @@
       ops.forEach(op=>{
         const b=prof.byOp?.[op]; const s=b?.sets||0, q=b?.questions||0, c=b?.correct||0, a=q?Math.round(c/q*100):0;
         const card=document.createElement('div');
-        card.className='p-4 rounded-אxl border-2 border-gray-200 bg-gray-50'.replace('א','x'); /* שמירה מפני תו RTL תועה */
+        card.className='p-4 rounded-2xl border-2 border-gray-200 bg-gray-50';
         card.innerHTML=`<div class="font-bold mb-2">${labels[op]}</div>
           <div class="text-sm text-gray-600 mb-1">סטים: <span class="ltr">${s}</span></div>
           <div class="text-sm text-gray-600 mb-1">דיוק: <span class="ltr">${a}%</span></div>
@@ -1233,7 +1227,7 @@
               <div class="text-sm text-gray-500">רמה: ${item.diff} · שאלות: ${item.count}</div>
             </div>
             <div class="text-right">
-              <div class="text-xl font-extrabold ${pct===100?'text-green-600': pct>=60?'text-blue-600':'text-orange-600'} ltr">${pct}%</div>
+              <div class="text-xl font-extrabולד ${pct===100?'text-green-600': pct>=60?'text-blue-600':'text-orange-600'} ltr">${pct}%</div>
               <div class="text-sm text-gray-500">טעויות: ${item.mistakesCount}</div>
             </div>`;
           list.appendChild(row);
@@ -1268,21 +1262,18 @@
       $('#profileSwitchBtn')?.addEventListener('click',()=>{ if(profilesArr().length>1) showUserPicker(); });
       $('#profileNewBtn')?.addEventListener('click',()=>{ store.activeId=null; saveStore(); showNameInput(); });
 
+      // Curriculum
       selectChoice('#curriculumGrid','.choice-card',(btn)=>{ currentCurriculum=btn.getAttribute('data-value'); const next=$('#curriculumNext'); next.disabled=false; next.setAttribute('aria-disabled','false'); });
       $('#curriculumNext')?.addEventListener('click',()=> showOperationSelect());
       $('#curriculumMore')?.addEventListener('click',()=> setCurriculumExpanded(!isCurriculumExpanded));
       window.addEventListener('resize', refreshCurriculumOverflow);
 
+      // Operation & question count
       selectChoice('#opsGrid','.op-btn',(btn)=>{ currentOperation=btn.getAttribute('data-op'); updateOperationNextState(); });
       selectChoice('#questionChips','.chip',(chip)=>{ questionCount=parseInt(chip.getAttribute('data-count'),10); updateOperationNextState(); });
       $('#operationNext')?.addEventListener('click',()=> showDifficultySelect());
 
-      // *** תיקון קריטי: התחלת משחק מידית ללא setTimeout/RAF, עם אנטי-לחיצה כפולה ***
-      selectChoice('#difficultyScreen', '.diff-btn', (btn)=>{
-        const diff = btn.getAttribute('data-diff');
-        currentDifficulty = diff;
-        startGame(diff); // מיידי
-      });
+      // Difficulty: החיווט נעשה בתוך showDifficultySelect() באופן חסין־שגיאות
 
       bindAnswerGrid();
       $('#confirmButton')?.addEventListener('click',confirmAnswer);
