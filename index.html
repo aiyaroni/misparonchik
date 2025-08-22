@@ -417,7 +417,7 @@
   <div id="tutorialScreen" class="hidden min-h-screen p-6">
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="text-center mb-8">
-        <div class="text-6xl mb-4">🎓</div>
+        <div class="text-6ל mb-4">🎓</div>
         <h2 id="tutorialTitle" tabindex="-1" class="no-focus-outline text-3xl font-bold text-blue-600 mb-4 ltr">7 ÷ 5 = ?</h2>
         <p class="text-lg text-gray-600">בואו נלמד יחד איך לפתור את השאלה הזו!</p>
       </div>
@@ -461,7 +461,7 @@
         </div>
         <div class="p-4 rounded-2xl border-2 border-purple-200 bg-purple-50">
           <div class="text-sm text-purple-700">זמן ממוצע לשאלה</div>
-          <div id="kpiAvg" class="text-3xl font-extrabold text-gray-900 ltr">0s</div>
+          <div id="kpiAvg" class="text-3xl font-extrabוד text-gray-900 ltr">0s</div>
         </div>
       </div>
 
@@ -729,7 +729,6 @@
       trapDialog('#userPickerModal');
     }
 
-    // משתמש פעיל קודם; אם אין — נבקש שם
     function showCurriculumSelect(){
       let name = '';
       const prof = getActiveProfile();
@@ -775,7 +774,6 @@
 
     function startGame(diff){
       try{
-        // ברירות מחדל כדי שלא ניתקע אם משהו לא אותחל
         if (!currentOperation) currentOperation = 'mixed';
         if (!questionCount)   questionCount   = 6;
 
@@ -1043,7 +1041,7 @@
       const area=$('#interactiveContent'), info=$('#interactiveInstructions');
       area.innerHTML=''; let cur=start;
       const bigBox=document.createElement('div');
-      bigBox.className='inline-flex items-center justify-center text-4xl font-extrabold text-gray-900 rounded-2xl border-2 border-blue-300 bg-white px-8 py-5 mb-2 ltr tabular-nums';
+      bigBox.className='inline-flex items-center justify-center text-4xl font-extrabold text-gray-900 rounded-2ל border-2 border-blue-300 bg-white px-8 py-5 mb-2 ltr tabular-nums';
       bigBox.textContent=cur; area.appendChild(bigBox);
       const hint=document.createElement('div'); hint.className='text-sm text-gray-600 mb-2'; hint.textContent=`מטרה: ${target}`; area.appendChild(hint);
       const steps=stepSetByMagnitude(Math.max(Math.abs(start),Math.abs(target)));
@@ -1054,7 +1052,7 @@
       const reset=document.createElement('button'); reset.className='chip mt-2'; reset.textContent='איפוס'; reset.onclick=()=>{ cur=start; update(); }; area.appendChild(reset);
       function update(){
         bigBox.textContent=cur;
-        if(cur===target){ info.textContent='בול! הגעת לתוצאה המבוקשת 🎉'; info.className='text-green-600 font-bold text-lg'; markActiveMistakeReviewed(); }
+        if(cur===target){ info.textContent='בול! הגעת לתוצאה המבוקשת 🎉'; info.textContent='בול! הגעת לתוצאה המבוקשת 🎉'; info.className='text-green-600 font-bold text-lg'; markActiveMistakeReviewed(); }
         else{ const dir=cur<target?'העלה':'הורד'; info.textContent=`${dir} את המספר עד ${target}`; info.className='text-gray-600'; }
       }
       update();
@@ -1106,7 +1104,7 @@
       const {operation,num1,num2,answer}=q;
       if(operation==='addition'){ numericStepper({start:0, target:answer, allowNegative:true}); info.textContent=`בנו את ${answer} בעזרת כפתורי מספרים (אפשר גם לחזור אחורה אם עברתם).`; return; }
       if(operation==='subtraction'){ numericStepper({start:num1, target:answer, allowNegative:true}); info.textContent=`התחילו מ־${num1} והשתמשו בחיסור (ואם צריך בהוספה) כדי להגיע ל־${answer}.`; return; }
-      if(operation==='multiplication'){ groupsNumericDemo(num1, num2); info.text.context=`הוסיפו קבוצות בגודל ${num2} עד שתגיעו ל־${num1} קבוצות.`; return; }
+      if(operation==='multiplication'){ groupsNumericDemo(num1, num2); info.textContent=`הוסיפו קבוצות בגודל ${num2} עד שתגיעו ל־${num1} קבוצות.`; return; }
       if(operation==='division'){ const dividend=num1*num2, size=num2, groupsNeeded=answer; divisionNumericDemo(dividend, size, groupsNeeded); info.textContent=`צרו קבוצות של ${size} עד שתחלקו את כל ה־${dividend}.`; return; }
     }
 
@@ -1219,27 +1217,29 @@
 
     /* ========= Bindings ========= */
     function bindDifficultyButtons(){
-      const screen = $('#difficultyScreen');
-      if(!screen) return;
-      screen.addEventListener('pointerup', (e)=>{
-        const btn = e.target.closest('.diff-btn');
-        if(!btn || !screen.contains(btn)) return;
-        e.preventDefault();
+      const buttons = $$('#difficultyScreen .diff-btn');
+      if(!buttons.length) return;
 
+      function activate(btn){
         // מצב חזותי
         $$('#difficultyScreen .diff-btn').forEach(b=>{
           const sel = b===btn;
           b.classList.toggle('selected', sel);
           b.setAttribute('aria-pressed', sel ? 'true' : 'false');
         });
-
-        // שמירת רמה וברירות מחדל למקרה של חוסר מצב
+        // הגדרות וביצוע
         currentDifficulty = btn.getAttribute('data-diff') || 'easy';
         if(!currentOperation) currentOperation='mixed';
         if(!questionCount)   questionCount=6;
-
         startGame(currentDifficulty);
-      }, { passive:false });
+      }
+
+      buttons.forEach(btn=>{
+        btn.addEventListener('click', (e)=>{ e.preventDefault(); activate(btn); });
+        btn.addEventListener('keydown', (e)=>{
+          if(e.key==='Enter' || e.key===' '){ e.preventDefault(); activate(btn); }
+        });
+      });
     }
 
     function bindNavigationAndActions(){
@@ -1277,7 +1277,7 @@
       selectChoice('#questionChips','.chip',(chip)=>{ questionCount=parseInt(chip.getAttribute('data-count'),10); updateOperationNextState(); });
       $('#operationNext')?.addEventListener('click',()=> showDifficultySelect());
 
-      // ⚠️ אין selectChoice למסך הקושי. משתמשים בקשירה היציבה:
+      // ⬇️ קשירה יציבה ויחידה למסך הקושי
       bindDifficultyButtons();
 
       bindAnswerGrid();
