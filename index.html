@@ -417,7 +417,7 @@
   <div id="tutorialScreen" class="hidden min-h-screen p-6">
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="text-center mb-8">
-        <div class="text-6ל mb-4">🎓</div>
+        <div class="text-6xl mb-4">🎓</div>
         <h2 id="tutorialTitle" tabindex="-1" class="no-focus-outline text-3xl font-bold text-blue-600 mb-4 ltr">7 ÷ 5 = ?</h2>
         <p class="text-lg text-gray-600">בואו נלמד יחד איך לפתור את השאלה הזו!</p>
       </div>
@@ -461,7 +461,7 @@
         </div>
         <div class="p-4 rounded-2xl border-2 border-purple-200 bg-purple-50">
           <div class="text-sm text-purple-700">זמן ממוצע לשאלה</div>
-          <div id="kpiAvg" class="text-3xl font-extrabוד text-gray-900 ltr">0s</div>
+          <div id="kpiAvg" class="text-3xl font-extrabold text-gray-900 ltr">0s</div>
         </div>
       </div>
 
@@ -481,6 +481,9 @@
     let startTime=0, totalTime=0, playerName='', selectedAnswer=null;
     let questionCount=null, currentCurriculum=null;
     let activeMistake=null;
+
+    // למניעת לחיצה כפולה על רמת קושי
+    let startingGame=false;
 
     // לשחזור פוקוס אחרי מודלים/דיאלוגים
     let lastFocusEl = null;
@@ -644,13 +647,19 @@
       const cont=$(containerSel); if(!cont) return;
       cont.addEventListener('click', e=>{
         const btn=e.target.closest(itemSel); if(!btn||!cont.contains(btn)) return;
+        // אל תבחר אם פריט מנוטרל
+        if(btn.getAttribute('aria-disabled')==='true' || btn.classList.contains('pointer-events-none')) return;
         $$(containerSel+' '+itemSel).forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
         btn.classList.add('selected'); btn.setAttribute('aria-pressed','true');
         onChange && onChange(btn);
       });
       cont.addEventListener('keydown', e=>{
         const btn=e.target.closest(itemSel); if(!btn||!cont.contains(btn)) return;
-        if(e.key==='Enter'||e.key===' '){ e.preventDefault(); btn.click(); }
+        if(e.key==='Enter'||e.key===' '){
+          e.preventDefault();
+          if(btn.getAttribute('aria-disabled')==='true' || btn.classList.contains('pointer-events-none')) return;
+          btn.click();
+        }
       });
     }
 
@@ -661,7 +670,14 @@
       ['addSubMax','mulMax','divMaxDivisor','divMaxQuotient'].forEach(k=>{ if(typeof cur[k]!=='undefined') base[k]=cur[k]; });
       return base;
     }
-    function getOpsList(selectedOp,cur){ if(selectedOp!=='mixed') return [selectedOp]; const allowed=cur&&cur.operations?cur.operations:null; return (allowed&&allowed.length)?allowed:['addition','subtraction','multiplication','division']; }
+    // הקשחה קלה: אם selectedOp חסר/מעורב → נשתמש בחוקי התכנית או בכל האריתמטיקות
+    function getOpsList(selectedOp,cur){
+      const allowed=cur&&cur.operations?cur.operations:null;
+      if(!selectedOp || selectedOp==='mixed'){
+        return (allowed&&allowed.length)?allowed:['addition','subtraction','multiplication','division'];
+      }
+      return [selectedOp];
+    }
     function buildOpPool(op,rules,targetSize,diff){
       const pool=[]; let tries=0, max=6000;
       const mk=(text,ans,op,a,b,sym)=>({ id:`${op}:${a}${sym}${b}`, questionText:text, answer:ans, operation:op, num1:a, num2:b, symbol:sym });
@@ -729,6 +745,7 @@
       trapDialog('#userPickerModal');
     }
 
+    // משתמש פעיל קודם; אם אין — נבקש שם
     function showCurriculumSelect(){
       let name = '';
       const prof = getActiveProfile();
@@ -773,34 +790,43 @@
     }
 
     function startGame(diff){
+      // אנטי-לחיצה כפולה
+      if(startingGame) return;
+      startingGame=true;
+
       try{
-        if (!currentOperation) currentOperation = 'mixed';
-        if (!questionCount)   questionCount   = 6;
+        // וולידציה מוקדמת – אם חסר משהו חוזרים למסך בחירת סוג/כמות
+        if(!currentOperation || !questionCount){
+          alert('צריך לבחור סוג תרגיל ומספר שאלות לפני שמתחילים');
+          showOperationSelect();
+          return;
+        }
 
         $('#feedback')?.classList.add('hidden');
         const nb=$('#nextButton'); if(nb) nb.onclick=null;
+        currentDifficulty=diff; currentQuestionIndex=0; correctCount=0; totalTime=0; mistakes=[]; selectedAnswer=null;
 
-        currentDifficulty= diff || currentDifficulty || 'easy';
-        currentQuestionIndex=0; correctCount=0; totalTime=0; mistakes=[]; selectedAnswer=null;
-
-        questions=generatePracticeSet(currentOperation,currentDifficulty,questionCount||6);
-        if(!questions.length){ alert('שגיאה: לא ניתן ליצור תרגילים עבור ההגדרות שנבחרו'); return; }
+        questions=generatePracticeSet(currentOperation,diff,questionCount||6);
+        if(!questions.length){
+          alert('שגיאה: לא ניתן ליצור תרגילים עבור ההגדרות שנבחרו');
+          showOperationSelect();
+          return;
+        }
 
         totalQuestions=questions.length; $('#totalQuestions').textContent=totalQuestions; $('#resultsTotal').textContent=totalQuestions;
         showScreen('gameScreen');
 
         const prof=getActiveProfile(); playerName = prof ? prof.name : playerName;
-        $('#gamePlayerName').textContent=playerName||'';
+        $('#gamePlayerName').textContent=playerName;
 
         const pb=$('#progressBar'); pb.style.width='0%'; pb.setAttribute('aria-valuenow','0');
 
         showQuestion();
         focusTop('#questionText');
         showCoach('יצאנו לדרך! בחר/י תשובה ואז אשר/י.');
-      } catch(err){
-        console.error('startGame error', err);
-        alert('אירעה תקלה בהתחלת המשחק. נחזיר אותך לבחירה הקודמת.');
-        showOperationSelect();
+      } finally {
+        // שחרור הנעילה אחרי טיק קצר כדי למנוע דאבל-קליק מיידי
+        setTimeout(()=>{ startingGame=false; }, 120);
       }
     }
 
@@ -1041,7 +1067,7 @@
       const area=$('#interactiveContent'), info=$('#interactiveInstructions');
       area.innerHTML=''; let cur=start;
       const bigBox=document.createElement('div');
-      bigBox.className='inline-flex items-center justify-center text-4xl font-extrabold text-gray-900 rounded-2ל border-2 border-blue-300 bg-white px-8 py-5 mb-2 ltr tabular-nums';
+      bigBox.className='inline-flex items-center justify-center text-4xl font-extrabold text-gray-900 rounded-2xl border-2 border-blue-300 bg-white px-8 py-5 mb-2 ltr tabular-nums';
       bigBox.textContent=cur; area.appendChild(bigBox);
       const hint=document.createElement('div'); hint.className='text-sm text-gray-600 mb-2'; hint.textContent=`מטרה: ${target}`; area.appendChild(hint);
       const steps=stepSetByMagnitude(Math.max(Math.abs(start),Math.abs(target)));
@@ -1052,7 +1078,7 @@
       const reset=document.createElement('button'); reset.className='chip mt-2'; reset.textContent='איפוס'; reset.onclick=()=>{ cur=start; update(); }; area.appendChild(reset);
       function update(){
         bigBox.textContent=cur;
-        if(cur===target){ info.textContent='בול! הגעת לתוצאה המבוקשת 🎉'; info.textContent='בול! הגעת לתוצאה המבוקשת 🎉'; info.className='text-green-600 font-bold text-lg'; markActiveMistakeReviewed(); }
+        if(cur===target){ info.textContent='בול! הגעת לתוצאה המבוקשת 🎉'; info.className='text-green-600 font-bold text-lg'; markActiveMistakeReviewed(); }
         else{ const dir=cur<target?'העלה':'הורד'; info.textContent=`${dir} את המספר עד ${target}`; info.className='text-gray-600'; }
       }
       update();
@@ -1184,7 +1210,7 @@
       ops.forEach(op=>{
         const b=prof.byOp?.[op]; const s=b?.sets||0, q=b?.questions||0, c=b?.correct||0, a=q?Math.round(c/q*100):0;
         const card=document.createElement('div');
-        card.className='p-4 rounded-2xl border-2 border-gray-200 bg-gray-50';
+        card.className='p-4 rounded-אxl border-2 border-gray-200 bg-gray-50'.replace('א','x'); /* שמירה מפני תו RTL תועה */
         card.innerHTML=`<div class="font-bold mb-2">${labels[op]}</div>
           <div class="text-sm text-gray-600 mb-1">סטים: <span class="ltr">${s}</span></div>
           <div class="text-sm text-gray-600 mb-1">דיוק: <span class="ltr">${a}%</span></div>
@@ -1216,32 +1242,6 @@
     }
 
     /* ========= Bindings ========= */
-    function bindDifficultyButtons(){
-      const buttons = $$('#difficultyScreen .diff-btn');
-      if(!buttons.length) return;
-
-      function activate(btn){
-        // מצב חזותי
-        $$('#difficultyScreen .diff-btn').forEach(b=>{
-          const sel = b===btn;
-          b.classList.toggle('selected', sel);
-          b.setAttribute('aria-pressed', sel ? 'true' : 'false');
-        });
-        // הגדרות וביצוע
-        currentDifficulty = btn.getAttribute('data-diff') || 'easy';
-        if(!currentOperation) currentOperation='mixed';
-        if(!questionCount)   questionCount=6;
-        startGame(currentDifficulty);
-      }
-
-      buttons.forEach(btn=>{
-        btn.addEventListener('click', (e)=>{ e.preventDefault(); activate(btn); });
-        btn.addEventListener('keydown', (e)=>{
-          if(e.key==='Enter' || e.key===' '){ e.preventDefault(); activate(btn); }
-        });
-      });
-    }
-
     function bindNavigationAndActions(){
       window.addEventListener('touchstart', unlockAudioOnce, { once:true, passive:true });
       window.addEventListener('touchend',   unlockAudioOnce, { once:true, passive:true });
@@ -1277,8 +1277,12 @@
       selectChoice('#questionChips','.chip',(chip)=>{ questionCount=parseInt(chip.getAttribute('data-count'),10); updateOperationNextState(); });
       $('#operationNext')?.addEventListener('click',()=> showDifficultySelect());
 
-      // ⬇️ קשירה יציבה ויחידה למסך הקושי
-      bindDifficultyButtons();
+      // *** תיקון קריטי: התחלת משחק מידית ללא setTimeout/RAF, עם אנטי-לחיצה כפולה ***
+      selectChoice('#difficultyScreen', '.diff-btn', (btn)=>{
+        const diff = btn.getAttribute('data-diff');
+        currentDifficulty = diff;
+        startGame(diff); // מיידי
+      });
 
       bindAnswerGrid();
       $('#confirmButton')?.addEventListener('click',confirmAnswer);
