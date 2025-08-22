@@ -392,7 +392,7 @@
   <div id="mistakesScreen" class="hidden min-h-screen p-6">
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="text-center mb-8">
-        <div class="text-6ל mb-4">📚</div>
+        <div class="text-6xl mb-4">📚</div>
         <h2 id="mistakesTitle" tabindex="-1" class="no-focus-outline text-3xl font-bold text-orange-600 mb-4">למד מהטעויות</h2>
         <div class="mb-6 max-w-md mx-auto">
           <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden mb-3">
@@ -451,7 +451,7 @@
       <div id="profileHeader" class="mb-6 text-lg text-gray-700"></div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div class="p-4 rounded-2ל border-2 border-green-200 bg-green-50">
+        <div class="p-4 rounded-2xl border-2 border-green-200 bg-green-50">
           <div class="text-sm text-green-700">סטים שבוצעו</div>
           <div id="kpiSets" class="text-3xl font-extrabold text-gray-900 ltr">0</div>
         </div>
@@ -554,7 +554,8 @@
     const $=sel=>document.querySelector(sel);
     const $$=sel=>document.querySelectorAll(sel);
     const randInt=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
-    function shuffle(a){const c=a.slice();for(let i=c.length-1;i>0;i++){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]]}return c}
+    function shuffle(a){const c=a.slice();for(let i=c.length-1;i>0;i++){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j]]; } return c}
+    function shuffle(a){const c=a.slice();for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[c[i],c[j]]=[c[j],c[i]];}return c}
     function focusTop(selector){
       const el=typeof selector==='string'?document.querySelector(selector):selector;
       const target=el||document.body;
@@ -675,12 +676,7 @@
       const rules=getEffectiveRules(diff); const cur=curricula[currentCurriculum]; const ops=getOpsList(operation,cur);
       let pool=[]; ops.forEach(o=>pool=pool.concat(buildOpPool(o,rules,count*4,diff)));
       const map={}; pool.forEach(q=>{ if(!map[q.id]) map[q.id]=q; });
-      const uniq=Object.values(map);
-      if(uniq.length===0){ // fall back guard
-        // נייצר שאלות טריוויאליות כדי שלא ייתקע
-        return [{id:'fallback:1+1',questionText:'1 + 1 = ?',answer:2,operation:'addition',num1:1,num2:1,symbol:'+'}];
-      }
-      return shuffle(uniq).slice(0,count);
+      return shuffle(Object.values(map)).slice(0,count);
     }
     function generateAnswerOptions(correct){
       const opts=new Set([correct]);
@@ -734,6 +730,7 @@
       trapDialog('#userPickerModal');
     }
 
+    // משתמש פעיל קודם; אם אין — נבקש שם
     function showCurriculumSelect(){
       let name = '';
       const prof = getActiveProfile();
@@ -773,55 +770,36 @@
     function showDifficultySelect(){
       if(!currentOperation || !questionCount){ alert('בחר/י סוג תרגיל ומספר שאלות'); return; }
       showScreen('difficultyScreen');
-      const cards=$$('#difficultyScreen .diff-btn');
-      cards.forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
-
-      // חיווט חסין־שגיאות (פעם אחת לכל כפתור)
-      cards.forEach(btn=>{
-        if(btn.dataset.wired==='1') return;
-        btn.dataset.wired='1';
-        btn.addEventListener('click', ()=>{
-          // בחירה ויזואלית
-          cards.forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
-          btn.classList.add('selected'); btn.setAttribute('aria-pressed','true');
-
-          const diff = btn.getAttribute('data-diff')||'easy';
-          currentDifficulty = diff;
-
-          // התחלה בטוחה של משחק
-          setTimeout(()=> startGame(diff), 120);
-        });
-        btn.addEventListener('keydown', (e)=>{
-          if(e.key==='Enter' || e.key===' '){ e.preventDefault(); btn.click(); }
-        });
-      });
-
+      $$('#difficultyScreen .diff-btn').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
+      // לוודא שמאזינים מחווטים גם אם חזרנו למסך הזה
+      wireDifficultyButtons();
       focusTop('#difficultyTitle'); updateStatus('');
     }
 
     function startGame(diff){
-      // ולידציה מקדימה — אם משהו חסר חוזרים למסך המתאים
-      if(!currentOperation || !questionCount){
-        alert('בחר/י סוג תרגיל ומספר שאלות'); showOperationSelect(); return;
+      try{
+        $('#feedback')?.classList.add('hidden');
+        const nb=$('#nextButton'); if(nb) nb.onclick=null;
+        currentDifficulty=diff; currentQuestionIndex=0; correctCount=0; totalTime=0; mistakes=[]; selectedAnswer=null;
+
+        questions=generatePracticeSet(currentOperation,diff,questionCount||6);
+        if(!questions.length){ alert('שגיאה: לא ניתן ליצור תרגילים עבור ההגדרות שנבחרו'); return; }
+
+        totalQuestions=questions.length; $('#totalQuestions').textContent=totalQuestions; $('#resultsTotal').textContent=totalQuestions;
+        showScreen('gameScreen');
+
+        const prof=getActiveProfile(); playerName = prof ? prof.name : playerName;
+        $('#gamePlayerName').textContent=playerName;
+
+        const pb=$('#progressBar'); pb.style.width='0%'; pb.setAttribute('aria-valuenow','0');
+
+        showQuestion();
+        focusTop('#questionText');
+        showCoach('יצאנו לדרך! בחר/י תשובה ואז אשר/י.');
+      }catch(err){
+        console.error('startGame error:', err);
+        alert('אירעה תקלה בהפעלת המשחק. רענן/ני או נסה/י שוב.');
       }
-      $('#feedback')?.classList.add('hidden');
-      const nb=$('#nextButton'); if(nb) nb.onclick=null;
-      currentDifficulty=diff; currentQuestionIndex=0; correctCount=0; totalTime=0; mistakes=[]; selectedAnswer=null;
-
-      questions=generatePracticeSet(currentOperation,diff,questionCount||6);
-      if(!questions.length){ alert('שגיאה: לא ניתן ליצור תרגילים עבור ההגדרות שנבחרו'); showOperationSelect(); return; }
-
-      totalQuestions=questions.length; $('#totalQuestions').textContent=totalQuestions; $('#resultsTotal').textContent=totalQuestions;
-      showScreen('gameScreen');
-
-      const prof=getActiveProfile(); playerName = prof ? prof.name : playerName;
-      $('#gamePlayerName').textContent=playerName;
-
-      const pb=$('#progressBar'); pb.style.width='0%'; pb.setAttribute('aria-valuenow','0');
-
-      showQuestion();
-      focusTop('#questionText');
-      showCoach('יצאנו לדרך! בחר/י תשובה ואז אשר/י.');
     }
 
     /* ========= Game ========= */
@@ -856,7 +834,7 @@
 
       const correct=questions[currentQuestionIndex].answer;
       const end=Date.now();
-      totalTime+=Math.max(0,(end-startTime)/1000);
+      totalTime=Math.max(0,totalTime+(end-startTime)/1000);
 
       const isLast=currentQuestionIndex===totalQuestions-1;
 
@@ -1027,7 +1005,7 @@
       if(operation==='multiplication') return[
         {title:'הבנת השאלה',description:'אנחנו רוצים לדעת כמה זה '+num1+' × '+num2+'.'},
         {title:'קבוצות שוות',description:'נוסיף קבוצות במספרים (לא פריטים), כל קבוצה בגודל '+num2+'.'},
-        {title:'סכימה',description:'סופרים את מספר הקבוצות שהוספנו ומציגים את הסך הכל כקבוצות×גודל.'},
+        {title:'ספירה',description:'נספור את כל הקבוצות/הפריטים שנוצרו.'},
         {title:'התוצאה',description:'כאשר נוסיף '+num1+' קבוצות נקבל '+answer+'.'}
       ];
       if(operation==='division'){
@@ -1124,7 +1102,7 @@
       const {operation,num1,num2,answer}=q;
       if(operation==='addition'){ numericStepper({start:0, target:answer, allowNegative:true}); info.textContent=`בנו את ${answer} בעזרת כפתורי מספרים (אפשר גם לחזור אחורה אם עברתם).`; return; }
       if(operation==='subtraction'){ numericStepper({start:num1, target:answer, allowNegative:true}); info.textContent=`התחילו מ־${num1} והשתמשו בחיסור (ואם צריך בהוספה) כדי להגיע ל־${answer}.`; return; }
-      if(operation==='multiplication'){ groupsNumericDemo(num1, num2); info.textContent=`הוסיפו קבוצות בגודל ${num2} עד שתגיעו ל־${num1} קבוצות.`; return; }
+      if(operation==='multiplication'){ groupsNumericDemo(num1, num2); info.text_content=`הוסיפו קבוצות בגודל ${num2} עד שתגיעו ל־${num1} קבוצות.`; info.textContent=`הוסיפו קבוצות בגודל ${num2} עד שתגיעו ל־${num1} קבוצות.`; return; }
       if(operation==='division'){ const dividend=num1*num2, size=num2, groupsNeeded=answer; divisionNumericDemo(dividend, size, groupsNeeded); info.textContent=`צרו קבוצות של ${size} עד שתחלקו את כל ה־${dividend}.`; return; }
     }
 
@@ -1227,12 +1205,28 @@
               <div class="text-sm text-gray-500">רמה: ${item.diff} · שאלות: ${item.count}</div>
             </div>
             <div class="text-right">
-              <div class="text-xl font-extrabולד ${pct===100?'text-green-600': pct>=60?'text-blue-600':'text-orange-600'} ltr">${pct}%</div>
+              <div class="text-xl font-extrabold ${pct===100?'text-green-600': pct>=60?'text-blue-600':'text-orange-600'} ltr">${pct}%</div>
               <div class="text-sm text-gray-500">טעויות: ${item.mistakesCount}</div>
             </div>`;
           list.appendChild(row);
         });
       }
+    }
+
+    /* ========= Robust wiring for difficulty ========= */
+    function wireDifficultyButtons(){
+      $$('#difficultyScreen .diff-btn').forEach(btn=>{
+        if(btn.dataset.wired==='1') return;
+        btn.dataset.wired='1';
+        btn.addEventListener('click', ()=>{
+          const diff = btn.getAttribute('data-diff');
+          currentDifficulty = diff;
+          startGame(diff); // הפעלה ישירה וללא דחייה
+        });
+        btn.addEventListener('keydown', (e)=>{
+          if(e.key==='Enter' || e.key===' '){ e.preventDefault(); btn.click(); }
+        });
+      });
     }
 
     /* ========= Bindings ========= */
@@ -1262,18 +1256,21 @@
       $('#profileSwitchBtn')?.addEventListener('click',()=>{ if(profilesArr().length>1) showUserPicker(); });
       $('#profileNewBtn')?.addEventListener('click',()=>{ store.activeId=null; saveStore(); showNameInput(); });
 
-      // Curriculum
       selectChoice('#curriculumGrid','.choice-card',(btn)=>{ currentCurriculum=btn.getAttribute('data-value'); const next=$('#curriculumNext'); next.disabled=false; next.setAttribute('aria-disabled','false'); });
       $('#curriculumNext')?.addEventListener('click',()=> showOperationSelect());
       $('#curriculumMore')?.addEventListener('click',()=> setCurriculumExpanded(!isCurriculumExpanded));
       window.addEventListener('resize', refreshCurriculumOverflow);
 
-      // Operation & question count
       selectChoice('#opsGrid','.op-btn',(btn)=>{ currentOperation=btn.getAttribute('data-op'); updateOperationNextState(); });
       selectChoice('#questionChips','.chip',(chip)=>{ questionCount=parseInt(chip.getAttribute('data-count'),10); updateOperationNextState(); });
       $('#operationNext')?.addEventListener('click',()=> showDifficultySelect());
 
-      // Difficulty: החיווט נעשה בתוך showDifficultySelect() באופן חסין־שגיאות
+      // בוחרי רמת קושי: ה־selectChoice כאן נועד ל־UI בלבד (selected/aria),
+      // ההפעלה בפועל של המשחק נעשית ע"י wireDifficultyButtons().
+      selectChoice('#difficultyScreen', '.diff-btn', (btn)=>{
+        currentDifficulty = btn.getAttribute('data-diff');
+      });
+      wireDifficultyButtons();
 
       bindAnswerGrid();
       $('#confirmButton')?.addEventListener('click',confirmAnswer);
