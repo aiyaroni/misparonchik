@@ -440,7 +440,7 @@
   <div id="profileScreen" class="hidden min-h-screen p-6">
     <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
       <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <h2 class="text-3xl font-bold text-indigo-600">האזור האישי</h2>
+        <h2 class="text-3ל font-bold text-indigo-600">האזור האישי</h2>
         <div class="flex gap-2">
           <button id="profileStartBtn" class="px-4 py-2 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700">התחל משחק</button>
           <button id="profileSwitchBtn" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700">החלף משתמש</button>
@@ -475,29 +475,6 @@
   </div>
 
   <script>
-    /* ========= Polyfills & Safe helpers ========= */
-    (function(){
-      if (!Element.prototype.matches) {
-        Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
-      }
-      if (!Element.prototype.closest) {
-        Element.prototype.closest = function(s) {
-          let el = this;
-          if (!document.documentElement.contains(el)) return null;
-          do {
-            if (el.matches && el.matches(s)) return el;
-            el = el.parentElement || el.parentNode;
-          } while (el && el.nodeType === 1);
-          return null;
-        };
-      }
-    })();
-    function closestSafe(target, selector){
-      let el = target;
-      if (!el || !(el instanceof Element)) el = el && el.parentElement ? el.parentElement : null;
-      return el ? el.closest(selector) : null;
-    }
-
     /* ========= State ========= */
     let currentOperation=null, currentDifficulty='easy', currentQuestionIndex=0;
     let correctCount=0, totalQuestions=6, questions=[], mistakes=[];
@@ -505,7 +482,6 @@
     let questionCount=null, currentCurriculum=null;
     let activeMistake=null;
 
-    // לשחזור פוקוס אחרי מודלים/דיאלוגים
     let lastFocusEl = null;
 
     /* ========= Store ========= */
@@ -607,29 +583,15 @@
       btn.setAttribute('aria-pressed', isMuted?'true':'false');
       btn.addEventListener('click',()=>{ isMuted=!isMuted; btn.setAttribute('aria-pressed', isMuted?'true':'false'); try{ localStorage.setItem('soundMuted', String(isMuted)); }catch{} if(!isMuted) unlockAudioOnce(); });
     }
-
-    // הקשחת האזנה גלובלית ל-click: בטוח גם כש-e.target אינו Element
-    document.addEventListener('click', (e) => {
-      const el = closestSafe(e.target, 'button,.op-btn,.choice-card,.chip,.link-cta');
-      if (!el || el.id === 'audioToggle') return;
-
-      const wasLocked = !audioUnlocked;
-      unlockAudioOnce();
-
-      const isDisabled = el.hasAttribute('disabled') || el.getAttribute('aria-disabled') === 'true';
-      if (isDisabled) return;
-
-      if (wasLocked) setTimeout(playSelectTick, 0);
-      else playSelectTick();
+    document.addEventListener('click',e=>{
+      const el=e.target.closest('button,.op-btn,.choice-card,.chip,.link-cta');
+      if(!el||el.id==='audioToggle') return;
+      const wasLocked=!audioUnlocked; unlockAudioOnce();
+      if(el.disabled||el.getAttribute('aria-disabled')==='true') return;
+      if(wasLocked) setTimeout(playSelectTick,0); else playSelectTick();
     });
-
-    document.addEventListener('keydown', (e) => {
-      const active = document.activeElement;
-      if ((e.key === 'Enter' || e.key === ' ')
-          && active instanceof Element
-          && active.closest('button,.op-btn,.choice-card,.chip,.link-cta')) {
-        playSelectTick();
-      }
+    document.addEventListener('keydown',e=>{
+      if((e.key==='Enter'||e.key===' ') && document.activeElement?.closest('button,.op-btn,.choice-card,.chip,.link-cta')) playSelectTick();
     });
 
     /* ========= Screens ========= */
@@ -680,15 +642,13 @@
     function selectChoice(containerSel,itemSel,onChange){
       const cont=$(containerSel); if(!cont) return;
       cont.addEventListener('click', e=>{
-        const btn=closestSafe(e.target, itemSel);
-        if(!btn||!cont.contains(btn)) return;
+        const btn=e.target.closest(itemSel); if(!btn||!cont.contains(btn)) return;
         $$(containerSel+' '+itemSel).forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
         btn.classList.add('selected'); btn.setAttribute('aria-pressed','true');
         onChange && onChange(btn);
       });
       cont.addEventListener('keydown', e=>{
-        const btn=closestSafe(e.target, itemSel);
-        if(!btn||!cont.contains(btn)) return;
+        const btn=e.target.closest(itemSel); if(!btn||!cont.contains(btn)) return;
         if(e.key==='Enter'||e.key===' '){ e.preventDefault(); btn.click(); }
       });
     }
@@ -768,7 +728,6 @@
       trapDialog('#userPickerModal');
     }
 
-    // משתמש פעיל קודם; אם אין — נבקש שם
     function showCurriculumSelect(){
       let name = '';
       const prof = getActiveProfile();
@@ -813,24 +772,44 @@
     }
 
     function startGame(diff){
-      $('#feedback')?.classList.add('hidden');
-      const nb=$('#nextButton'); if(nb) nb.onclick=null;
-      currentDifficulty=diff; currentQuestionIndex=0; correctCount=0; totalTime=0; mistakes=[]; selectedAnswer=null;
+      try{
+        $('#feedback')?.classList.add('hidden');
+        const nb=$('#nextButton'); if(nb) nb.onclick=null;
+        currentDifficulty=diff||currentDifficulty||'easy';
+        currentQuestionIndex=0; correctCount=0; totalTime=0; mistakes=[]; selectedAnswer=null;
 
-      questions=generatePracticeSet(currentOperation,diff,questionCount||6);
-      if(!questions.length){ alert('שגיאה: לא ניתן ליצור תרגילים עבור ההגדרות שנבחרו'); return; }
+        // בטיחות: אם אין בחירה תקפה, אל תתקע — חזור למסך המתאים
+        if(!currentOperation){ showOperationSelect(); return; }
+        if(!questionCount){ questionCount = 6; }
 
-      totalQuestions=questions.length; $('#totalQuestions').textContent=totalQuestions; $('#resultsTotal').textContent=totalQuestions;
-      showScreen('gameScreen');
+        questions=generatePracticeSet(currentOperation,currentDifficulty,questionCount||6);
+        if(!questions || !questions.length){
+          console.warn('Empty practice set – fallback to easy/addition.');
+          questions=generatePracticeSet('addition','easy',questionCount||6);
+        }
+        if(!questions || !questions.length){
+          alert('שגיאה: לא ניתן ליצור תרגילים עבור ההגדרות שנבחרו'); return;
+        }
 
-      const prof=getActiveProfile(); playerName = prof ? prof.name : playerName;
-      $('#gamePlayerName').textContent=playerName;
+        totalQuestions=questions.length;
+        $('#totalQuestions').textContent=totalQuestions;
+        $('#resultsTotal').textContent=totalQuestions;
 
-      const pb=$('#progressBar'); pb.style.width='0%'; pb.setAttribute('aria-valuenow','0');
+        showScreen('gameScreen');
 
-      showQuestion();
-      focusTop('#questionText');
-      showCoach('יצאנו לדרך! בחר/י תשובה ואז אשר/י.');
+        const prof=getActiveProfile(); playerName = prof ? prof.name : playerName;
+        $('#gamePlayerName').textContent=playerName;
+
+        const pb=$('#progressBar'); if(pb){ pb.style.width='0%'; pb.setAttribute('aria-valuenow','0'); }
+
+        showQuestion();
+        focusTop('#questionText');
+        showCoach('יצאנו לדרך! בחר/י תשובה ואז אשר/י.');
+      }catch(err){
+        console.error(err);
+        alert('אירעה תקלה בהתחלת המשחק. ננסה שוב.');
+        showDifficultySelect();
+      }
     }
 
     /* ========= Game ========= */
@@ -841,7 +820,7 @@
       $('#questionText').textContent=q.questionText;
       $('#currentQuestion').textContent=currentQuestionIndex+1;
 
-      const prog=(currentQuestionIndex/totalQuestions)*100; const pb=$('#progressBar'); const p=Math.max(2,Math.round(prog)); pb.style.width=p+'%'; pb.setAttribute('aria-valuenow',String(p));
+      const prog=(currentQuestionIndex/totalQuestions)*100; const pb=$('#progressBar'); const p=Math.max(2,Math.round(prog)); if(pb){ pb.style.width=p+'%'; pb.setAttribute('aria-valuenow',String(p)); }
 
       const options=generateAnswerOptions(q.answer);
       const items=$$('#answersGrid .answer-item');
@@ -852,8 +831,8 @@
       placeCoach('game');
     }
 
-    function enableConfirm(){ const btn=$('#confirmButton'); btn.disabled=false; btn.removeAttribute('disabled'); btn.setAttribute('aria-disabled','false'); }
-    function disableConfirm(){ const btn=$('#confirmButton'); btn.disabled=true; btn.setAttribute('disabled',''); btn.setAttribute('aria-disabled','true'); }
+    function enableConfirm(){ const btn=$('#confirmButton'); if(!btn) return; btn.disabled=false; btn.removeAttribute('disabled'); btn.setAttribute('aria-disabled','false'); }
+    function disableConfirm(){ const btn=$('#confirmButton'); if(!btn) return; btn.disabled=true; btn.setAttribute('disabled',''); btn.setAttribute('aria-disabled','true'); }
 
     function confirmAnswer(){
       unlockAudioOnce();
@@ -900,7 +879,7 @@
     function nextQuestion(){
       currentQuestionIndex++;
       if(currentQuestionIndex<totalQuestions){ showQuestion(); $('#confirmButton').focus(); }
-      else{ const pb=$('#progressBar'); pb.style.width='100%'; pb.setAttribute('aria-valuenow','100'); showResults(); }
+      else{ const pb=$('#progressBar'); if(pb){ pb.style.width='100%'; pb.setAttribute('aria-valuenow','100'); } showResults(); }
     }
 
     function getResultsTitleCopy(name,pct){
@@ -1151,11 +1130,11 @@
     function bindAnswerGrid(){
       const grid=$('#answersGrid'); if(!grid) return;
       grid.addEventListener('click',e=>{
-        const item=closestSafe(e.target, '.answer-item'); if(!item||!grid.contains(item)) return;
+        const item=e.target.closest('.answer-item'); if(!item||!grid.contains(item)) return;
         unlockAudioOnce(); chooseItem(item);
       });
       grid.addEventListener('keydown',e=>{
-        const item=closestSafe(e.target, '.answer-item'); if(!item||!grid.contains(item)) return;
+        const item=e.target.closest('.answer-item'); if(!item||!grid.contains(item)) return;
         if(e.key==='Enter'||e.key===' '){ e.preventDefault(); unlockAudioOnce(); chooseItem(item); }
       });
       function chooseItem(item){
@@ -1280,11 +1259,18 @@
       selectChoice('#questionChips','.chip',(chip)=>{ questionCount=parseInt(chip.getAttribute('data-count'),10); updateOperationNextState(); });
       $('#operationNext')?.addEventListener('click',()=> showDifficultySelect());
 
-      // בחירת רמת קושי – הדגשה רגעית ואז התחלת משחק
-      selectChoice('#difficultyScreen', '.diff-btn', (btn)=>{
-        const diff = btn.getAttribute('data-diff');
-        currentDifficulty = diff;
-        requestAnimationFrame(()=> setTimeout(()=> startGame(diff), 140));
+      // === רמות קושי: מאזינים ישירים (לא דלגציה), כדי למנוע תקיעות לאחר החלפת מסכים ===
+      $$('#difficultyScreen .diff-btn').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const diff = btn.getAttribute('data-diff') || 'easy';
+          currentDifficulty = diff;
+          $$('#difficultyScreen .diff-btn').forEach(b=>{ b.classList.remove('selected'); b.setAttribute('aria-pressed','false'); });
+          btn.classList.add('selected'); btn.setAttribute('aria-pressed','true');
+          startGame(diff);
+        });
+        btn.addEventListener('keydown', e=>{
+          if(e.key==='Enter'||e.key===' '){ e.preventDefault(); btn.click(); }
+        });
       });
 
       bindAnswerGrid();
